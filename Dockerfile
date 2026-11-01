@@ -23,7 +23,20 @@ COPY package.json package-lock.json ./
 RUN npm ci --include=dev
 
 COPY . .
-RUN npx vite build && rm -f build && ln -s public/build build
+# The storefront entry imports the Builder add-on. That module is not part of
+# this repository, so give Vite a small i18n stand-in when it is absent.
+RUN if [ ! -f Modules/Builder/resources/js/i18n.js ] && [ ! -f Modules/Builder/resources/js/i18n.jsx ]; then \
+      mkdir -p Modules/Builder/resources/js && \
+      printf '%s\n' \
+        "import i18n from 'i18next';" \
+        "import { initReactI18next } from 'react-i18next';" \
+        "i18n.use(initReactI18next).init({ lng: 'en', fallbackLng: 'en', resources: { en: { translation: {} } }, interpolation: { escapeValue: false } });" \
+        "export default i18n;" \
+        > Modules/Builder/resources/js/i18n.js; \
+    fi \
+    && npx vite build \
+    && rm -f build \
+    && ln -s public/build build
 
 FROM php:8.3-fpm-bookworm
 
