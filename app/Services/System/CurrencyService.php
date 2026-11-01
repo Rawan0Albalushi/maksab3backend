@@ -51,7 +51,7 @@ class CurrencyService extends BaseService
     public function findConfiguredSymbol(): mixed
     {
         return ApiCache::remember('business_settings', 'currency_symbol', function () {
-            return Currency::where(['currency_code' => $this->code()])->first()->currency_symbol;
+            return Currency::where(['currency_code' => $this->code()])->first()?->currency_symbol;
         });
     }
 }

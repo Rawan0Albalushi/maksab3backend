@@ -63,6 +63,8 @@ class BusinessSettingService extends BaseService
 
             return $value;
         } catch (\Throwable $throwable) {
+            report($throwable);
+
             return null;
         }
     }

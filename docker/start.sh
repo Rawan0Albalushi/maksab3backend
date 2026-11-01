@@ -59,6 +59,8 @@ EOF
         fi
 
         php artisan migrate --force || echo "Migrations did not finish cleanly; continuing startup."
+        php artisan cache:clear || true
+        php docker/bootstrap-data.php || echo "Database bootstrap did not finish cleanly."
     else
         echo "MySQL was not reachable. Starting the web server anyway."
     fi
