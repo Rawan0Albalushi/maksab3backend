@@ -1,5 +1,3 @@
-* text=auto
-*.css linguist-vendored
-*.scss linguist-vendored
-*.js linguist-vendored
-CHANGELOG.md export-ignore
+Dockerfile text eol=lf
+docker/** text eol=lf
+*.sh text eol=lf
