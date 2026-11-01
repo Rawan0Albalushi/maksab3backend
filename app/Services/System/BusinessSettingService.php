@@ -38,9 +38,14 @@ class BusinessSettingService extends BaseService
                 $data = self::$memo[$memoKey];
             } else {
                 if (is_null(self::$allSettings)) {
-                    self::$allSettings = ApiCache::remember('business_settings', 'all_data', function () {
-                        return BusinessSetting::select('key', 'value')->get();
-                    });
+                    try {
+                        self::$allSettings = ApiCache::remember('business_settings', 'all_data', function () {
+                            return BusinessSetting::select('key', 'value')->get();
+                        });
+                    } catch (\Throwable $throwable) {
+                        report($throwable);
+                        self::$allSettings = BusinessSetting::select('key', 'value')->get();
+                    }
                 }
 
                 $data = self::$allSettings->firstWhere('key', $key);

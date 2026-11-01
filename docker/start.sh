@@ -68,5 +68,8 @@ EOF
     rm -f /tmp/mysql-client.cnf
 fi
 
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R ug+rwx storage bootstrap/cache
+
 php-fpm -D
 exec nginx -g "daemon off;"
