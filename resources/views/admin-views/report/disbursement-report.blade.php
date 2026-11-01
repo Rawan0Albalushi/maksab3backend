@@ -1,0 +1,707 @@
+@extends('layouts.admin.app')
+
+@section('title', translate('Disbursement report'))
+
+@push('css_or_js')
+@endpush
+
+@section('content')
+    <div class="content container-fluid">
+        @php
+            // Rental/Service providers are Stores too; when either addon is published the
+            // "store" tab covers stores + providers, so use inclusive "Vendor" / "Store/Provider" wording.
+            $isProviderContext = addon_published_status('Rental') || addon_published_status('Service');
+            $storeSlashProvider = $isProviderContext ? translate('messages.Store') . '/' . translate('messages.Provider') : translate('messages.Store');
+        @endphp
+        <div class="page-header">
+            <h1 class="page-header-title">
+                <span class="page-header-icon">
+                    <img src="{{asset('/public/assets/admin/img/report/new/disburstment.png')}}" class="w--22" alt="">
+                </span>
+                <span>{{ translate('Disbursement report') }}</span>
+            </h1>
+            <p class="page-header-desc">{{ translate('Every payout you have made to stores and deliverymen, and when it cleared.') }}</p>
+        </div>
+        <div class="js-nav-scroller hs-nav-scroller-horizontal mb-20 mt-2">
+            <ul class="nav mb-0 nav-tabs border-0 nav--tabs nav--pills">
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab=='store'?'active':'' }}" href="{{ route('admin.transactions.report.disbursement_report',  ['tab' => 'store']) }}" >{{ $isProviderContext ? translate('Vendor disbursements') : translate('Store disbursements') }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab=='delivery_man'?'active':'' }}" href="{{ route('admin.transactions.report.disbursement_report',  ['tab' => 'delivery_man']) }}">{{ translate('Deliveryman disbursements') }}</a>
+                </li>
+                @if(addon_published_status('RideShare'))
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab=='rider'?'active':'' }}" href="{{ route('admin.transactions.report.disbursement_report',  ['tab' => 'rider']) }}">{{ translate('Rider disbursements') }}</a>
+                </li>
+                @endif
+            </ul>
+        </div>
+        <div class="disbursement-report mb-20">
+            <div class="__card-3 rebursement-item">
+                <img src="{{asset('public/assets/admin/img/report/new/trx1.png')}}" class="icon" alt="report/new">
+                <h3 class="title text-008958">{{\App\CentralLogics\Helpers::format_currency($pending)}}
+                </h3>
+                <h6 class="subtitle">{{ translate('Pending disbursements') }}</h6>
+                <div class="info-icon" data-toggle="tooltip" data-placement="top" data-original-title="{{ translate('All the pending disbursement requests that require admin\'s action (complete/cancel).') }}">
+                    <img src="{{asset('public/assets/admin/img/report/new/info1.png')}}" alt="report/new">
+                </div>
+            </div>
+
+            <div class="__card-3 rebursement-item">
+                <img src="{{asset('public/assets/admin/img/report/new/trx5.png')}}" class="icon" alt="report/new">
+                <h3 class="title text-FF7E0D">{{\App\CentralLogics\Helpers::format_currency($completed)}}
+                </h3>
+                <h6 class="subtitle">{{ translate('Completed disbursements') }}</h6>
+                <div class="info-icon" data-toggle="tooltip" data-placement="top" data-original-title="{{ translate('The amount of disbursement is completed.') }}">
+                    <img src="{{asset('public/assets/admin/img/report/new/info5.png')}}" alt="report/new">
+                </div>
+            </div>
+
+            <div class="__card-3 rebursement-item">
+                <img src="{{asset('public/assets/admin/img/report/new/trx3.png')}}" class="icon" alt="report/new">
+                <h3 class="title text-FF5A54">{{\App\CentralLogics\Helpers::format_currency($canceled)}}
+                </h3>
+                <h6 class="subtitle">{{ translate('Canceled transactions') }}</h6>
+                <div class="info-icon" data-toggle="tooltip" data-placement="top" data-original-title="{{ translate('See all the canceled disbursement amounts here.') }}">
+                    <img src="{{asset('public/assets/admin/img/report/new/info3.png')}}" alt="report/new">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-20">
+            <div class="card-body">
+                <h4 class="">{{ translate('Search data') }}</h4>
+                <form method="get">
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-md-3">
+                            <select name="zone_id" class="form-control js-select2-custom set-filter" data-url="{{ url()->full() }}" data-filter="zone_id" id="zone">
+                                <option value="all">{{ translate('All zones') }}</option>
+                                @foreach (\App\CentralLogics\Helpers::zones_dropdown() as $z)
+                                    <option value="{{ $z['id'] }}"
+                                        {{ isset($zone) && $zone->id == $z['id'] ? 'selected' : '' }}>
+                                        {{ $z['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if($tab=='store')
+                        <div class="col-sm-6 col-md-3">
+                            <select name="module_id" class="form-control js-select2-custom set-filter" data-url="{{ url()->full() }}" data-filter="module_id"
+                                    title="{{ translate('messages.Select modules') }}">
+                                <option value="" {{ !request('module_id') ? 'selected' : '' }}>
+                                    {{ translate('All modules') }}</option>
+                                @php
+                                    // ride-share always hidden here; rental/service only shown when their addon is published
+                                    $excludedModuleTypes = ['ride-share'];
+                                    if (! addon_published_status('Rental')) {
+                                        $excludedModuleTypes[] = 'rental';
+                                    }
+                                    if (! addon_published_status('Service')) {
+                                        $excludedModuleTypes[] = 'service';
+                                    }
+                                @endphp
+                                @foreach (\App\CentralLogics\Helpers::modules_list()->where('module_type', '!=', 'parcel')->whereNotIn('module_type', $excludedModuleTypes) as $module)
+                                    <option value="{{ $module->id }}"
+                                        {{ request('module_id') == $module->id ? 'selected' : '' }}>
+                                        {{ $module['module_name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <select name="store_id" data-url="{{ url()->full() }}" data-filter="store_id"
+                                    data-placeholder="{{ $isProviderContext ? translate('Select store') . '/' . translate('Provider') : translate('Select store') }}"
+                                    class="js-data-example-ajax form-control set-filter">
+                                @if (isset($store))
+                                    <option value="{{ $store->id }}" data-verified="{{ (int) $store->verified_seller }}" selected>{{ $store->name }}</option>
+                                @else
+                                    <option value="all" selected>{{ $isProviderContext ? translate('All stores') . '/' . translate('Provider') : translate('All stores') }}</option>
+                                @endif
+                            </select>
+                        </div>
+                        @elseif($tab=='delivery_man')
+                        <div class="col-sm-6 col-md-3">
+                            <select name="deliveryman_id" id="deliveryman" data-url="{{ url()->full() }}" data-filter="deliveryman_id"
+                                    data-placeholder="{{ translate('Select deliveryman') }}"
+                                    class="js-data-example-ajax form-control set-filter">
+                                @if (isset($delivery_man))
+                                    <option value="{{ $delivery_man->id }}" selected>{{ $delivery_man->name }}</option>
+                                @else
+                                    <option value="all" selected>{{ translate('All deliverymen') }}</option>
+                                @endif
+                            </select>
+                        </div>
+                        @else
+                        <div class="col-sm-6 col-md-3">
+                            <select name="rider_id" id="rider" data-url="{{ url()->full() }}" data-filter="rider_id"
+                                    data-placeholder="{{ translate('messages.Select rider') }}"
+                                    class="js-data-example-ajax form-control set-filter">
+                                @if (isset($rider))
+                                    <option value="{{ $rider->id }}" selected>{{ $rider->name }}</option>
+                                @else
+                                    <option value="all" selected>{{ translate('All riders') }}</option>
+                                @endif
+                            </select>
+                        </div>
+                        @endif
+                        <div class="col-sm-6 col-md-3">
+                            <select name="payment_method_id" data-url="{{ url()->full() }}" data-filter="payment_method_id"
+                                    data-placeholder="{{ translate('Select payment method') }}"
+                                    class="form-control js-select2-custom set-filter">
+                                <option value="all">{{translate('All payment method')}}</option>
+                                @foreach($withdrawal_methods as $item)
+                                    <option value="{{$item['id']}}" {{ isset($payment_method_id) && $payment_method_id == $item['id'] ? 'selected' : '' }}>{{$item['method_name']}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <select name="status" data-url="{{ url()->full() }}" data-filter="status"
+                                    data-placeholder="{{ translate('Select status') }}"
+                                    class="form-control js-select2-custom set-filter">
+                                <option value="all" {{ isset($status) && $status == 'all' ? 'selected' : '' }}>{{translate('All status')}}</option>
+                                <option value="pending" {{ isset($status) && $status == 'pending' ? 'selected' : '' }}>{{ translate('Pending') }}</option>
+                                <option value="completed" {{ isset($status) && $status == 'completed' ? 'selected' : '' }}>{{ translate('Completed') }}</option>
+                                <option value="canceled" {{ isset($status) && $status == 'canceled' ? 'selected' : '' }}>{{ translate('Canceled') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <select class="form-control set-filter" name="filter" data-url="{{ url()->full() }}" data-filter="filter">
+                                <option value="all_time" {{ isset($filter) && $filter == 'all_time' ? 'selected' : '' }}>
+                                    {{ translate('All time') }}</option>
+                                <option value="this_year" {{ isset($filter) && $filter == 'this_year' ? 'selected' : '' }}>
+                                    {{ translate('This year') }}</option>
+                                <option value="previous_year"
+                                    {{ isset($filter) && $filter == 'previous_year' ? 'selected' : '' }}>
+                                    {{ translate('Previous year') }}</option>
+                                <option value="this_month"
+                                    {{ isset($filter) && $filter == 'this_month' ? 'selected' : '' }}>
+                                    {{ translate('This month') }}</option>
+                                <option value="this_week" {{ isset($filter) && $filter == 'this_week' ? 'selected' : '' }}>
+                                    {{ translate('This week') }}</option>
+                                <option value="custom" {{ isset($filter) && $filter == 'custom' ? 'selected' : '' }}>
+                                    {{ translate('messages.Custom') }}</option>
+                            </select>
+                        </div>
+                        @if (isset($filter) && $filter == 'custom')
+                            <div class="col-sm-6 col-md-3">
+                                <input type="date" name="from" id="from_date" class="form-control"
+                                       placeholder="{{ translate('Start date') }}"
+                                       value={{ $from ? $from  : '' }} required>
+                            </div>
+                            <div class="col-sm-6 col-md-3">
+                                <input type="date" name="to" id="to_date" class="form-control"
+                                       placeholder="{{ translate('End date') }}"
+                                       value={{ $to ? $to  : '' }}  required>
+                            </div>
+                        @endif
+                        <div class="col-sm-6 col-md-3 ml-auto">
+                            <button type="submit"
+                                    class="btn btn-primary btn-block"><i class="tio-filter-list"></i> {{ translate('Filter') }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+        <div class="card-header border-0 py-2">
+            <div class="search--button-wrapper">
+                <h2 class="card-title">
+                    {{ translate('Total disbursements') }} <span class="badge badge-soft-secondary ml-2" id="countItems">{{ $disbursements->total() }}</span>
+                </h2>
+                <form class="search-form">
+                    <div class="input--group input-group input-group-merge input-group-flush">
+                        <input class="form-control" value="{{ request()?->search  ?? null }}" placeholder="{{ translate('Search by ID') }}" name="search">
+                        <button type="submit" class="btn btn--secondary"><i class="tio-search"></i></button>
+                    </div>
+                </form>
+                <div class="hs-unfold ml-3">
+                    <a class="js-hs-unfold-invoker btn btn-sm btn-white dropdown-toggle btn export-btn btn-outline-primary btn--primary font--sm" href="javascript:;"
+                       data-hs-unfold-options='{
+                            "target": "#usersExportDropdown",
+                            "type": "css-animation"
+                        }'>
+                        <i class="tio-download-to mr-1"></i> {{translate('messages.Export')}}
+                    </a>
+                    <div id="usersExportDropdown"
+                         class="hs-unfold-content dropdown-unfold dropdown-menu dropdown-menu-sm-right">
+                        <span class="dropdown-header">{{translate('messages.Download options')}}</span>
+                        <a id="export-excel" class="dropdown-item" href="{{route('admin.transactions.report.disbursement_report_export', ['type'=>'excel','tab'=>$tab,request()->getQueryString()])}}">
+                            <img class="avatar avatar-xss avatar-4by3 mr-2" src="{{asset('public/assets/admin')}}/svg/components/excel.svg" alt="Image Description">
+                            Excel
+                        </a>
+                        <a id="export-csv" class="dropdown-item" href="{{route('admin.transactions.report.disbursement_report_export', ['type'=>'excel','tab'=>$tab,request()->getQueryString()])}}">
+                            <img class="avatar avatar-xss avatar-4by3 mr-2" src="{{asset('public/assets/admin')}}/svg/components/placeholder-csv-format.svg" alt="Image Description">
+                            CSV
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-thead-bordered table-align-middle card-table">
+                    <thead>
+                    <tr>
+                        <th>{{ translate('SL') }}</th>
+                        <th>ID</th>
+                        @if($tab=='store')
+                        <th>{{ $storeSlashProvider }} {{ translate('Information') }}</th>
+                        @else
+                        <th>{{ translate('Deliveryman information') }}</th>
+                        @endif
+                        <th>{{ translate('Created at') }}</th>
+                        <th>{{ translate('Disburse amount') }}</th>
+                        <th>{{ translate('Payment method') }}</th>
+                        <th>{{ translate('Status') }}</th>
+                        <th>
+                            <div class="text-center">
+                                {{ translate('Action') }}
+                            </div>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($disbursements as $key => $disbursement)
+                        <tr>
+                            <td>
+                                <span class="font-weight-bold">{{ $key+1 }}</span>
+                            </td>
+                            <td>
+                                #{{ $disbursement->disbursement_id }}
+                            </td>
+                            @if($tab=='store')
+                            <td>
+                                @if($disbursement?->store)
+                                    <a href="{{ route('admin.store.view', [$disbursement->store->id, 'module_id' => $disbursement->store->module_id]) }}" alt="view store"
+                                       class="table-rest-info">
+                                        <div class="info">
+                                                <span class="d-block text-body">
+                                                    {{ Str::limit($disbursement->store->name, 20, '...') }}<br>
+                                                </span>
+                                        </div>
+                                    </a>
+                                @else
+                                    <span class="text-muted">{{ translate('messages.N/A') }}</span>
+                                @endif
+                            </td>
+                            @elseif($tab=='delivery_man')
+                                <td>
+                                    <a href="{{route('admin.users.delivery-man.preview', $disbursement->delivery_man_id)}}"
+                                       class="table-rest-info">
+                                        <div class="info">
+                                            <span class="d-block text-body">
+                                                {{$disbursement->delivery_man?->f_name.' '.$disbursement->delivery_man?->l_name}}
+                                            </span>
+                                        </div>
+                                    </a>
+                                </td>
+                            @else
+                                <td>
+                                    @if($disbursement->delivery_man_id)
+                                        <a href="{{route('admin.users.rider.preview', $disbursement->delivery_man_id)}}"
+                                           class="table-rest-info">
+                                            <div class="info">
+                                                <span class="d-block text-body">
+                                                    {{$disbursement->rider?->f_name.' '.$disbursement->rider?->l_name}}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    @else
+                                        <div class="info">
+                                            <span class="d-block text-body">
+                                                {{$disbursement->rider?->f_name.' '.$disbursement->rider?->l_name}}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </td>
+                            @endif
+                            <td>
+                                {{ \App\CentralLogics\Helpers::time_date_format($disbursement->created_at)  }}
+                            </td>
+                            <td>
+                                {{\App\CentralLogics\Helpers::format_currency($disbursement['disbursement_amount'])}}
+                            </td>
+                            <td>
+                                <div>
+                                    {{$disbursement->withdraw_method?->method_name ?? translate('messages.N/A')}}
+                                </div>
+                            </td>
+                            <td>
+                                @if($disbursement->status=='pending')
+                                    <label class="badge badge-soft-primary">{{ translate('Pending') }}</label>
+                                @elseif($disbursement->status=='completed')
+                                    <label class="badge badge-soft-success">{{ translate('Completed') }}</label>
+                                @else
+                                    <label class="badge badge-soft-danger">{{ translate('Canceled') }}</label>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="btn--container justify-content-center">
+                                    <a class="btn btn-sm action-btn action-btn--view" data-toggle="modal" data-target="#payment-info-{{$disbursement->id}}" title="View Details">
+                                        <i class="tio-visible-outlined"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            @if($tab=='store')
+                            <div class="modal fade" id="payment-info-{{$disbursement->id}}">
+                                <div class="modal-dialog modal-xl">
+                                    <div class="modal-content">
+                                        <div class="modal-header pb-4">
+                                            <button type="button" class="payment-modal-close btn-close border-0 outline-0 bg-transparent" data-dismiss="modal">
+                                                <i class="tio-clear"></i>
+                                            </button>
+                                            <div class="w-100 text-center">
+                                                <h2 class="mb-2">{{ translate('Payment information') }}</h2>
+                                                <div>
+                                                    <span class="mr-2">{{ translate('Disbursement ID') }}</span>
+                                                    <strong>#{{$disbursement->disbursement_id}}</strong>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <span class="mr-2">{{ translate('Status') }}</span>
+                                                    @if($disbursement->status=='pending')
+                                                        <label class="badge badge-soft-primary">{{ translate('Pending') }}</label>
+                                                    @elseif($disbursement->status=='completed')
+                                                        <label class="badge badge-soft-success">{{ translate('Completed') }}</label>
+                                                    @else
+                                                        <label class="badge badge-soft-danger">{{ translate('Canceled') }}</label>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="card shadow--card-2">
+                                                <div class="card-body">
+                                                    <div class="d-flex flex-wrap payment-info-modal-info p-xl-4">
+                                                        <div class="item">
+                                                            <h5>{{ $storeSlashProvider }} {{ translate('Information') }}</h5>
+                                                            <ul class="item-list">
+                                                                <li class="d-flex flex-wrap">
+                                                                    <span class="name">{{ translate('Name') }}</span>
+                                                                    <span>:</span>
+                                                                    <strong>{{$disbursement?->store?->name}}</strong>
+                                                                </li>
+                                                                <li class="d-flex flex-wrap">
+                                                                    <span class="name">{{ translate('Contact') }}</span>
+                                                                    <span>:</span>
+                                                                    <strong>{{$disbursement?->store?->phone}}</strong>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="item">
+                                                            <h5>{{ translate('Owner information') }}</h5>
+                                                            <ul class="item-list">
+                                                                <li class="d-flex flex-wrap">
+                                                                    <span class="name">{{ translate('Name') }}</span>
+                                                                    <span>:</span>
+                                                                    <strong>{{ trim(($disbursement?->store?->vendor?->f_name ?? '') . ' ' . ($disbursement?->store?->vendor?->l_name ?? '')) ?: translate('messages.N/A') }}</strong>
+                                                                </li>
+                                                                <li class="d-flex flex-wrap">
+                                                                    <span class="name">{{ translate('email') }}</span>
+                                                                    <span>:</span>
+                                                                    <strong>{{ $disbursement?->store?->vendor?->email ?? translate('messages.N/A') }}</strong>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="item w-100">
+                                                            <h5>{{ translate('Account information') }}</h5>
+                                                            <ul class="item-list">
+                                                                <li class="d-flex flex-wrap">
+                                                                    <span class="name">{{ translate('Payment method') }}</span><strong>{{ $disbursement?->withdraw_method?->method_name ?? translate('messages.N/A') }}</strong>
+                                                                </li>
+                                                                <li class="d-flex flex-wrap">
+                                                                    <span class="name">{{ translate('Amount') }}</span>
+                                                                    <strong>{{\App\CentralLogics\Helpers::format_currency($disbursement['disbursement_amount'])}}</strong>
+                                                                </li>
+                                                                @forelse(json_decode($disbursement?->withdraw_method?->method_fields, true) ?? [] as $key=> $item)
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{  translate($key) }}</span>
+                                                                        <strong>{{$item}}</strong>
+                                                                    </li>
+                                                                @empty
+
+                                                                @endforelse
+
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @elseif($tab=='delivery_man')
+                                <div class="modal fade" id="payment-info-{{$disbursement->id}}">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header pb-4">
+                                                <button type="button" class="payment-modal-close btn-close border-0 outline-0 bg-transparent" data-dismiss="modal">
+                                                    <i class="tio-clear"></i>
+                                                </button>
+                                                <div class="w-100 text-center">
+                                                    <h2 class="mb-2">{{ translate('Payment information') }}</h2>
+                                                    <div>
+                                                        <span class="mr-2">{{ translate('Disbursement ID') }}</span>
+                                                        <strong>#{{$disbursement->disbursement_id}}</strong>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <span class="mr-2">{{ translate('Status') }}</span>
+                                                        @if($disbursement->status=='pending')
+                                                            <label class="badge badge-soft-primary">{{ translate('Pending') }}</label>
+                                                        @elseif($disbursement->status=='completed')
+                                                            <label class="badge badge-soft-success">{{ translate('Completed') }}</label>
+                                                        @else
+                                                            <label class="badge badge-soft-danger">{{ translate('Canceled') }}</label>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="card shadow--card-2">
+                                                    <div class="card-body">
+                                                        <div class="d-flex flex-wrap payment-info-modal-info p-xl-4">
+                                                            <div class="item">
+                                                                <h5>{{ translate('Deliveryman information') }}</h5>
+                                                                <ul class="item-list">
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Name') }}</span>
+                                                                        <span>:</span>
+                                                                        <strong>{{$disbursement->delivery_man?->f_name.' '.$disbursement->delivery_man?->l_name}}</strong>
+                                                                    </li>
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Contact') }}</span>
+                                                                        <span>:</span>
+                                                                        <strong>{{$disbursement?->delivery_man?->phone}}</strong>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="item">
+
+                                                            </div>
+                                                            <div class="item w-100">
+                                                                <h5>{{ translate('Account information') }}</h5>
+                                                                <ul class="item-list">
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Payment method') }}</span><strong>{{$disbursement->withdraw_method?->method_name ?? translate('messages.N/A')}}</strong>
+                                                                    </li>
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Amount') }}</span>
+                                                                        <strong>{{\App\CentralLogics\Helpers::format_currency($disbursement['disbursement_amount'])}}</strong>
+                                                                    </li>
+                                                                    @forelse(json_decode($disbursement->withdraw_method?->method_fields, true) ?? [] as $key=> $item)
+                                                                        <li class="d-flex flex-wrap">
+                                                                            <span class="name">{{  translate($key) }}</span>
+                                                                            <strong>{{$item}}</strong>
+                                                                        </li>
+                                                                    @empty
+
+                                                                    @endforelse
+
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="modal fade" id="payment-info-{{$disbursement->id}}">
+                                    <div class="modal-dialog modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header pb-4">
+                                                <button type="button" class="payment-modal-close btn-close border-0 outline-0 bg-transparent" data-dismiss="modal">
+                                                    <i class="tio-clear"></i>
+                                                </button>
+                                                <div class="w-100 text-center">
+                                                    <h2 class="mb-2">{{ translate('Payment information') }}</h2>
+                                                    <div>
+                                                        <span class="mr-2">{{ translate('Disbursement ID') }}</span>
+                                                        <strong>#{{$disbursement->disbursement_id}}</strong>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <span class="mr-2">{{ translate('Status') }}</span>
+                                                        @if($disbursement->status=='pending')
+                                                            <label class="badge badge-soft-primary">{{ translate('Pending') }}</label>
+                                                        @elseif($disbursement->status=='completed')
+                                                            <label class="badge badge-soft-success">{{ translate('Completed') }}</label>
+                                                        @else
+                                                            <label class="badge badge-soft-danger">{{ translate('Canceled') }}</label>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="card shadow--card-2">
+                                                    <div class="card-body">
+                                                        <div class="d-flex flex-wrap payment-info-modal-info p-xl-4">
+                                                            <div class="item">
+                                                                <h5>{{ translate('Rider information') }}</h5>
+                                                                <ul class="item-list">
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Name') }}</span>
+                                                                        <span>:</span>
+                                                                        <strong>{{$disbursement->rider?->f_name.' '.$disbursement->rider?->l_name}}</strong>
+                                                                    </li>
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Contact') }}</span>
+                                                                        <span>:</span>
+                                                                        <strong>{{$disbursement?->rider?->phone}}</strong>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="item">
+
+                                                            </div>
+                                                            <div class="item w-100">
+                                                                <h5>{{ translate('Account information') }}</h5>
+                                                                <ul class="item-list">
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Payment method') }}</span><strong>{{$disbursement->withdraw_method?->method_name ?? translate('messages.N/A')}}</strong>
+                                                                    </li>
+                                                                    <li class="d-flex flex-wrap">
+                                                                        <span class="name">{{ translate('Amount') }}</span>
+                                                                        <strong>{{\App\CentralLogics\Helpers::format_currency($disbursement['disbursement_amount'])}}</strong>
+                                                                    </li>
+                                                                    @forelse(json_decode($disbursement->withdraw_method?->method_fields, true) ?? [] as $key=> $item)
+                                                                        <li class="d-flex flex-wrap">
+                                                                            <span class="name">{{  translate($key) }}</span>
+                                                                            <strong>{{$item}}</strong>
+                                                                        </li>
+                                                                    @empty
+
+                                                                    @endforelse
+
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+
+                @if(count($disbursements) === 0)
+                    <div class="empty--data">
+                        <img src="{{asset('/public/assets/admin/svg/illustrations/sorry.svg')}}" alt="public">
+                        <h5>
+                            {{translate('No data found')}}
+                        </h5>
+                    </div>
+                @endif
+            </div>
+        </div>
+        <div class="page-area px-4 pb-3">
+            <div class="d-flex align-items-center justify-content-end">
+                <div>
+                    {!!$disbursements->links()!!}
+                </div>
+            </div>
+        </div>
+        </div>
+
+    </div>
+@endsection
+
+@push('script')
+@endpush
+
+@push('script_2')
+    <script src="{{ asset('public/assets/admin') }}/js/view-pages/admin-reports.js"></script>
+    <script>
+        "use strict";
+        $(document).ready(function() {
+            $('.js-data-example-ajax').select2({
+                ajax: {
+                    url: '{{ route('admin.store.get-stores') }}',
+                    data: function(params) {
+                        return {
+                            q: params.term, // search term
+                            all:true,
+                            include_addon_providers: 1, // rental/service providers are disbursed too
+                            @if (isset($zone))
+                                zone_ids: [{{ $zone->id }}],
+                            @endif
+                            @if (request('module_id'))
+                            module_id: {{ request('module_id') }},
+                            @endif
+
+                            page: params.page
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    __port: function(params, success, failure) {
+                        let $request = $.ajax(params);
+
+                        $request.then(success);
+                        $request.fail(failure);
+
+                        return $request;
+                    }
+                }
+            });
+
+            $('#deliveryman').select2({
+                ajax: {
+                    url: '{{url('/')}}/admin/users/delivery-man/get-deliverymen',
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    __port: function (params, success, failure) {
+                        let $request = $.ajax(params);
+
+                        $request.then(success);
+                        $request.fail(failure);
+
+                        return $request;
+                    }
+                }
+            });
+            $('#rider').select2({
+                ajax: {
+                    url: '{{url('/')}}/admin/users/rider/get-deliverymen',
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data
+                        };
+                    },
+                    __port: function (params, success, failure) {
+                        let $request = $.ajax(params);
+
+                        $request.then(success);
+                        $request.fail(failure);
+
+                        return $request;
+                    }
+                }
+            });
+        });
+    </script>
+@endpush

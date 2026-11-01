@@ -1,0 +1,366 @@
+/* ==========================================================================
+   Admin / Vendor tab switcher — one look for every `.nav-tabs` in the panel.
+
+   The design is lifted from admin/business-settings/third-party/sms-module
+   (see third-party-setup.css `.tps-nav`): a hairline card that holds a row of
+   soft pills, the current one tinted with the primary colour.
+
+   It is applied to the existing `<ul class="nav nav-tabs">` markup rather than
+   to a new class, so every screen picks it up without touching ~480 blade
+   files. That is also why this sheet is loud:
+
+     - Lots of those `ul`s carry Bootstrap's `.border-0`, whose `border: 0`
+       is `!important`. The card outline is therefore drawn with an inset
+       box-shadow, which nothing in the codebase overrides.
+     - Half a dozen older tab skins (`.nav--pills`, `.lang_link`,
+       `.transaction--table-nav`, `.card-header .nav-tabs`, ride-share's
+       `.nav-tabs.dark`) set colour, weight, padding or radius with
+       `!important`, so those four properties answer in kind. Each one is
+       commented with the rule it is answering; nothing else uses it.
+
+   Load this last — after style.css and after the module sheets, several of
+   which restyle tabs at the same specificity.
+
+   Sidebars are `.navbar-nav.nav-tabs` and are excluded everywhere.
+   Add `.nav-tabs--plain` to opt a nav out entirely.
+   Logical properties keep RTL correct.
+   ========================================================================== */
+
+:root {
+    --tabs-radius: 14px;
+    --tabs-pill-radius: 9px;
+    --tabs-border: #e9ecf1;
+    --tabs-surface: #ffffff;
+    --tabs-surface-muted: #f7f9fb;
+    --tabs-title: var(--text-title, #334257);
+    --tabs-muted: #7a879b;
+    --tabs-accent: var(--primary-clr, #107980);
+    --tabs-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --tabs-shadow: 0 1px 2px rgba(51, 66, 87, 0.04), 0 6px 20px -12px rgba(51, 66, 87, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   The strip
+   -------------------------------------------------------------------------- */
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) {
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.375rem;
+    background: var(--tabs-surface);
+    /* `!important`: `.transaction--table-nav` paints side borders with it */
+    border: 0 !important;
+    border-radius: var(--tabs-radius);
+    /* inset ring = the hairline border, immune to `.border-0` */
+    box-shadow: inset 0 0 0 1px var(--tabs-border), var(--tabs-shadow);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    list-style: none;
+    /* `.page-header-tabs` pulls itself up by -1.75rem so its underline could sit
+       on the page-header edge. A card-shaped strip must not overlap what follows.
+       Any nav carrying a Bootstrap `mb-*` utility keeps its own spacing (those
+       are `!important`), so only that legacy offset is cancelled here.
+       `.mb-20` is the one exception — see below. */
+    margin-bottom: 0;
+}
+
+/* style.css's own `.mb-20` (20px) is NOT `!important` the way Bootstrap's
+   `.mb-*` utilities are, so the (0,3,0) reset above outranks it and the 16
+   navs written as `nav-tabs nav--tabs mt-0 mb-20` lost their gap to whatever
+   follows — the language tabs above a form field, most visibly. Hand it back;
+   no nav pairs `.mb-20` with `.page-header-tabs`, so the offset above still
+   gets cancelled where it matters. */
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain).mb-20 {
+    margin-bottom: 20px;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain)::-webkit-scrollbar {
+    display: none;
+}
+
+/* Sitting in a card header, the strip should read as an inline control
+   instead of a second card floating inside the first one. */
+.card-header > .nav-tabs:not(.navbar-nav):not(.nav-tabs--plain),
+.card-header .nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) {
+    background: var(--tabs-surface-muted);
+    box-shadow: inset 0 0 0 1px var(--tabs-border);
+}
+
+/* Two sheets repaint inactive tab labels with `!important` — style.css washes
+   card-header tabs out to #9eadc1, and ride-share.css darkens `.dark` tabs to
+   the title colour. The strip uses one muted tone everywhere. */
+.card-header .nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link:not(.active),
+.nav-tabs.dark:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link:not(.active) {
+    color: var(--tabs-muted) !important;
+}
+
+/* --------------------------------------------------------------------------
+   The pills
+   -------------------------------------------------------------------------- */
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item {
+    display: flex;
+    flex: 0 0 auto;
+    margin: 0;
+    border: 0;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > a,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-link {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 0;
+    margin: 0;
+    /* `!important`: `.lang_link` zeroes its padding with it */
+    padding: 0.5625rem 0.9375rem !important;
+    /* `!important`: `.nav--pills` forces a 60px radius, `.transaction--table-nav`
+       forces square corners and `.lang_link` a 3px underline, all with `!important`. */
+    border: 0 !important;
+    border-radius: var(--tabs-pill-radius) !important;
+    background: transparent;
+    font-size: 0.8125rem;
+    /* `!important`: `.transaction--table-nav` bolds every tab with it */
+    font-weight: 500 !important;
+    line-height: 1.4;
+    color: var(--tabs-muted);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link:hover,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > a:hover,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-link:hover {
+    background: var(--tabs-surface-muted);
+    color: var(--tabs-title);
+    text-decoration: none;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link:focus-visible,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-link:focus-visible {
+    outline: 2px solid rgba(var(--tabs-accent-rgb), 0.5);
+    outline-offset: 1px;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link.active,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item.show > .nav-link,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > a.active,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-link.active {
+    /* `!important` answers `.nav--tabs.nav--pills .nav-link.active` in style.css */
+    background: rgba(var(--tabs-accent-rgb), 0.1) !important;
+    color: var(--tabs-accent) !important;
+    font-weight: 600 !important;
+    margin-bottom: 0;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link.disabled,
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-link.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Things that ride inside a pill
+   -------------------------------------------------------------------------- */
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) .nav-link > i {
+    flex: 0 0 auto;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) .nav-link > svg {
+    flex: 0 0 auto;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) .nav-link > img {
+    flex: 0 0 auto;
+    max-width: 1.5rem;
+    max-height: 1.125rem;
+    object-fit: contain;
+}
+
+/* Counters that follow a tab label ("Pending 12") */
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) .nav-link .badge {
+    flex: 0 0 auto;
+    padding: 0.1875rem 0.4375rem;
+    border-radius: 30px;
+    background: rgba(var(--text-title-rgb, 51, 66, 87), 0.08);
+    color: inherit;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) .nav-link.active .badge {
+    background: rgba(var(--tabs-accent-rgb), 0.16);
+}
+
+/* Same "this section is switched on" dot the third-party nav uses. */
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) .nav-link .nav-dot {
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--bs-success, #04bb7b);
+}
+
+/* --------------------------------------------------------------------------
+   Wrapper quirks
+   -------------------------------------------------------------------------- */
+
+/* The scroller wrapper adds its own bottom padding for the old underline. */
+.hs-nav-scroller-horizontal .nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) {
+    padding-bottom: 0.375rem;
+}
+
+/* `.page-header-tabs` draws its active underline as a pseudo-element; the tint
+   on the pill replaces it. No other tab nav decorates `.nav-link` this way. */
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) .nav-link.active::before {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    .nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) {
+        border-radius: 12px;
+    }
+
+    .nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-item > .nav-link,
+    .nav-tabs:not(.navbar-nav):not(.nav-tabs--plain) > .nav-link {
+        padding: 0.5rem 0.75rem !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   The scroller — arrows, and the strip while it is being dragged
+
+   `tab-scroller.js` adds `.tabs-scroller` to every scroller it drives and
+   `.can-scroll` while it overflows. A TAB STRIP additionally gets
+   `.tabs-scroller-host` on its parent, with the `.arrow-area` the blade ships
+   re-homed there and the scroll position tracked as `.is-scrollable` /
+   `.at-start` / `.at-end` — so its arrows are shown by the cascade rather than
+   by an inline `display` the way the old inline layout script did it.
+
+   The arrow rules below are all scoped to `.tabs-scroller-host`, which the
+   script puts on tab strips only. The sliders it also drives — the order-view
+   prescription thumbnails, the hand-rolled image galleries — keep style.css's
+   own arrow look and placement (the prescription pair are 102px translucent
+   bars, not circles) and are still toggled with an inline `display`.
+   -------------------------------------------------------------------------- */
+
+.tabs-scroller-host {
+    position: relative;
+}
+
+/* The replaced inline script set this with `el.style.flex` on every
+   `.tabs-slide_items` it could find. Only the two order-view prescription
+   sliders need it — a tab strip's `.nav-item` is already pinned above — but it
+   belongs in the sheet either way. */
+.tabs-slide_items {
+    flex: 0 0 auto;
+}
+
+.tabs-scroller.can-scroll {
+    cursor: grab;
+}
+
+.tabs-scroller.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+}
+
+/* The strip sits in a `d-flex flex-wrap` row. Its max-content width is the
+   whole tab list, so without this the row wrapped and left the arrows — which
+   are `top: 50%` — floating between the two lines. */
+.tabs-slide-wrap > .tabs-scroller-host {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* `.tabs-inner` and the theme's `.hs-nav-scroller-horizontal .nav` both set
+   `scroll-behavior: smooth`, which would animate the on-load reveal of the
+   active tab — a strip visibly sliding while the page paints. The script asks
+   for smooth explicitly (`scrollTo({behavior})`) on the moves that want it. */
+.nav-tabs:not(.navbar-nav):not(.nav-tabs--plain).tabs-scroller {
+    scroll-behavior: auto;
+}
+
+/* --- the arrows ---------------------------------------------------------- */
+
+.tabs-scroller-host > .arrow-area {
+    position: static;
+}
+
+.tabs-scroller-host > .arrow-area > .button-prev,
+.tabs-scroller-host > .arrow-area > .button-next {
+    display: none;
+    position: absolute;
+    /* `!important` answers custom.css's `.top-18 { top: 18px !important }`,
+       which three of these strips carry from when the arrows were positioned
+       against the whole flex row instead of the strip. */
+    top: 50% !important;
+    transform: translateY(-50%);
+    /* style.css pins these with physical `left` / `right` and a fixed width;
+       clear both so the logical insets below hold under RTL. */
+    left: auto;
+    right: auto;
+    width: auto;
+    height: auto;
+    z-index: 3;
+    align-items: center;
+    /* Only the button itself takes the click — the wrapper must not shadow
+       the pill underneath it. */
+    pointer-events: none;
+}
+
+/* Half the 34px button hangs outside the strip and half sits over its 14px
+   rounded corner, which is inside the strip's own 6px padding — so it never
+   covers a pill label. */
+.tabs-scroller-host > .arrow-area > .button-prev {
+    inset-inline-start: -17px;
+}
+
+.tabs-scroller-host > .arrow-area > .button-next {
+    inset-inline-end: -17px;
+}
+
+.tabs-scroller-host > .arrow-area .btn-click-prev,
+.tabs-scroller-host > .arrow-area .btn-click-next {
+    pointer-events: auto;
+    margin: 0;
+    box-shadow: 0 0 0 1px var(--tabs-border), 0 4px 14px -4px rgba(51, 66, 87, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tabs-scroller-host > .arrow-area .btn-click-prev:hover,
+.tabs-scroller-host > .arrow-area .btn-click-next:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 1px var(--tabs-border), 0 6px 18px -4px rgba(51, 66, 87, 0.45);
+}
+
+/* Shown only in the direction there is something left to scroll to.
+   (0,5,0) — enough to answer style.css's `.tabs-slide-wrap .button-prev`
+   `display: none` without `!important`. */
+.tabs-scroller-host.is-scrollable:not(.at-start) > .arrow-area > .button-prev,
+.tabs-scroller-host.is-scrollable:not(.at-end) > .arrow-area > .button-next {
+    display: flex;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tabs-scroller-host > .arrow-area .btn-click-prev,
+    .tabs-scroller-host > .arrow-area .btn-click-next {
+        transition: none;
+    }
+
+    .tabs-scroller-host > .arrow-area .btn-click-prev:hover,
+    .tabs-scroller-host > .arrow-area .btn-click-next:hover {
+        transform: none;
+    }
+}

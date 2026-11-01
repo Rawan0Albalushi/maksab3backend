@@ -1,0 +1,498 @@
+/* =============================================================================
+   App Toast - modern notification system
+   Drives both new_tostar() and the toastr.* compatibility layer.
+   Dependency free, RTL aware, respects prefers-reduced-motion.
+   ========================================================================== */
+
+.app-toast-container {
+    /* surface */
+    --at-surface: #ffffff;
+    --at-border: rgba(16, 24, 40, .08);
+    --at-title: #101828;
+    --at-text: #667085;
+    --at-muted: #98a2b3;
+    --at-radius: 14px;
+    --at-shadow:
+        0 1px 2px rgba(16, 24, 40, .04),
+        0 8px 16px -6px rgba(16, 24, 40, .08),
+        0 24px 40px -12px rgba(16, 24, 40, .14);
+    --at-shadow-hover:
+        0 1px 2px rgba(16, 24, 40, .05),
+        0 12px 22px -6px rgba(16, 24, 40, .12),
+        0 32px 52px -14px rgba(16, 24, 40, .20);
+
+    /* accent - overridden per type */
+    --at-accent: #04bb7b;
+    --at-glyph: #04bb7b;
+    --at-tint: rgba(4, 187, 123, .12);
+    --at-ring: rgba(4, 187, 123, .18);
+
+    /* motion */
+    --at-dir: 1;
+    --at-enter-y: 0px;
+    --at-ease: cubic-bezier(.22, 1.12, .36, 1);
+
+    position: fixed;
+    top: 24px;
+    inset-inline-end: 24px;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    pointer-events: none;
+    font-family: "Inter", "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+[dir="rtl"] .app-toast-container {
+    --at-dir: -1;
+}
+
+/* ---- alternate placements (mapped from toastr positionClass) -------------- */
+
+.app-toast-container--top-start {
+    inset-inline-start: 24px;
+    inset-inline-end: auto;
+    --at-dir: -1;
+}
+
+[dir="rtl"] .app-toast-container--top-start {
+    --at-dir: 1;
+}
+
+.app-toast-container--bottom-end {
+    top: auto;
+    bottom: 24px;
+    flex-direction: column-reverse;
+}
+
+.app-toast-container--bottom-start {
+    top: auto;
+    bottom: 24px;
+    inset-inline-start: 24px;
+    inset-inline-end: auto;
+    flex-direction: column-reverse;
+    --at-dir: -1;
+}
+
+[dir="rtl"] .app-toast-container--bottom-start {
+    --at-dir: 1;
+}
+
+.app-toast-container--top-center,
+.app-toast-container--bottom-center {
+    inset-inline-start: 50%;
+    inset-inline-end: auto;
+    transform: translateX(-50%);
+    --at-dir: 0;
+    --at-enter-y: -18px;
+}
+
+[dir="rtl"] .app-toast-container--top-center,
+[dir="rtl"] .app-toast-container--bottom-center {
+    transform: translateX(50%);
+}
+
+.app-toast-container--bottom-center {
+    top: auto;
+    bottom: 24px;
+    flex-direction: column-reverse;
+    --at-enter-y: 18px;
+}
+
+.app-toast-container--bottom-end,
+.app-toast-container--bottom-start,
+.app-toast-container--bottom-center {
+    --at-enter-y: 18px;
+}
+
+/* ---- card ---------------------------------------------------------------- */
+
+.app-toast {
+    position: relative;
+    overflow: hidden;
+    margin-block-end: 12px;
+    border-radius: var(--at-radius);
+    border: 1px solid var(--at-border);
+    background: var(--at-surface);
+    box-shadow: var(--at-shadow);
+    pointer-events: auto;
+    touch-action: pan-y;
+    transition:
+        box-shadow .22s ease,
+        opacity .26s ease,
+        transform .26s var(--at-ease),
+        height .26s var(--at-ease),
+        margin-block-end .26s var(--at-ease);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .app-toast {
+        background: rgba(255, 255, 255, .88);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        backdrop-filter: blur(16px) saturate(180%);
+    }
+}
+
+/* accent rail */
+.app-toast::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 4px;
+    background: var(--at-accent);
+}
+
+/* soft tint bleeding out of the rail */
+.app-toast::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 128px;
+    background: linear-gradient(to right, var(--at-tint), transparent);
+    opacity: .55;
+    pointer-events: none;
+}
+
+[dir="rtl"] .app-toast::after {
+    background: linear-gradient(to left, var(--at-tint), transparent);
+}
+
+.app-toast:hover {
+    box-shadow: var(--at-shadow-hover);
+}
+
+.app-toast.is-dragging {
+    transition: box-shadow .22s ease;
+    cursor: grabbing;
+    user-select: none;
+}
+
+.app-toast.is-leaving {
+    opacity: 0;
+    margin-block-end: 0;
+    transform: translate3d(calc(var(--at-exit-dir, var(--at-dir)) * 110%), 0, 0) scale(.94);
+}
+
+.app-toast--clickable {
+    cursor: pointer;
+}
+
+/* ---- body ---------------------------------------------------------------- */
+
+.app-toast__body {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px 16px 15px 18px;
+    padding-inline-start: 18px;
+    padding-inline-end: 14px;
+}
+
+.app-toast__icon {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    margin-block-start: 1px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--at-glyph);
+    background: var(--at-tint);
+    box-shadow: inset 0 0 0 1px var(--at-ring);
+}
+
+.app-toast__icon svg {
+    width: 19px;
+    height: 19px;
+    display: block;
+}
+
+.app-toast__icon i {
+    font-size: 17px;
+    line-height: 1;
+}
+
+.app-toast__content {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-block: 1px;
+}
+
+.app-toast__title {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -.01em;
+    color: var(--at-title);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.app-toast__label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+/* "x2" pill shown when the same toast fires again */
+.app-toast__count {
+    flex: 0 0 auto;
+    min-width: 22px;
+    height: 19px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--at-tint);
+    box-shadow: inset 0 0 0 1px var(--at-ring);
+    color: var(--at-glyph);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 19px;
+    text-align: center;
+    letter-spacing: 0;
+}
+
+.app-toast__text {
+    margin: 3px 0 0;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--at-text);
+    overflow-wrap: anywhere;
+}
+
+.app-toast__text a {
+    color: var(--at-glyph);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.app-toast__action {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--at-ring);
+    border-radius: 8px;
+    background: var(--at-tint);
+    color: var(--at-glyph);
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .18s ease, transform .18s ease;
+}
+
+.app-toast__action:hover {
+    background: var(--at-ring);
+}
+
+.app-toast__action:active {
+    transform: scale(.97);
+}
+
+.app-toast__close {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    margin-block-start: 3px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--at-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: .7;
+    transition: background .18s ease, color .18s ease, opacity .18s ease;
+}
+
+.app-toast__close svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+}
+
+.app-toast__close:hover {
+    background: rgba(16, 24, 40, .06);
+    color: var(--at-title);
+    opacity: 1;
+}
+
+.app-toast__close:focus-visible {
+    outline: 2px solid var(--at-accent);
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+/* ---- progress ------------------------------------------------------------ */
+
+.app-toast__track {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 3px;
+    background: rgba(16, 24, 40, .06);
+    z-index: 1;
+}
+
+.app-toast__progress {
+    height: 100%;
+    width: 100%;
+    background: var(--at-accent);
+    transform-origin: left center;
+    animation: at-progress var(--at-duration, 6000ms) linear both;
+}
+
+[dir="rtl"] .app-toast__progress {
+    transform-origin: right center;
+}
+
+/* hovering anywhere in the stack holds every countdown */
+.app-toast-container:hover .app-toast__progress,
+.app-toast.is-dragging .app-toast__progress {
+    animation-play-state: paused;
+}
+
+/* ---- types --------------------------------------------------------------- */
+
+.app-toast--success {
+    --at-accent: #04bb7b;
+    --at-glyph: #047a51;
+    --at-tint: rgba(4, 187, 123, .13);
+    --at-ring: rgba(4, 187, 123, .22);
+}
+
+.app-toast--info {
+    --at-accent: #2563eb;
+    --at-glyph: #1d4ed8;
+    --at-tint: rgba(37, 99, 235, .11);
+    --at-ring: rgba(37, 99, 235, .20);
+}
+
+.app-toast--warning {
+    --at-accent: #f59e0b;
+    --at-glyph: #b45309;
+    --at-tint: rgba(245, 158, 11, .15);
+    --at-ring: rgba(245, 158, 11, .26);
+}
+
+.app-toast--danger {
+    --at-accent: #ef4444;
+    --at-glyph: #c62828;
+    --at-tint: rgba(239, 68, 68, .12);
+    --at-ring: rgba(239, 68, 68, .22);
+}
+
+/* ---- motion -------------------------------------------------------------- */
+
+/* Enter and bump run as removable classes. A filled animation would sit above
+   inline styles in the cascade and freeze the drag and exit transforms. */
+.app-toast.is-entering {
+    animation: at-enter .42s var(--at-ease) both;
+}
+
+.app-toast.is-bumping {
+    animation: at-bump .34s var(--at-ease);
+}
+
+@keyframes at-enter {
+    from {
+        opacity: 0;
+        transform: translate3d(calc(var(--at-dir) * 110%), var(--at-enter-y), 0) scale(.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes at-progress {
+    from {
+        transform: scaleX(1);
+    }
+
+    to {
+        transform: scaleX(0);
+    }
+}
+
+@keyframes at-bump {
+
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    45% {
+        transform: translate3d(0, 0, 0) scale(1.022);
+    }
+}
+
+/* ---- responsive ---------------------------------------------------------- */
+
+@media (max-width: 575.98px) {
+
+    .app-toast-container,
+    .app-toast-container--top-start,
+    .app-toast-container--bottom-start,
+    .app-toast-container--top-center,
+    .app-toast-container--bottom-center {
+        top: 12px;
+        inset-inline: 12px;
+        width: auto;
+        max-width: none;
+        transform: none;
+        --at-dir: 0;
+        --at-enter-y: -16px;
+    }
+
+    .app-toast-container--bottom-end,
+    .app-toast-container--bottom-start,
+    .app-toast-container--bottom-center {
+        top: auto;
+        bottom: 12px;
+        --at-enter-y: 16px;
+    }
+
+    .app-toast__body {
+        padding-block: 13px;
+    }
+
+    .app-toast__title {
+        font-size: 14px;
+    }
+}
+
+/* ---- accessibility ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .app-toast,
+    .app-toast.is-bumping {
+        animation-duration: .01ms;
+        transition-duration: .01ms;
+    }
+
+    .app-toast.is-leaving {
+        transform: none;
+    }
+}
+
+@media print {
+    .app-toast-container {
+        display: none !important;
+    }
+}

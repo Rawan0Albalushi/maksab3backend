@@ -1,0 +1,671 @@
+/* ==========================================================================
+   Cash Operations — the four screens under Finance › Cash Operations:
+
+     admin/transactions/account-transaction/list          (collect cash)
+     admin/transactions/provide-deliveryman-earnings      (pay a delivery man)
+     admin/transactions/provide-rider-earnings            (pay a rider)
+     admin/transactions/withdraw-method                   (payout methods)
+
+   The first three are one screen three times over: a composer that records a
+   cash movement, and the ledger of movements already recorded. The fourth is
+   a settings list and only borrows the summary strip and the table treatment.
+
+   Third sheet in the payout family, after `disbursement.css` and
+   `withdraw.css`: same visual language, its own root class, so a page loads
+   exactly one of them and none can reach into the others. Tokens are declared
+   locally for the same reason the other per-page sheets do it (see
+   `module-setup.css`).
+
+   `.csh` goes on the page wrapper AND on the collect-cash `.sidebar-wrap` —
+   the slide-in panel is a sibling of the page container, not a child.
+
+   The table shell is left to `admin-tables.css` (§10b of the playbook); only
+   the payee, money and chip cells are defined here.
+
+   Logical properties throughout so the RTL locales lay out correctly.
+   ========================================================================== */
+
+.csh {
+    --csh-radius-lg: 14px;
+    --csh-radius-md: 10px;
+    --csh-border: #e9ecf1;
+    --csh-surface: #ffffff;
+    --csh-surface-muted: #f7f9fb;
+    --csh-title: var(--text-title, #334257);
+    --csh-title-rgb: var(--text-title-rgb, 51, 66, 87);
+    --csh-muted: #7a879b;
+    --csh-accent: var(--primary-clr, #107980);
+    --csh-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --csh-in: #04bb7b;
+    --csh-in-rgb: 4, 187, 123;
+    --csh-out: #ff8b3d;
+    --csh-out-rgb: 255, 139, 61;
+    --csh-info: #3a86ff;
+    --csh-info-rgb: 58, 134, 255;
+    --csh-danger: #ef4d56;
+    --csh-danger-rgb: 239, 77, 86;
+    --csh-shadow: 0 1px 2px rgba(51, 66, 87, 0.04), 0 6px 20px -12px rgba(51, 66, 87, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   1. Summary strip
+
+   auto-fit rather than a fixed column count: the collect-cash strip loses its
+   rider tile when RideShare is off, and the strip has to reflow on its own.
+   -------------------------------------------------------------------------- */
+
+.csh .csh-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+    gap: 0.75rem;
+    margin-block-end: 1rem;
+}
+
+.csh .csh-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--csh-border);
+    border-radius: var(--csh-radius-lg);
+    background: var(--csh-surface);
+    box-shadow: var(--csh-shadow);
+}
+
+.csh .csh-stat__icon {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    font-size: 19px;
+    background: rgba(var(--csh-accent-rgb), 0.08);
+    color: var(--csh-accent);
+}
+
+.csh .csh-stat--in .csh-stat__icon {
+    background: rgba(var(--csh-in-rgb), 0.1);
+    color: var(--csh-in);
+}
+
+.csh .csh-stat--out .csh-stat__icon {
+    background: rgba(var(--csh-out-rgb), 0.12);
+    color: #d9700f;
+}
+
+.csh .csh-stat--info .csh-stat__icon {
+    background: rgba(var(--csh-info-rgb), 0.1);
+    color: #2c6ad4;
+}
+
+.csh .csh-stat--off .csh-stat__icon {
+    background: rgba(var(--csh-title-rgb), 0.08);
+    color: var(--csh-muted);
+}
+
+.csh .csh-stat__text {
+    min-width: 0;
+}
+
+.csh .csh-stat__value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--csh-title);
+    word-break: break-word;
+}
+
+.csh .csh-stat__label {
+    display: block;
+    margin-block-start: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--csh-muted);
+}
+
+/* --------------------------------------------------------------------------
+   2. The composer
+
+   The form at the top of these screens is not "a card that happens to be
+   first" — it is the thing the screen exists for, and the table under it is
+   the receipt. So it gets a header that says what it does, and its footer
+   rule separates the inputs from the button that commits money.
+   -------------------------------------------------------------------------- */
+
+.csh .csh-form {
+    border: 1px solid var(--csh-border);
+    border-radius: var(--csh-radius-lg);
+    background: var(--csh-surface);
+    box-shadow: var(--csh-shadow);
+    margin-block-end: 1rem;
+    overflow: hidden;
+}
+
+.csh .csh-form__head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-block-end: 1px solid var(--csh-border);
+    background: var(--csh-surface-muted);
+}
+
+.csh .csh-form__icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    font-size: 18px;
+    background: rgba(var(--csh-accent-rgb), 0.08);
+    color: var(--csh-accent);
+}
+
+.csh .csh-form__text {
+    min-width: 0;
+}
+
+.csh .csh-form__title {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--csh-title);
+}
+
+.csh .csh-form__subtitle {
+    display: block;
+    margin-block-start: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--csh-muted);
+}
+
+.csh .csh-form__body {
+    padding: 1.25rem;
+}
+
+.csh .csh-form__foot {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    border-block-start: 1px solid var(--csh-border);
+    background: var(--csh-surface-muted);
+}
+
+/* The running balance the picker reports back ("Cash in Hand: …"). It is an
+   answer to what was just selected, so it reads as a value, not a label. */
+.csh .csh-form .input-label-secondary:not(:empty) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: 0.375rem;
+    padding: 0.0625rem 0.4375rem;
+    border-radius: 30px;
+    background: rgba(var(--csh-accent-rgb), 0.08);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--csh-accent);
+}
+
+/* --------------------------------------------------------------------------
+   3. Table cells
+   -------------------------------------------------------------------------- */
+
+.csh .csh-payee {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    color: inherit;
+}
+
+.csh a.csh-payee:hover .csh-payee__name {
+    color: var(--csh-accent);
+}
+
+.csh .csh-payee__avatar {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--csh-surface-muted);
+    border: 1px solid var(--csh-border);
+}
+
+/* A shopfront, not a person. Same cell, square crop. */
+.csh .csh-payee--store .csh-payee__avatar {
+    border-radius: 9px;
+}
+
+.csh .csh-payee__text {
+    min-width: 0;
+}
+
+.csh .csh-payee__name {
+    display: block;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--csh-title);
+    transition: color 0.15s ease;
+}
+
+.csh .csh-payee__sub {
+    display: block;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--csh-muted);
+}
+
+.csh .csh-payee--gone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--csh-muted);
+}
+
+.csh .csh-payee--gone i {
+    font-size: 15px;
+    opacity: 0.7;
+}
+
+/* Money in and money out are the two directions these screens deal in, and a
+   ledger that colours neither is a wall of identical numbers. */
+.csh .csh-amount {
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--csh-title);
+}
+
+.csh .csh-amount--in {
+    color: #05875a;
+}
+
+.csh .csh-amount--out {
+    color: #c25c11;
+}
+
+/* Who the cash came from: store / delivery man / rider. */
+.csh .csh-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 30px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    background: rgba(var(--csh-title-rgb), 0.07);
+    color: var(--csh-muted);
+}
+
+.csh .csh-type i {
+    font-size: 13px;
+}
+
+.csh .csh-type--store {
+    background: rgba(var(--csh-accent-rgb), 0.1);
+    color: var(--csh-accent);
+}
+
+.csh .csh-type--deliveryman {
+    background: rgba(var(--csh-info-rgb), 0.12);
+    color: #2c6ad4;
+}
+
+.csh .csh-type--rider {
+    background: rgba(var(--csh-out-rgb), 0.14);
+    color: #c25c11;
+}
+
+.csh .csh-method {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--csh-title);
+}
+
+.csh .csh-method i {
+    font-size: 15px;
+    color: var(--csh-muted);
+}
+
+/* The ledger entry's own id, not a row counter: it survives paging and sorting
+   and is what a query about one collection quotes. */
+.csh .csh-id {
+    font-weight: 600;
+    color: var(--csh-title);
+    font-variant-numeric: tabular-nums;
+}
+
+/* How much of the panel depends on a withdrawal method, so an admin can see
+   what turning it off or deleting it would strand. Requests and saved payee
+   setups are counted separately because they break differently: a request is
+   history, a setup is a payee who would have to re-enter their account. */
+.csh .csh-usage {
+    display: block;
+    line-height: 1.35;
+}
+
+.csh .csh-usage__line {
+    display: block;
+    font-weight: 600;
+    color: var(--csh-title);
+}
+
+.csh .csh-usage__sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--csh-muted);
+}
+
+.csh .csh-usage__none {
+    font-size: 0.8125rem;
+    font-style: italic;
+    color: var(--csh-muted);
+    opacity: 0.8;
+}
+
+/* Which zone the payee works out of. Neutral, because it scopes the row
+   rather than saying anything about the money in it. */
+.csh .csh-zone {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(var(--csh-title-rgb), 0.06);
+    color: var(--csh-muted);
+}
+
+.csh .csh-none {
+    color: var(--csh-muted);
+}
+
+/* Who recorded the collection is not always who it came from — an admin can
+   enter one on a payee's behalf — so it rides under the date rather than
+   duplicating the source column. */
+.csh .csh-when {
+    display: block;
+    line-height: 1.35;
+}
+
+.csh .csh-when__by {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--csh-muted);
+}
+
+/* A reference is free text an admin typed; it is data, so it gets a monospace
+   run rather than sentence styling, and it truncates on its own row width. */
+.csh .csh-ref {
+    display: inline-block;
+    max-width: 28ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--csh-muted);
+}
+
+.csh .csh-ref--none {
+    font-family: inherit;
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   4. Method field chips — the withdraw-method list
+
+   Each method declares the fields a payee must fill in. The old markup drew
+   them as inline runs separated by hand-built 1px divs; this is the same
+   information as a definition chip that wraps.
+   -------------------------------------------------------------------------- */
+
+.csh .csh-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    max-width: 620px;
+}
+
+.csh .csh-field {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    padding: 0.3125rem 0.5625rem;
+    border: 1px solid var(--csh-border);
+    border-radius: 9px;
+    background: var(--csh-surface-muted);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+}
+
+.csh .csh-field__name {
+    font-weight: 700;
+    color: var(--csh-title);
+}
+
+.csh .csh-field__type {
+    padding: 0.0625rem 0.375rem;
+    border-radius: 30px;
+    background: rgba(var(--csh-accent-rgb), 0.1);
+    font-weight: 600;
+    color: var(--csh-accent);
+}
+
+.csh .csh-field__hint {
+    color: var(--csh-muted);
+}
+
+/* Required is the only one of the four attributes that changes what a payee
+   has to do, so it is the only one that gets a colour. */
+.csh .csh-field__req {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1875rem;
+    font-weight: 600;
+    color: #c25c11;
+}
+
+.csh .csh-fields--none {
+    font-size: 0.8125rem;
+    font-style: italic;
+    color: var(--csh-muted);
+}
+
+/* --------------------------------------------------------------------------
+   5. Empty state
+   -------------------------------------------------------------------------- */
+
+.csh .empty--data p {
+    max-width: 420px;
+    margin: 0.25rem auto 0;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--csh-muted);
+}
+
+/* --------------------------------------------------------------------------
+   6. The slide-in detail panel (collect cash)
+
+   Existing markup, restyled. `.withdraw-info-sidebar` is declared in style.css
+   with physical `right`/`translateX`, which never mirrored under RTL; these
+   rules re-anchor it logically and flip the closed transform.
+
+   Do NOT add a physical `right: auto` here to cancel style.css — in LTR that
+   IS `inset-inline-end` and would undo the anchor two lines above, leaving the
+   panel unanchored and permanently on screen. `inset-inline-end` already wins
+   on specificity in LTR, and in RTL `inset-inline-start: auto` cancels it.
+   -------------------------------------------------------------------------- */
+
+.csh .withdraw-info-sidebar {
+    --width: 420px;
+    --csh-shift: 100%;
+    inset-inline-end: 0;
+    inset-inline-start: auto;
+    padding: 0;
+    transform: translateX(var(--csh-shift));
+    display: flex;
+    flex-direction: column;
+}
+
+[dir="rtl"] .csh .withdraw-info-sidebar {
+    --csh-shift: -100%;
+}
+
+.csh .withdraw-info-sidebar.show {
+    transform: translateX(0);
+}
+
+.csh .csh-panel__head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-block-end: 1px solid var(--csh-border);
+    background: var(--csh-surface-muted);
+}
+
+.csh .csh-panel__title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--csh-title);
+}
+
+.csh .withdraw-info-sidebar .circle {
+    --size: 30px;
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+    border-radius: 50%;
+    background: var(--csh-surface) !important;
+    border: 1px solid var(--csh-border);
+    color: var(--csh-muted);
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.csh .withdraw-info-sidebar .circle:hover {
+    color: var(--csh-danger);
+    border-color: rgba(var(--csh-danger-rgb), 0.4);
+}
+
+.csh .csh-panel__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.25rem;
+}
+
+/* The amount is what the panel is about, so it leads. */
+.csh .csh-panel__amount {
+    text-align: center;
+    padding-block-end: 1rem;
+    margin-block-end: 1rem;
+    border-block-end: 1px dashed var(--csh-border);
+}
+
+.csh .csh-panel__amount-value {
+    display: block;
+    font-size: 1.625rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--csh-title);
+}
+
+.csh .csh-panel__amount-label {
+    display: block;
+    margin-block-start: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--csh-muted);
+}
+
+.csh .csh-panel__body .card {
+    border: 1px solid var(--csh-border);
+    border-radius: 12px;
+    box-shadow: none;
+}
+
+.csh .csh-panel__body .card-header {
+    padding: 0.75rem 1rem;
+    min-height: 0;
+    border-block-end: 1px solid var(--csh-border);
+    background: var(--csh-surface-muted);
+}
+
+.csh .csh-panel__body .card-header h6 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--csh-muted);
+}
+
+.csh .csh-panel__body .card-body {
+    padding: 1rem;
+}
+
+.csh .csh-panel__body .key-val-list-item {
+    justify-content: space-between;
+    padding-block: 0.375rem;
+    border-block-end: 1px dashed #eef1f5;
+    font-size: 0.8125rem;
+    color: var(--csh-muted);
+}
+
+.csh .csh-panel__body .key-val-list-item:last-child {
+    border-block-end: 0;
+    padding-block-end: 0;
+}
+
+.csh .csh-panel__body .key-val-list-item > :last-child {
+    font-weight: 600;
+    text-align: end;
+    word-break: break-word;
+    color: var(--csh-title);
+}
+
+/* --------------------------------------------------------------------------
+   7. Page header
+
+   The tab strip / heading spacing, kept in step with `disbursement.css` and
+   `withdraw.css` — style.css gives `.page-header-title` 8px and that reads as
+   cramped under a card-shaped strip.
+   -------------------------------------------------------------------------- */
+
+.csh .page-header > .nav-tabs {
+    margin-block-start: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   8. Print
+   -------------------------------------------------------------------------- */
+
+@media print {
+    .csh .csh-form,
+    .csh .search-form,
+    .csh .hs-unfold,
+    .csh .sidebar-wrap {
+        display: none !important;
+    }
+
+    .csh .csh-stat {
+        box-shadow: none;
+    }
+}

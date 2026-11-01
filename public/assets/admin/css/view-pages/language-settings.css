@@ -1,0 +1,809 @@
+/* --------------------------------------------------------------------------
+   Language setup (admin/business-settings/language)
+
+   Scoped under .lang-set so nothing here leaks into other admin screens.
+   Tokens mirror language-translate.css, which is the screen this one links
+   into — the two read as one feature.
+
+   Logical properties throughout: the admin chrome flips to RTL, and a single
+   card can preview an RTL language while the chrome stays LTR.
+   -------------------------------------------------------------------------- */
+
+/* Both roots carry the tokens: the edit panels are rendered as siblings of
+   .lang-set (the offcanvas has to sit outside the page container to slide over
+   it), so they inherit nothing from it. */
+.lang-set,
+.lang-set-offcanvas {
+    --lang-set-accent: var(--primary-clr, #107980);
+    --lang-set-accent-soft: rgba(var(--primary-clr-rgb, 16, 121, 128), 0.08);
+    --lang-set-border: #e6e9ef;
+    --lang-set-muted: #7c899c;
+    --lang-set-title: var(--text-title, #334257);
+    --lang-set-surface: #f7f8fa;
+    --lang-set-done: #00a06a;
+    --lang-set-done-soft: rgba(0, 160, 106, 0.1);
+    --lang-set-pending: #e08600;
+    --lang-set-off: #94a0b0;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.lang-set-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-block-end: 20px;
+}
+
+.lang-set-title {
+    margin: 0 0 2px;
+    font-size: var(--ph-title-size);
+    font-weight: var(--ph-title-weight);
+    line-height: var(--ph-title-line);
+    color: var(--ph-title-color);
+    text-transform: capitalize;
+}
+
+.lang-set-subtitle {
+    margin: 0;
+    max-inline-size: 620px;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--lang-set-muted);
+}
+
+/* ------------------------------------------------------------- stat band */
+
+.lang-set-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 16px;
+    margin-block-end: 20px;
+    background: #fff;
+    border: 1px solid var(--lang-set-border);
+    border-radius: 12px;
+}
+
+.lang-set-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--lang-set-surface);
+    border: 1px solid transparent;
+    min-inline-size: 0;
+}
+
+.lang-set-stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 38px;
+    block-size: 38px;
+    flex: 0 0 auto;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 1.125rem;
+    color: var(--lang-set-muted);
+    box-shadow: 0 1px 2px rgba(51, 66, 87, 0.08);
+}
+
+.lang-set-stat-text {
+    min-inline-size: 0;
+}
+
+.lang-set-stat-label {
+    display: block;
+    margin-block-end: 2px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--lang-set-muted);
+}
+
+.lang-set-stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--lang-set-title);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lang-set-stat-value--text {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+.lang-set-stat--total .lang-set-stat-icon {
+    color: var(--lang-set-accent);
+}
+
+.lang-set-stat--active .lang-set-stat-icon {
+    color: var(--lang-set-done);
+}
+
+.lang-set-stat--inactive .lang-set-stat-icon {
+    color: var(--lang-set-off);
+}
+
+.lang-set-stat--default .lang-set-stat-icon {
+    color: var(--lang-set-pending);
+}
+
+/* ---------------------------------------------------------------- notice */
+
+.lang-set-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    margin-block-end: 20px;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    background: rgba(var(--primary-clr-rgb, 16, 121, 128), 0.06);
+    border: 1px solid rgba(var(--primary-clr-rgb, 16, 121, 128), 0.2);
+    color: var(--lang-set-title);
+}
+
+.lang-set-note i {
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--lang-set-accent);
+    flex: 0 0 auto;
+}
+
+/* --------------------------------------------------------------- add card */
+
+.lang-set-card {
+    padding: 20px;
+    margin-block-end: 20px;
+    background: #fff;
+    border: 1px solid var(--lang-set-border);
+    border-radius: 12px;
+}
+
+.lang-set-card-head {
+    margin-block-end: 16px;
+}
+
+.lang-set-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 2px;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--lang-set-title);
+}
+
+.lang-set-card-note {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--lang-set-muted);
+}
+
+/* Wrapping on each item's own basis rather than fixed grid tracks behind a
+   viewport media query: the card sits inside a content area whose width is the
+   viewport minus the sidebar, and the sidebar expands and collapses, so the
+   viewport does not say when this row has run out of room. On fixed tracks the
+   buttons pushed out of the card between roughly 992px and 1100px and gave the
+   page a horizontal scrollbar. */
+.lang-set-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.lang-set-form > .lang-set-field {
+    flex: 1 1 240px;
+}
+
+/* Wider basis than the select beside it: both segment labels are nowrap, so
+   below this they overlap rather than shrink. */
+.lang-set-form > .lang-set-field + .lang-set-field {
+    flex: 1 1 300px;
+}
+
+.lang-set-field {
+    min-inline-size: 0;
+}
+
+.lang-set-label {
+    display: block;
+    margin-block-end: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--lang-set-title);
+}
+
+/* Not .select2-hidden-accessible: select2 leaves the original <select> in the
+   accessibility tree as an absolutely positioned 1px box, and its
+   `width: 1px !important` loses to a two-class !important rule. Stretched to
+   100% it measured from its static offset out past the viewport, which is
+   what put a horizontal scrollbar under the whole page. */
+.lang-set-form .select2-container,
+.lang-set-form .form-control:not(.select2-hidden-accessible) {
+    inline-size: 100% !important;
+}
+
+.lang-set-form .form-control {
+    block-size: 44px;
+    border-radius: 10px;
+    border-color: var(--lang-set-border);
+    font-size: 0.875rem;
+}
+
+.lang-set-form .form-control:focus {
+    border-color: var(--lang-set-accent);
+    box-shadow: 0 0 0 3px var(--lang-set-accent-soft);
+}
+
+/* Select2 replaces #country-code with its own markup, which does not inherit
+   the .form-control sizing above. */
+.lang-set-form .select2-container--default .select2-selection--single {
+    block-size: 44px;
+    border-radius: 10px;
+    border-color: var(--lang-set-border);
+}
+
+.lang-set-form .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 42px;
+    font-size: 0.875rem;
+}
+
+.lang-set-form .select2-container--default .select2-selection--single .select2-selection__arrow {
+    block-size: 42px;
+}
+
+.lang-set-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+}
+
+.lang-set-form-actions .btn {
+    block-size: 44px;
+    padding-inline: 20px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.lang-set-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Segmented radio pair, used for direction in both the add form and the
+   edit panel. Only the visible span is styled; the input stays in the
+   accessibility tree and keeps native keyboard behaviour. */
+.lang-set-seg {
+    display: inline-flex;
+    inline-size: 100%;
+    padding: 3px;
+    gap: 3px;
+    border-radius: 10px;
+    background: #eef1f6;
+}
+
+.lang-set-seg-option {
+    flex: 1 1 0;
+    margin: 0;
+    min-inline-size: 0;
+}
+
+.lang-set-seg-option input {
+    position: absolute;
+    opacity: 0;
+    inline-size: 1px;
+    block-size: 1px;
+    pointer-events: none;
+}
+
+.lang-set-seg-option span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    block-size: 38px;
+    padding-inline: 12px;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--lang-set-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s ease;
+}
+
+.lang-set-seg-option span small {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.lang-set-seg-option:hover span {
+    color: var(--lang-set-title);
+}
+
+.lang-set-seg-option input:checked + span {
+    background: #fff;
+    color: var(--lang-set-title);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(51, 66, 87, 0.12);
+}
+
+.lang-set-seg-option input:focus-visible + span {
+    outline: 2px solid var(--lang-set-accent);
+    outline-offset: 1px;
+}
+
+/* -------------------------------------------------------------- list head */
+
+.lang-set-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-block-end: 18px;
+}
+
+.lang-set-toolbar-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    margin-inline-end: auto;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--lang-set-title);
+}
+
+.lang-set-count {
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #eef1f6;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--lang-set-muted);
+}
+
+.lang-set-filters {
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    border-radius: 10px;
+    background: #eef1f6;
+}
+
+.lang-set-filter {
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--lang-set-muted);
+    white-space: nowrap;
+    transition: all 0.18s ease;
+}
+
+.lang-set-filter:hover {
+    color: var(--lang-set-title);
+}
+
+.lang-set-filter.is-active {
+    background: #fff;
+    color: var(--lang-set-title);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(51, 66, 87, 0.12);
+}
+
+.lang-set-filter-num {
+    margin-inline-start: 4px;
+    font-size: 0.75rem;
+    opacity: 0.75;
+}
+
+.lang-set-search {
+    position: relative;
+    flex: 0 1 260px;
+    min-inline-size: 180px;
+}
+
+.lang-set-search .form-control {
+    block-size: 40px;
+    padding-inline: 36px 12px;
+    border-radius: 10px;
+    border-color: var(--lang-set-border);
+    font-size: 0.8125rem;
+}
+
+.lang-set-search .form-control:focus {
+    border-color: var(--lang-set-accent);
+    box-shadow: 0 0 0 3px var(--lang-set-accent-soft);
+}
+
+.lang-set-search-icon {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 13px;
+    transform: translateY(-50%);
+    font-size: 0.9375rem;
+    color: var(--lang-set-muted);
+    pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ grid */
+
+.lang-set-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 575.98px) {
+    .lang-set-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.lang-set-item {
+    display: flex;
+    flex-direction: column;
+    padding: 18px;
+    border: 1px solid var(--lang-set-border);
+    border-radius: 12px;
+    background: #fff;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* The card is display:flex, which outranks the UA sheet's [hidden] rule the
+   client-side filter relies on. */
+.lang-set-item[hidden] {
+    display: none;
+}
+
+.lang-set-item:hover {
+    border-color: rgba(var(--primary-clr-rgb, 16, 121, 128), 0.35);
+    box-shadow: 0 6px 18px rgba(51, 66, 87, 0.07);
+}
+
+.lang-set-item.is-default {
+    border-color: rgba(var(--primary-clr-rgb, 16, 121, 128), 0.4);
+    box-shadow: inset 0 0 0 1px rgba(var(--primary-clr-rgb, 16, 121, 128), 0.14);
+}
+
+.lang-set-item.is-off .lang-set-item-code {
+    background: #eef1f6;
+    color: var(--lang-set-off);
+}
+
+.lang-set-item.is-off .lang-set-item-name {
+    color: var(--lang-set-off);
+}
+
+.lang-set-item-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.lang-set-item-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 44px;
+    block-size: 44px;
+    flex: 0 0 auto;
+    border-radius: 10px;
+    background: var(--lang-set-accent-soft);
+    color: var(--lang-set-accent);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.lang-set-item-id {
+    min-inline-size: 0;
+    flex: 1 1 auto;
+}
+
+.lang-set-item-name {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--lang-set-title);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lang-set-item-native {
+    display: block;
+    margin-block-start: 1px;
+    font-size: 0.75rem;
+    color: var(--lang-set-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* Keeps an RTL native name from reordering the chrome around it, while
+       still letting it start where the title above it starts. */
+    unicode-bidi: isolate;
+    text-align: start;
+}
+
+.lang-set-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-block-start: 12px;
+}
+
+.lang-set-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 30px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: #eef1f6;
+    color: var(--lang-set-muted);
+}
+
+.lang-set-chip--default {
+    background: var(--lang-set-accent-soft);
+    color: var(--lang-set-accent);
+}
+
+.lang-set-chip--active {
+    background: var(--lang-set-done-soft);
+    color: var(--lang-set-done);
+}
+
+.lang-set-chip-dot {
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: 0 0 auto;
+}
+
+/* -------------------------------------------------------------- progress */
+
+.lang-set-progress {
+    margin-block-start: 16px;
+}
+
+.lang-set-progress-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-block-end: 6px;
+    font-size: 0.75rem;
+    color: var(--lang-set-muted);
+}
+
+.lang-set-progress-pct {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--lang-set-title);
+}
+
+.lang-set-progress-track {
+    block-size: 6px;
+    border-radius: 30px;
+    background: #eef1f6;
+    overflow: hidden;
+}
+
+.lang-set-progress-fill {
+    display: block;
+    block-size: 100%;
+    border-radius: 30px;
+    background: linear-gradient(90deg, var(--lang-set-accent), var(--lang-set-done));
+    transition: inline-size 0.4s ease;
+}
+
+.lang-set-progress-meta {
+    margin: 6px 0 0;
+    font-size: 0.75rem;
+    color: var(--lang-set-muted);
+}
+
+.lang-set-progress-meta b {
+    font-weight: 600;
+    color: var(--lang-set-title);
+}
+
+.lang-set-progress-missing {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 16px 0 0;
+    font-size: 0.75rem;
+    color: var(--lang-set-pending);
+}
+
+/* --------------------------------------------------------------- actions */
+
+.lang-set-item-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-block-start: 14px;
+    margin-block-start: 16px;
+    border-block-start: 1px solid var(--lang-set-border);
+}
+
+/* Pushes the footer to the card bottom so every card in a row lines up,
+   whatever the length of the name above it. */
+.lang-set-item-spacer {
+    flex: 1 1 auto;
+}
+
+.lang-set-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    margin-inline-end: auto;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--lang-set-muted);
+    cursor: pointer;
+}
+
+.lang-set-toggle .toggle-switch {
+    margin: 0;
+}
+
+.lang-set-toggle.is-locked {
+    cursor: not-allowed;
+}
+
+.lang-set-toggle-text.is-on {
+    color: var(--lang-set-done);
+    font-weight: 600;
+}
+
+.lang-set-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    block-size: 34px;
+    padding-inline: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--lang-set-border);
+    background: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--lang-set-title);
+    white-space: nowrap;
+    transition: all 0.18s ease;
+}
+
+.lang-set-action:hover,
+.lang-set-action:focus-visible {
+    border-color: var(--lang-set-accent);
+    background: var(--lang-set-accent-soft);
+    color: var(--lang-set-accent);
+}
+
+.lang-set-action svg {
+    flex: 0 0 auto;
+}
+
+.lang-set-action--icon {
+    inline-size: 34px;
+    padding-inline: 0;
+    font-size: 1rem;
+}
+
+.lang-set-item .dropdown-menu {
+    inline-size: 200px;
+    padding-block: 6px;
+    border-radius: 10px;
+    border-color: var(--lang-set-border);
+    box-shadow: 0 8px 24px rgba(51, 66, 87, 0.12);
+}
+
+.lang-set-item .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+}
+
+.lang-set-item .dropdown-item i {
+    font-size: 1rem;
+}
+
+.lang-set-item .dropdown-item--danger,
+.lang-set-item .dropdown-item--danger:hover {
+    color: #e04f4f;
+}
+
+/* ----------------------------------------------------------- empty state */
+
+.lang-set-empty {
+    display: none;
+    padding: 48px 20px;
+    text-align: center;
+}
+
+.lang-set-empty.is-visible {
+    display: block;
+}
+
+.lang-set-empty img {
+    inline-size: 120px;
+    max-inline-size: 60%;
+    margin-block-end: 16px;
+}
+
+.lang-set-empty h5 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--lang-set-title);
+}
+
+.lang-set-empty p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--lang-set-muted);
+}
+
+/* -------------------------------------------------------------- offcanvas */
+
+.lang-set-offcanvas .custom-offcanvas-body {
+    padding: 20px;
+}
+
+.lang-set-offcanvas .lang-set-panel {
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--lang-set-surface);
+}
+
+.lang-set-offcanvas .form-control {
+    block-size: 44px;
+    border-radius: 10px;
+    border-color: var(--lang-set-border);
+    font-size: 0.875rem;
+}
+
+.lang-set-offcanvas .form-control[readonly] {
+    background: #fff;
+    color: var(--lang-set-muted);
+}
+
+.lang-set-offcanvas .lang-set-field + .lang-set-field {
+    margin-block-start: 16px;
+}

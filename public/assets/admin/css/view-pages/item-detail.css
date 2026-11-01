@@ -1,0 +1,626 @@
+.idt {
+    --idt-ink: var(--tbl-text, #334257);
+    --idt-muted: var(--tbl-text-muted, #7c8ba1);
+    --idt-rule: var(--tbl-row-rule, #eef2f5);
+    --idt-surface: #f8fafc;
+    --idt-accent: var(--primary-clr, #107980);
+    --idt-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --idt-ok: var(--success-dark, #019463);
+    --idt-ok-rgb: 1, 148, 99;
+    --idt-warn: #a35f00;
+    --idt-warn-rgb: 232, 153, 26;
+    --idt-danger: var(--danger-dark, #cb2020);
+    --idt-danger-rgb: 203, 32, 32;
+}
+
+.idt-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    margin-block-start: 0.5rem;
+}
+
+.idt-pill {
+    --idt-tone-rgb: var(--idt-accent-rgb);
+    --idt-tone-ink: var(--idt-accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    padding: 0.1875rem 0.5625rem;
+    border: 1px solid rgba(var(--idt-tone-rgb), 0.22);
+    border-radius: 999px;
+    background-color: rgba(var(--idt-tone-rgb), 0.1);
+    color: var(--idt-tone-ink);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.idt-pill i {
+    font-size: 0.875rem;
+}
+
+a.idt-pill:hover,
+a.idt-pill:focus-visible {
+    background-color: var(--idt-tone-ink);
+    border-color: var(--idt-tone-ink);
+    color: #fff;
+    text-decoration: none;
+}
+
+.idt-pill--wait {
+    --idt-tone-rgb: var(--idt-warn-rgb);
+    --idt-tone-ink: var(--idt-warn);
+}
+
+.idt-pill--danger {
+    --idt-tone-rgb: var(--idt-danger-rgb);
+    --idt-tone-ink: var(--idt-danger);
+}
+
+.idt-pill--ok {
+    --idt-tone-rgb: var(--idt-ok-rgb);
+    --idt-tone-ink: var(--idt-ok);
+}
+
+.idt-pill--muted {
+    --idt-tone-rgb: 124, 139, 161;
+    --idt-tone-ink: var(--idt-muted);
+}
+
+.idt-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.idt-actions .btn {
+    margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    .idt-actions {
+        justify-content: flex-end;
+    }
+}
+
+.idt-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 1rem 1.25rem;
+    border-block-end: 1px solid var(--idt-rule);
+}
+
+.idt-card__title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--idt-ink);
+}
+
+.idt-card__hint {
+    font-size: 0.75rem;
+    color: var(--idt-muted);
+}
+
+/* The media column is capped at 300px but allowed to shrink with the panel.
+   `min()` rather than a flat 300px because the breakpoint below measures the VIEWPORT
+   while this grid lives inside the content area, and the two part company: the admin
+   sidebar expands at 992px, so the card is ~401px wide at a 992px viewport -- narrower
+   than at 991px. A fixed 300px track then left the body 37px, which stacked the title
+   and the description one character per line while the query still read "desktop".
+   46% keeps the cap in force from a ~650px panel upward, which is what a 1440px desktop
+   gives -- so the full 300px image is unchanged there; below that the image gives ground
+   instead of starving the text. */
+.idt-hero {
+    display: grid;
+    grid-template-columns: minmax(0, min(300px, 46%)) minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 1.25rem;
+}
+
+@media (max-width: 767.98px) {
+    .idt-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.idt-hero__body {
+    min-inline-size: 0;
+}
+
+.idt-hero__title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--idt-ink);
+    word-break: break-word;
+}
+
+.idt-hero__label {
+    display: block;
+    margin-block: 1rem 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--idt-muted);
+}
+
+.idt-hero__desc {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--idt-ink);
+    word-break: break-word;
+}
+
+.idt-hero__desc:empty::after {
+    content: "—";
+    color: var(--idt-muted);
+}
+
+/* Folded to five lines, with the browser's own ellipsis at the cut.
+
+   `-webkit-line-clamp` rather than the character count the promotion detail pages use
+   (Str::limit(140)): the ask here is five LINES, and a character limit produces a
+   different number of them for every description and every panel width. The prefixed
+   properties are deliberate -- unprefixed `line-clamp` is still not shipped where this
+   panel runs, and every engine that matters implements the -webkit- form. */
+.idt-hero__desc--clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Hidden until the script has measured that the text really overflows. A description
+   that fits inside five lines must not offer to expand, and the toggle cannot be
+   rendered conditionally in Blade because whether it overflows depends on the rendered
+   width, which only the browser knows. */
+.idt-hero__desc-toggle {
+    display: none;
+    margin-block-start: 0.375rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--idt-accent);
+    cursor: pointer;
+}
+
+.idt-hero__desc-toggle.is-visible {
+    display: inline-block;
+}
+
+.idt-hero__desc-toggle:hover,
+.idt-hero__desc-toggle:focus-visible {
+    text-decoration: underline;
+}
+
+.idt-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-block-start: 0.75rem;
+}
+
+.idt-price__now {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--idt-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.idt-price__was {
+    font-size: 0.875rem;
+    color: var(--idt-muted);
+}
+
+.idt-price__off {
+    padding: 0.125rem 0.4375rem;
+    border-radius: 0.25rem;
+    background-color: rgba(var(--idt-danger-rgb), 0.1);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--idt-danger);
+}
+
+.idt-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1px;
+    background-color: var(--idt-rule);
+}
+
+.idt-spec {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1875rem;
+    padding: 0.875rem 1.25rem;
+    background-color: #fff;
+}
+
+.idt-spec__label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--idt-muted);
+}
+
+.idt-spec__value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--idt-ink);
+    word-break: break-word;
+}
+
+.idt-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3125rem;
+}
+
+.idt-chip {
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    background-color: var(--idt-surface);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--idt-muted);
+}
+
+.idt-blank {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--idt-muted);
+}
+
+.idt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.idt-list__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    color: var(--idt-ink);
+}
+
+.idt-list__row b {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.idt-diff {
+    display: flex;
+    flex-direction: column;
+}
+
+.idt-diff__row {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8125rem 1.25rem;
+    border-block-end: 1px solid var(--idt-rule);
+}
+
+.idt-diff__row:last-child {
+    border-block-end: 0;
+}
+
+.idt-diff__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--idt-muted);
+}
+
+.idt-diff__from,
+.idt-diff__to {
+    font-size: 0.875rem;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.idt-diff__from {
+    color: var(--idt-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(var(--idt-danger-rgb), 0.4);
+}
+
+.idt-diff__to {
+    font-weight: 600;
+    color: var(--idt-ink);
+}
+
+.idt-diff__arrow {
+    color: var(--idt-muted);
+    font-size: 0.875rem;
+}
+
+[dir="rtl"] .idt-diff__arrow {
+    transform: scaleX(-1);
+}
+
+.idt-diff__thumb {
+    inline-size: 3.25rem;
+    block-size: 3.25rem;
+    border: 1px solid var(--idt-rule);
+    border-radius: 0.5rem;
+    object-fit: cover;
+}
+
+.idt-diff__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    background-color: rgba(var(--idt-accent-rgb), 0.1);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--idt-accent);
+}
+
+@media (max-width: 575.98px) {
+    .idt-diff__row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.25rem;
+    }
+
+    .idt-diff__arrow {
+        transform: rotate(90deg);
+    }
+
+    [dir="rtl"] .idt-diff__arrow {
+        transform: rotate(90deg);
+    }
+}
+
+.idt-empty {
+    padding: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--idt-muted);
+}
+
+.idt-side {
+    position: sticky;
+    top: 1rem;
+}
+
+@media (max-width: 991.98px) {
+    .idt-side {
+        position: static;
+    }
+}
+
+.idt-side > .card:last-child {
+    margin-block-end: 0;
+}
+
+.idt-decide__hint {
+    margin-block: 0.625rem 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--idt-muted);
+}
+
+.idt-decide__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-block-start: 1rem;
+}
+
+.idt-note {
+    margin-block-start: 1rem;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid rgba(var(--idt-danger-rgb), 0.2);
+    border-radius: 0.5rem;
+    background-color: rgba(var(--idt-danger-rgb), 0.06);
+}
+
+.idt-note__label {
+    display: block;
+    margin-block-end: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--idt-danger);
+}
+
+.idt-note p {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--idt-ink);
+    word-break: break-word;
+}
+
+.idt-store {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block-end: 0.875rem;
+    margin-block-end: 0.875rem;
+    border-block-end: 1px solid var(--idt-rule);
+    color: inherit;
+}
+
+.idt-store:hover,
+.idt-store:focus-visible {
+    color: inherit;
+    text-decoration: none;
+}
+
+.idt-store__logo {
+    flex: 0 0 auto;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border: 1px solid var(--idt-rule);
+    border-radius: 0.5rem;
+    object-fit: cover;
+}
+
+.idt-store__body {
+    min-inline-size: 0;
+}
+
+.idt-store__name {
+    display: block;
+    overflow: hidden;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--idt-ink);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.idt-store:hover .idt-store__name {
+    color: var(--idt-accent);
+}
+
+.idt-store__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--idt-muted);
+}
+
+.idt-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.idt-fact {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.idt-fact__label {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    color: var(--idt-muted);
+}
+
+.idt-fact__value {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--idt-ink);
+    text-align: end;
+    word-break: break-word;
+}
+
+a.idt-fact__value:hover {
+    color: var(--idt-accent);
+    text-decoration: none;
+}
+
+.idt-rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding-block-end: 0.875rem;
+    margin-block-end: 0.875rem;
+    border-block-end: 1px solid var(--idt-rule);
+}
+
+.idt-rating__figure {
+    display: flex;
+    align-items: baseline;
+    gap: 0.125rem;
+}
+
+.idt-rating__value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--idt-ink);
+    font-variant-numeric: proportional-nums;
+}
+
+.idt-rating__scale {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--idt-muted);
+}
+
+.idt-rating__meta {
+    font-size: 0.75rem;
+    color: var(--idt-muted);
+}
+
+.idt-bars {
+    padding-inline: 0;
+    border-inline: 0;
+}
+
+.idt-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background-color: var(--idt-rule);
+}
+
+.idt-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.875rem 1.25rem;
+    background-color: #fff;
+    text-align: center;
+}
+
+.idt-metric__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--idt-ink);
+    font-variant-numeric: proportional-nums;
+}
+
+.idt-metric__label {
+    font-size: 0.75rem;
+    color: var(--idt-muted);
+}
+
+.idt-metric--ok .idt-metric__value {
+    color: var(--idt-ok);
+}
+
+.idt-metric--warn .idt-metric__value {
+    color: var(--idt-warn);
+}
+
+.idt-metric--danger .idt-metric__value {
+    color: var(--idt-danger);
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./app</directory>
+        </include>
+    </coverage>
+    <php>
+        <!-- The suite loads the full container plus the language files. It crossed PHP's 128M
+             default at 169 tests, and a full 685-test run exhausted 512M inside
+             inertiajs/inertia-laravel's DevTools EntriesRepository at test ~657. Raised here so
+             every runner gets it rather than each person passing -d memory_limit. -->
+        <ini name="memory_limit" value="2G"/>
+        <server name="APP_ENV" value="testing"/>
+        <server name="BCRYPT_ROUNDS" value="4"/>
+        <server name="CACHE_DRIVER" value="array"/>
+        <server name="APP_CACHE_STORE" value="array"/>
+        <!-- The suite is integration style: many cases read real stores, zones and orders and
+             skip when the data they need is absent, and several use MySQL spatial functions. So
+             it runs against a CLONE of the dev database rather than sqlite :memory:, which is
+             what the two disabled lines below were trying to do and why they stayed off.
+
+             The name is NOT pinned here. It has been wrong twice — first 6ammart_service_test,
+             then mart, neither of which exists on every machine — and a <server> entry wins over
+             .env unconditionally, so the whole DB-backed suite errored with "Unknown database"
+             before asserting anything. The database each developer already works against is the
+             one named in their own .env, so let that through.
+
+             Still true: a test that does not use DatabaseTransactions leaks rows, and live edits
+             made while the suite runs turn passing tests red. -->
+        <!-- <server name="DB_CONNECTION" value="sqlite"/> -->
+        <!-- <server name="DB_DATABASE" value=":memory:"/> -->
+        <server name="MAIL_MAILER" value="array"/>
+        <server name="QUEUE_CONNECTION" value="sync"/>
+        <server name="SESSION_DRIVER" value="array"/>
+        <server name="TELESCOPE_ENABLED" value="false"/>
+    </php>
+</phpunit>

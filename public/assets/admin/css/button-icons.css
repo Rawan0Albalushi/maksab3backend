@@ -1,0 +1,88 @@
+/* ===========================================================================
+   Button icons
+   ---------------------------------------------------------------------------
+   Pairs a tio glyph with a button label:
+
+       <button class="btn btn--primary"><i class="tio-save"></i> Save</button>
+
+   Loaded from layouts/admin/app.blade.php and layouts/vendor/app.blade.php,
+   after style.css so it wins on equal specificity. Every rule is scoped under
+   .btn, so nothing here reaches the icons used in tables, nav or headings.
+   =========================================================================== */
+
+/* --- 1. Optical alignment -------------------------------------------------
+   Measured, not guessed. Every glyph in The-Icon-of is drawn on a common box
+   whose optical centre sits 0.2917em above the baseline (units-per-em 1024);
+   at the icon's own font-size of 1.125em that lands at 0.328em. The label's
+   optical centre is half its cap-height — 0.350em (Public Sans, Poppins) to
+   0.364em (Inter), with Open Sans between. Raising the glyph by 0.03em lands
+   inside 0.11px of centre for every family in the stack, at any button size. */
+.btn > [class^="tio-"],
+.btn > [class*=" tio-"] {
+    vertical-align: 0.03em;
+}
+
+/* --- 2. Flex buttons ------------------------------------------------------
+   A flex container breaks both halves of §1.
+
+   First the gap. The space between glyph and label is white space leading the
+   label's text node, and a flex container strips leading white space from the
+   anonymous item it wraps that text in — so the space vanishes and the glyph
+   sits against the first letter. Give it back as a margin.
+
+   Then the alignment. `vertical-align` does not apply to a flex item, so §1's
+   nudge is dropped and `align-items: center` lines up the two boxes instead of
+   the two glyphs. Measured the same way §1 was — rendered at 140px and read off
+   the ink — that leaves the icon 0.0304em low on average across the set (0.0321
+   for save, refresh, search, edit, delete; 0.0357 for the circled pair). Which
+   is §1's 0.03em again, so the same number corrects both modes and a flex
+   button ends up identical to an inline one. Residual after it: +0.0018em.
+
+   `top`, not `transform` — §3 needs `transform` for the RTL mirror.
+
+   The selector list is the declared cases plus the buttons a stylesheet turns
+   into a flex container without the markup saying so, which is why those were
+   missed: `.btn.h--40px` and `.min-height-40.btn` (style.css), `.btn.dropdown-
+   toggle` (bootstrap.min.css) and the filter drawer's footer pair. Every other
+   flex button in the panel — POS, product gallery, order details / invoice, the
+   language save bar — declares its own `gap`, so it is deliberately absent;
+   listing it would double the space. Check for a `gap` before extending this. */
+.btn.d-flex > [class^="tio-"],
+.btn.d-flex > [class*=" tio-"],
+.btn.d-inline-flex > [class^="tio-"],
+.btn.d-inline-flex > [class*=" tio-"],
+.btn.h--40px > [class^="tio-"],
+.btn.h--40px > [class*=" tio-"],
+.btn.min-height-40 > [class^="tio-"],
+.btn.min-height-40 > [class*=" tio-"],
+.btn.dropdown-toggle > [class^="tio-"],
+.btn.dropdown-toggle > [class*=" tio-"],
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer .btn > [class^="tio-"],
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer .btn > [class*=" tio-"] {
+    flex-shrink: 0;
+    margin-inline-end: 0.26em;
+    position: relative;
+    top: -0.03em;
+}
+
+/* Buttons that already declare a Bootstrap gap own the spacing — don't add to it. */
+.btn[class*="gap-"] > [class^="tio-"],
+.btn[class*="gap-"] > [class*=" tio-"] {
+    margin-inline-end: 0;
+}
+
+/* --- 3. RTL ---------------------------------------------------------------
+   Direction-bearing glyphs must mirror when the label reads right-to-left:
+   a "next" chevron that keeps pointing right is pointing backwards.
+   Symmetric and vertical glyphs (save, delete, refresh, download …) are left
+   alone on purpose — mirroring those only makes them look wrong. */
+[dir="rtl"] .btn > .tio-arrow-forward,
+[dir="rtl"] .btn > .tio-arrow-backward,
+[dir="rtl"] .btn > .tio-chevron-left,
+[dir="rtl"] .btn > .tio-chevron-right,
+[dir="rtl"] .btn > .tio-send,
+[dir="rtl"] .btn > .tio-sign-in {
+    display: inline-block;
+    transform: scaleX(-1);
+}
+

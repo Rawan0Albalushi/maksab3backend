@@ -1,0 +1,783 @@
+/* ==========================================================================
+   Business Modules — admin/business-settings/module (list, add, edit)
+
+   Scoped under .mds so nothing leaks into other admin screens. The add and
+   edit forms also carry .tps and are built out of third-party-setup.css
+   components (§10 of the playbook); this file only carries what that sheet
+   has no equivalent for — the list summary strip, the module type picker
+   and the two image drop tiles.
+
+   Tokens are declared locally rather than borrowed from .tps, so the list
+   screen can load this sheet on its own without opting the whole page into
+   the .tps form styling (which would restyle the search box and pickers).
+   Logical properties throughout to keep the RTL layout correct.
+   ========================================================================== */
+
+.mds {
+    --mds-radius-lg: 14px;
+    --mds-border: #e9ecf1;
+    --mds-border-strong: #d7dce4;
+    --mds-surface: #ffffff;
+    --mds-surface-muted: #f7f9fb;
+    --mds-title: var(--text-title, #334257);
+    --mds-muted: #7a879b;
+    --mds-accent: var(--primary-clr, #107980);
+    --mds-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --mds-shadow: 0 1px 2px rgba(51, 66, 87, 0.04), 0 6px 20px -12px rgba(51, 66, 87, 0.18);
+    --mds-control-h: 42px;
+}
+
+/* --------------------------------------------------------------------------
+   0b. Page header — the "How it Works" trigger
+
+   It was a `<div type="button">`, which is not a thing: `type` is meaningless
+   on a div, so the control was unreachable by keyboard and announced as
+   nothing. It is a real `<button>` now, and this gives it back the borderless
+   look the theme's own `.btn` variants do not have.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-how {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--mds-border);
+    border-radius: 40px;
+    background: var(--mds-surface);
+    color: var(--mds-accent);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.mds .mds-how:hover,
+.mds .mds-how:focus-visible {
+    border-color: rgba(var(--mds-accent-rgb), 0.45);
+    background: rgba(var(--mds-accent-rgb), 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   1. Summary strip
+
+   auto-fit rather than a fixed column count: the strip drops from four tiles
+   to two to one on its own, so it needs no breakpoint of its own.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.mds .mds-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--mds-border);
+    border-radius: var(--mds-radius-lg);
+    background: var(--mds-surface);
+    box-shadow: var(--mds-shadow);
+}
+
+.mds .mds-stat__icon {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    font-size: 19px;
+    background: rgba(var(--mds-accent-rgb), 0.08);
+    color: var(--mds-accent);
+}
+
+.mds .mds-stat--on .mds-stat__icon {
+    background: rgba(4, 187, 123, 0.1);
+    color: #04bb7b;
+}
+
+.mds .mds-stat--off .mds-stat__icon {
+    background: rgba(122, 135, 155, 0.12);
+    color: var(--mds-muted);
+}
+
+.mds .mds-stat__text {
+    min-width: 0;
+}
+
+.mds .mds-stat__value {
+    display: block;
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--mds-title);
+}
+
+.mds .mds-stat__label {
+    display: block;
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--mds-muted);
+}
+
+/* The first three tiles are the status filter, not decoration — a count an
+   admin cannot act on is a poster. Each links to this same list with `status`
+   set, `.is-active` marks the one currently applied, and the fourth (module
+   types in use) is `--static` because there is no filter behind it: it stays a
+   `<div>` so it is not a link that goes nowhere. */
+
+.mds a.mds-stat {
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.mds a.mds-stat:hover,
+.mds a.mds-stat:focus-visible {
+    border-color: var(--mds-border-strong);
+    transform: translateY(-1px);
+}
+
+.mds .mds-stat.is-active {
+    border-color: rgba(var(--mds-accent-rgb), 0.5);
+    box-shadow: 0 0 0 1px rgba(var(--mds-accent-rgb), 0.5), var(--mds-shadow);
+}
+
+.mds .mds-stat--static {
+    background: var(--mds-surface-muted);
+    box-shadow: none;
+}
+
+.mds .mds-stat--static .mds-stat__icon {
+    background: rgba(122, 135, 155, 0.1);
+    color: var(--mds-muted);
+}
+
+/* --------------------------------------------------------------------------
+   1b. List toolbar — search, the two filters, export and the primary action
+
+   This replaces the theme's `.search--button-wrapper`, which lays its children
+   out with `margin: 7px !important` on five different selectors at once. Two of
+   them match the same element, so gaps were 7px, 14px or 4px depending on what
+   a child happened to be, and the controls came in three heights. A flex row
+   with one `gap` and one height token does the same job and can be reasoned
+   about.
+
+   `.card-header` is itself `display: flex; justify-content: space-between`
+   (bootstrap.min.css), so the toolbar has to claim the row it sits in — hence
+   the `flex: 1 1 auto` below. `min-width: 0` for the usual reason: without it
+   the search field's automatic minimum size stops the row wrapping.
+   -------------------------------------------------------------------------- */
+
+.mds .card-header > .mds-toolbar {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.mds .mds-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mds .mds-toolbar__search {
+    flex: 1 1 260px;
+    min-width: 0;
+    margin: 0;
+}
+
+.mds .mds-toolbar__group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Export and Add sit against the far edge; the filters stay next to the search
+   box they narrow. */
+.mds .mds-toolbar__group--actions {
+    margin-inline-start: auto;
+}
+
+.mds .mds-toolbar .form-control,
+.mds .mds-toolbar .btn {
+    height: var(--mds-control-h);
+    min-height: var(--mds-control-h);
+}
+
+.mds .mds-toolbar .hs-unfold .btn {
+    display: inline-flex;
+    align-items: center;
+}
+
+.mds .mds-toolbar .btn {
+    white-space: nowrap;
+}
+
+/* The native select arrow is replaced so the two filters match the search
+   field's weight. Background position has no logical form, so RTL needs the
+   explicit flip — `dir` is set on `<html>` by the layout. */
+/* `.form-control` is `width: 100%`, which inside the wrapping filter group put
+   each select on a line of its own; sized to content, the two sit side by side. */
+.mds .mds-select {
+    width: auto;
+    flex: 0 0 auto;
+    min-width: 170px;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-inline-end: 2rem;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%237a879b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px 8px;
+}
+
+[dir="rtl"] .mds .mds-select {
+    background-position: left 0.75rem center;
+}
+
+/* --------------------------------------------------------------------------
+   1c. Applied filter chips
+
+   The row only renders when something is filtering the table, and each chip
+   removes exactly its own filter by linking to this list without it. That is
+   what replaced the theme's single Reset button, which cleared the search and
+   left the two pickers on — the admin could see a short list and no longer
+   see why.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem 1.3125rem;
+    border-top: 1px solid var(--mds-border);
+    background: var(--mds-surface-muted);
+}
+
+.mds .mds-filters__label {
+    margin-inline-end: 0.125rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--mds-muted);
+}
+
+.mds .mds-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    max-width: 22rem;
+    padding: 0.25rem 0.5rem 0.25rem 0.625rem;
+    border: 1px solid var(--mds-border-strong);
+    border-radius: 40px;
+    background: var(--mds-surface);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--mds-title);
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.mds .mds-chip:hover,
+.mds .mds-chip:focus-visible {
+    border-color: rgba(var(--bs-danger-rgb, 255, 64, 64), 0.5);
+    color: var(--mds-title);
+}
+
+.mds .mds-chip__key {
+    flex: 0 0 auto;
+    color: var(--mds-muted);
+}
+
+.mds .mds-chip__key::after {
+    content: ":";
+}
+
+.mds .mds-chip__value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.mds .mds-chip i {
+    flex: 0 0 auto;
+    font-size: 0.875rem;
+    color: var(--mds-muted);
+}
+
+.mds .mds-chip:hover i,
+.mds .mds-chip:focus-visible i {
+    color: var(--bs-danger, #ff4040);
+}
+
+.mds .mds-filters__clear {
+    margin-inline-start: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mds-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Type chip — the marker a module type is drawn with. The glyph rides in
+   the existing .badge-soft-* pill, so tone comes from bootstrap and only the
+   layout is new.
+
+   `min-width: 0` undoes style.css's `.table .badge { min-width: 80px }`. That
+   rule is right for a lone status pill in its own column and wrong here: the
+   chip now sits beside the module name, where 80px of padded air would push
+   the name's ellipsis in by a third of the cell. Same specificity (0,2,0), so
+   this only wins because module-setup.css loads from `css_or_js`, after
+   style.css — do not move the sheet earlier.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    min-width: 0;
+}
+
+.mds .mds-type-chip i {
+    font-size: 0.9375rem;
+    line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   2b. List identity cell — icon, name, type and copy in one column
+
+   Name and Type were two columns. A module's type is part of what the module
+   IS rather than a separate fact to scan for, so it rides beside the name as
+   a chip and the column it used to own is gone.
+
+   The cap plus `min-width: 0` is the pair admin-tables.css documents for
+   `.cell--truncate`: a flex item's automatic minimum size is its content, so
+   without the zero the cap does nothing and a long module name sets the width
+   of the whole column. `table-nowrap` on the table already pins white-space,
+   so the children only need the overflow pair.
+
+   The chip must not shrink — it is a fixed token, and letting flex squeeze it
+   would clip the glyph before the name gave up a single character.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-module {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    max-width: 340px;
+}
+
+.mds .mds-module__icon {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--mds-border);
+    background: var(--mds-surface-muted);
+    object-fit: cover;
+}
+
+.mds .mds-module__body {
+    display: block;
+    min-width: 0;
+}
+
+.mds .mds-module__head {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+}
+
+.mds .mds-module__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--mds-title);
+    transition: color 0.15s ease;
+}
+
+.mds .mds-module__head .mds-type-chip {
+    flex: 0 0 auto;
+}
+
+.mds .mds-module__desc {
+    display: block;
+    margin-top: 0.0625rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--mds-muted);
+}
+
+.mds a.mds-module:hover .mds-module__name,
+.mds a.mds-module:focus-visible .mds-module__name {
+    color: var(--mds-accent);
+}
+
+/* --------------------------------------------------------------------------
+   2c. List metric cells — zones, stores + vendors, items
+
+   Stores and Vendors were two columns of bare numbers. A vendor is only in
+   this list because it runs stores, so the pair reads as one fact and now
+   shares a cell, with the unit named inline because the header no longer can.
+
+   That inline label is why these columns do not take admin-tables.css's
+   `.col--numeric`: right-aligning a value/unit pair walks the numbers away
+   from each other. Every cell still opens with its number, so the figures line
+   up on the left edge, and `tabular-nums` keeps them from jittering by digit.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.0625rem;
+    line-height: 1.35;
+}
+
+.mds .mds-metric__line {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.mds .mds-metric__value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--mds-title);
+    font-variant-numeric: tabular-nums;
+}
+
+/* A zero is a fact, not a figure worth reading first — it says the module has
+   nothing hanging off it yet, and the row's tooltip says what to do about it. */
+.mds .mds-metric__value--zero {
+    font-weight: 500;
+    color: var(--mds-muted);
+}
+
+.mds .mds-metric__unit {
+    font-size: 0.75rem;
+    color: var(--mds-muted);
+}
+
+.mds .mds-metric__dot {
+    align-self: center;
+    width: 3px;
+    height: 3px;
+    margin-inline: 0.125rem;
+    border-radius: 50%;
+    background: var(--mds-border-strong);
+}
+
+.mds .mds-metric__sub {
+    font-size: 0.6875rem;
+    color: var(--mds-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.mds .mds-metric__na {
+    font-size: 0.75rem;
+    color: var(--mds-muted);
+}
+
+/* --------------------------------------------------------------------------
+   2d. List state cell — the switch over the date the module was added
+
+   The Added column held one date per row and nothing on the screen acted on
+   it, so it folds under the switch: both answer "what state is this row in",
+   and the column it used to own is gone.
+
+   Safe to share the cell because status-toggle.js only ever repaints
+   `.status-toggle__text` and the form it submits — it does not rebuild the
+   `<td>`, so the date line survives a flip.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-state {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.mds .mds-state__added {
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    color: var(--mds-muted);
+}
+
+/* A switched-off module still sells nothing, so the row says so twice: the
+   Status cell in words, and the icon dimmed for anyone scanning the column of
+   logos rather than reading. Keyed off `data-status` on the switch — which
+   status-toggle.js rewrites when it settles a flip (§10d) — so the row follows
+   the switch with no JS of its own. Browsers without `:has()` simply skip it. */
+.mds tbody tr:has(.status-toggle[data-status="0"]) .mds-module__icon {
+    opacity: 0.5;
+}
+
+/* --------------------------------------------------------------------------
+   2b. Fixes for .tps components used on the add / edit forms
+
+   third-party-setup.css sets `.tps-field { margin-bottom: 0 }` because most
+   settings cards hold a single field. These forms stack three, so the gap is
+   given back here rather than by sprinkling utility classes on every label.
+   -------------------------------------------------------------------------- */
+
+.mds .tps-card__body .tps-field + .tps-field {
+    margin-top: 1rem;
+}
+
+/* .tps-req is only styled inside a field label; the type picker states it on
+   the card heading instead, so it needs the same red asterisk there. */
+.mds .tps-card__title .tps-req {
+    color: var(--bs-danger, #ff4040);
+}
+
+/* A card that carries nothing but the form's action bar — the card border and
+   the footer's own top rule would otherwise draw two lines a pixel apart. */
+.mds .mds-actions .tps-card__foot {
+    border-top: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. Module type picker (add screen)
+
+   Sits on top of .tps-choice, so only the icon column and the grid are new.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.75rem;
+}
+
+.mds .mds-type__icon {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 17px;
+    background: var(--mds-surface-muted);
+    border: 1px solid var(--mds-border);
+    color: var(--mds-muted);
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.mds .tps-choice input:checked ~ .tps-choice__box .mds-type__icon {
+    background: rgba(var(--mds-accent-rgb), 0.1);
+    border-color: rgba(var(--mds-accent-rgb), 0.25);
+    color: var(--mds-accent);
+}
+
+/* The radio dot is redundant next to a card that already fills in and glows
+   when picked, and it competes with the type icon for the same corner. */
+.mds .mds-types .tps-choice__mark {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   4. Locked type (edit screen)
+
+   The module type cannot change after creation, so the edit screen states the
+   one that is set instead of disabling a full list of radios nobody can use.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-locked-type {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1.5px solid var(--mds-border-strong);
+    border-radius: var(--mds-radius-lg);
+    background: var(--mds-surface-muted);
+}
+
+.mds .mds-locked-type__body {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.mds .mds-locked-type__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    color: var(--mds-title);
+}
+
+.mds .mds-locked-type__desc {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--mds-muted);
+}
+
+/* --------------------------------------------------------------------------
+   4b. Fact list (edit screen "At a glance")
+
+   A two column definition list rather than a table: it is four label/value
+   pairs, and a table would bring borders this card does not want.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    font-size: 0.8125rem;
+}
+
+.mds .mds-facts dt {
+    margin: 0;
+    font-weight: 500;
+    color: var(--mds-muted);
+}
+
+.mds .mds-facts dd {
+    margin: 0;
+    text-align: end;
+    font-weight: 600;
+    color: var(--mds-title);
+}
+
+/* --------------------------------------------------------------------------
+   5. Image drop tiles
+
+   The file input covers the whole tile, so the label is the drop target and
+   there is no separate "browse" button to miss.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-media {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.875rem;
+}
+
+.mds .mds-upload {
+    position: relative;
+    display: block;
+    margin: 0;
+    cursor: pointer;
+}
+
+.mds .mds-upload__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--mds-title);
+}
+
+.mds .mds-upload__ratio {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--mds-muted);
+}
+
+.mds .mds-upload__frame {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Square, because the label says the artwork should be 1:1 — but capped, or
+       a full-width tile in a narrow side column grows taller than the form it
+       sits beside. */
+    aspect-ratio: 1 / 1;
+    max-width: 260px;
+    margin-inline: auto;
+    padding: 0.75rem;
+    border: 1.5px dashed var(--mds-border-strong);
+    border-radius: var(--mds-radius-lg);
+    background: var(--mds-surface-muted);
+    overflow: hidden;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.mds .mds-upload:hover .mds-upload__frame,
+.mds .mds-upload input:focus-visible + .mds-upload__frame {
+    border-color: rgba(var(--mds-accent-rgb), 0.55);
+    background: rgba(var(--mds-accent-rgb), 0.04);
+}
+
+.mds .mds-upload__frame img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* The input is the control the label points at — keep it reachable by keyboard
+   rather than display:none, which would drop it out of the tab order. */
+.mds .mds-upload input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mds .mds-upload__action {
+    position: absolute;
+    inset-block-end: 0.5rem;
+    inset-inline-end: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 40px;
+    background: rgba(51, 66, 87, 0.82);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.mds .mds-upload__action i {
+    font-size: 0.8125rem;
+}
+
+.mds .mds-upload__hint {
+    display: block;
+    margin-top: 0.375rem;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--mds-muted);
+}
+
+/* --------------------------------------------------------------------------
+   6. Empty state
+
+   admin-tables.css already styles .empty--data; this only adds the call to
+   action underneath it, which the shared block has no slot for.
+   -------------------------------------------------------------------------- */
+
+.mds .mds-empty__text {
+    max-width: 380px;
+    /* .empty--data h5 zeroes its bottom margin, so the gap is given here. */
+    margin: 0.625rem auto 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--mds-muted);
+}

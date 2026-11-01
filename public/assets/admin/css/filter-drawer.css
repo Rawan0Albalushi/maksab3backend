@@ -1,0 +1,510 @@
+/* ==========================================================================
+   Filter Drawer — the shared right-hand slide-in filter panel.
+
+   It restyles the markup the list screens already ship (`#datatableFilterSidebar`
+   + the theme's `.sidebar` / `.sidebar-card` / `.sidebar-body` / `.sidebar-footer`
+   skeleton), so an existing filter panel is upgraded without a markup rewrite.
+   New screens should add the `filter-drawer` class instead of relying on the id.
+
+   Everything is selected through `:is(#datatableFilterSidebar, .filter-drawer)`,
+   which carries the id's specificity (1,0,0) — enough to beat the theme's
+   `.sidebar` / `.sidebar-footer` rules and `.initial-hidden` without `!important`.
+
+   Logical properties throughout; the closed-state transform is flipped for RTL
+   because the panel is anchored with `inset-inline-end`.
+   ========================================================================== */
+
+:is(#datatableFilterSidebar, .filter-drawer) {
+    --fd-width: 420px;
+    --fd-border: #e9ecf1;
+    --fd-border-soft: #f0f2f6;
+    --fd-surface: #ffffff;
+    --fd-surface-muted: #f7f9fb;
+    --fd-title: var(--text-title, #334257);
+    --fd-muted: #7a879b;
+    --fd-accent: var(--primary-clr, #107980);
+    --fd-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --fd-radius: var(--field-radius);
+    --fd-ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --fd-shift: 100%;
+
+    position: fixed;
+    inset-block: 0;
+    inset-inline-end: 0;
+    z-index: 1052;
+
+    display: block;
+    width: var(--fd-width);
+    max-width: 100vw;
+    height: 100%;
+
+    background-color: var(--fd-surface);
+    border: 0;
+    border-inline-start: 1px solid var(--fd-border);
+    box-shadow: -28px 0 60px -30px rgba(51, 66, 87, 0.45),
+                -1px 0 0 0 rgba(51, 66, 87, 0.04);
+
+    transform: translateX(var(--fd-shift));
+    visibility: hidden;
+    transition: transform 0.34s var(--fd-ease), visibility 0s linear 0.34s;
+}
+
+[dir="rtl"] :is(#datatableFilterSidebar, .filter-drawer) {
+    --fd-shift: -100%;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer).is-open {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.34s var(--fd-ease), visibility 0s linear 0s;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer).filter-drawer--wide {
+    --fd-width: 520px;
+}
+
+@media (max-width: 575.98px) {
+    :is(#datatableFilterSidebar, .filter-drawer) {
+        --fd-width: 100vw;
+        border-inline-start: 0;
+    }
+}
+
+/* The panel is `position: fixed`, so a transformed ancestor would trap it.
+   filter-drawer.js relocates it to <body> on load; this keeps the closed panel
+   from being reachable by keyboard or screen readers in the meantime. */
+:is(#datatableFilterSidebar, .filter-drawer):not(.is-open) {
+    pointer-events: none;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer).is-open {
+    pointer-events: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Backdrop — injected once by filter-drawer.js
+   -------------------------------------------------------------------------- */
+
+.filter-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1051;
+    background-color: rgba(23, 34, 49, 0.42);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.28s ease, visibility 0s linear 0.28s;
+}
+
+.filter-drawer-backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.28s ease, visibility 0s linear 0s;
+}
+
+@supports (backdrop-filter: blur(2px)) {
+    .filter-drawer-backdrop {
+        background-color: rgba(23, 34, 49, 0.3);
+        backdrop-filter: blur(2px);
+    }
+}
+
+body.fd-open {
+    overflow: hidden;
+}
+
+/* Select2 attaches its dropdown to a container appended directly to <body>;
+   without this it renders under the panel once the panel is lifted above the
+   admin chrome. The child combinator is load-bearing — see admin-ui.md §10c. */
+body.fd-open > .select2-container {
+    z-index: 1060;
+}
+
+/* --------------------------------------------------------------------------
+   Shell — the theme card inside the panel becomes a flex column so the body
+   scrolls and the footer can stick to the bottom edge.
+   -------------------------------------------------------------------------- */
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
+:is(#datatableFilterSidebar, .filter-drawer) .card-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--fd-border);
+    background-color: var(--fd-surface);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-head__icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background-color: rgba(var(--fd-accent-rgb), 0.09);
+    color: var(--fd-accent);
+    font-size: 19px;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-head__text {
+    min-width: 0;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .card-header-title,
+:is(#datatableFilterSidebar, .filter-drawer) .fd-head__title {
+    display: block;
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--fd-title);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-head__subtitle {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin: 2px 0 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--fd-muted);
+    overflow: hidden;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-head__count {
+    flex: 0 0 auto;
+    display: none;
+    align-items: center;
+    height: 22px;
+    padding: 0 0.55rem;
+    border-radius: 999px;
+    background-color: rgba(var(--fd-accent-rgb), 0.1);
+    color: var(--fd-accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-head__count.is-visible {
+    display: inline-flex;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-close {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid var(--fd-border);
+    border-radius: 50%;
+    background-color: var(--fd-surface);
+    color: var(--fd-muted);
+    font-size: 15px;
+    line-height: 1;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-close:hover,
+:is(#datatableFilterSidebar, .filter-drawer) .fd-close:focus {
+    background-color: var(--fd-surface-muted);
+    border-color: var(--fd-border);
+    color: var(--fd-title);
+    text-decoration: none;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-close i {
+    font-size: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   Body — the form is the scroll container
+   -------------------------------------------------------------------------- */
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 1.15rem 1.25rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122, 135, 155, 0.35) transparent;
+}
+
+/* The body is a flex column so the footer can be pushed to the bottom with
+   `margin-block-start: auto`. Flex items shrink by default, which in a scrolling
+   column squashes the content instead of overflowing it — pin them at their
+   natural height and let the container scroll. */
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body > * {
+    flex: 0 0 auto;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body::-webkit-scrollbar-thumb {
+    background-color: rgba(122, 135, 155, 0.28);
+    border-radius: 999px;
+    visibility: visible;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(122, 135, 155, 0.45);
+}
+
+/* Section label — the views already emit `<small class="text-cap">`. */
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body > small,
+:is(#datatableFilterSidebar, .filter-drawer) .fd-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--fd-muted);
+}
+
+/* Section divider — `<hr class="my-4">` between groups. */
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body hr {
+    margin: 1.15rem 0;
+    border: 0;
+    border-top: 1px solid var(--fd-border-soft);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body hr:first-child {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Controls
+   -------------------------------------------------------------------------- */
+
+:is(#datatableFilterSidebar, .filter-drawer) .form-control,
+:is(#datatableFilterSidebar, .filter-drawer) .select2-container--default .select2-selection--multiple,
+:is(#datatableFilterSidebar, .filter-drawer) .select2-container--default .select2-selection--single {
+    min-height: 42px;
+    border: 1px solid var(--fd-border);
+    border-radius: var(--fd-radius);
+    background-color: var(--fd-surface);
+    font-size: 0.82rem;
+    color: var(--fd-title);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) input[type="date"].form-control {
+    height: 42px;
+    padding-inline: 0.75rem;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .form-control:focus,
+:is(#datatableFilterSidebar, .filter-drawer) .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: rgba(var(--fd-accent-rgb), 0.55);
+    box-shadow: 0 0 0 3px rgba(var(--fd-accent-rgb), 0.1);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .select2-container {
+    width: 100% !important;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    border-radius: 6px;
+    border-color: rgba(var(--fd-accent-rgb), 0.2);
+    background-color: rgba(var(--fd-accent-rgb), 0.07);
+    color: var(--fd-title);
+    font-size: 0.76rem;
+}
+
+/* Checkbox / radio rows — the theme's `.custom-control` markup, given a
+   hoverable row so the whole line is a target rather than the 14px box. */
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body .custom-control {
+    margin-bottom: 0;
+    padding-block: 0.34rem;
+    padding-inline-start: 1.9rem;
+    border-radius: 7px;
+    transition: background-color 0.15s ease;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body .custom-control:hover {
+    background-color: var(--fd-surface-muted);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body .custom-control-label {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--fd-title);
+    cursor: pointer;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body .custom-control-input:checked ~ .custom-control-label {
+    font-weight: 600;
+    color: var(--fd-accent);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body .custom-control-label::before,
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body .custom-control-label::after {
+    inset-inline-start: -1.5rem;
+}
+
+/* Two-up grid for long checkbox groups (`<div class="fd-grid">`). */
+:is(#datatableFilterSidebar, .filter-drawer) .fd-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.1rem 0.5rem;
+}
+
+@media (max-width: 400px) {
+    :is(#datatableFilterSidebar, .filter-drawer) .fd-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Date range — two side-by-side fields with their own small caption. */
+:is(#datatableFilterSidebar, .filter-drawer) .fd-daterange {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+@media (max-width: 400px) {
+    :is(#datatableFilterSidebar, .filter-drawer) .fd-daterange {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .fd-sublabel {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--fd-muted);
+}
+
+/* Screens still on the older `----to----` separator cell. */
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-body .col-12.text-center {
+    padding-block: 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--fd-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Footer — sticks to the bottom of the scroll area, and is pushed there by
+   `margin-block-start: auto` when the form is shorter than the panel.
+   -------------------------------------------------------------------------- */
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer {
+    position: sticky;
+    inset-inline: auto;
+    bottom: 0;
+    /* `.custom-control` is `position: relative`, so the rows are positioned
+       elements too and would paint over the pinned footer on z-index: auto. */
+    z-index: 2;
+    height: auto;
+    margin: auto -1.25rem 0;
+    padding: 0.85rem 1.25rem;
+    border: 0;
+    border-top: 1px solid var(--fd-border);
+    border-radius: 0;
+    background-color: var(--fd-surface);
+    box-shadow: 0 -10px 18px -16px rgba(51, 66, 87, 0.5);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer .btn {
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border-radius: var(--fd-radius);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer .btn-white,
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer .btn--reset {
+    border: 1px solid var(--fd-border);
+    background-color: var(--fd-surface);
+    color: var(--fd-muted);
+}
+
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer .btn-white:hover,
+:is(#datatableFilterSidebar, .filter-drawer) .sidebar-footer .btn--reset:hover {
+    background-color: var(--fd-surface-muted);
+    color: var(--fd-title);
+}
+
+/* --------------------------------------------------------------------------
+   Trigger button — the `.filter-button-show` control in the list card header.
+   -------------------------------------------------------------------------- */
+
+.filter-button-show {
+    position: relative;
+}
+
+.filter-button-show .badge:empty {
+    display: none;
+}
+
+.filter-button-show .badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.66rem;
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Motion preference
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    /* `.is-open` also declares a transition, so it has to be named here or it
+       would out-specify the reset and keep animating. */
+    :is(#datatableFilterSidebar, .filter-drawer),
+    :is(#datatableFilterSidebar, .filter-drawer).is-open,
+    .filter-drawer-backdrop,
+    .filter-drawer-backdrop.is-open {
+        transition: none;
+    }
+}

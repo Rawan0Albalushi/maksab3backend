@@ -1,0 +1,1054 @@
+/* ==========================================================================
+   Admin — Order details screen
+   --------------------------------------------------------------------------
+   Scope root: `.odv` on the page wrapper (`content container-fluid odv`).
+   Every selector below is nested under it, so nothing here reaches any other
+   admin screen even though it restyles generic elements (`.card`, `dl`, `h5`).
+
+   Load order: pushed from the view via @push('css_or_js'), which the admin
+   layout emits AFTER style.css / theme.min / admin-tables.css. That is what
+   lets these rules win on plain specificity — there is deliberately no
+   `!important` here except where the theme itself used one (noted inline).
+
+   Logical properties throughout (`margin-inline-*`, `inset-inline-*`,
+   `padding-block-*`) so RTL locales lay out with no second stylesheet.
+   ========================================================================== */
+
+.odv {
+    --odv-ink: var(--text-title, #334257);
+    --odv-ink-soft: #5b6b80;
+    --odv-muted: #8593a5;
+    --odv-rule: #e9eef3;
+    --odv-rule-strong: #dde5ec;
+    --odv-surface: #f7f9fb;
+    --odv-surface-2: #eef3f7;
+    --odv-accent: var(--primary-clr, #107980);
+    --odv-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --odv-radius: 0.75rem;
+    --odv-radius-sm: 0.5rem;
+    --odv-shadow: 0 1px 2px rgba(22, 42, 60, 0.04), 0 8px 24px -16px rgba(22, 42, 60, 0.18);
+    --odv-gap: 1rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   1. Page chrome
+   -------------------------------------------------------------------------- */
+
+.odv .page-header {
+    margin-block-end: 1.25rem;
+}
+
+.odv .odv-pager {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.odv .odv-pager .btn-icon {
+    border: 1px solid var(--odv-rule-strong);
+    background: #fff;
+    color: var(--odv-ink-soft);
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.odv .odv-pager .btn-icon:hover {
+    border-color: rgba(var(--odv-accent-rgb), 0.45);
+    background: rgba(var(--odv-accent-rgb), 0.06);
+    color: var(--odv-accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Cards
+   The theme's `.card` is a flat white box with a hairline. These give the two
+   columns one consistent radius / border / shadow so the left invoice card and
+   the sidebar stack read as the same family.
+   -------------------------------------------------------------------------- */
+
+.odv .card {
+    border: 1px solid var(--odv-rule);
+    border-radius: var(--odv-radius);
+    box-shadow: var(--odv-shadow);
+}
+
+/* The sidebar column was a pile of cards with hand-tuned `mt-2` / `mb-3`
+   utilities, so the rhythm drifted. One flex column owns the spacing now and
+   the per-card margins are neutralised. */
+.odv .odv-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--odv-gap);
+}
+
+.odv .odv-side > .card {
+    margin: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Invoice header
+   -------------------------------------------------------------------------- */
+
+/* No bottom rule here: the meta grid below draws the separator, as a rule on
+   each of its own items so that a wrapped second row is ruled off too. */
+.odv .odv-head {
+    display: block;
+    padding: 1.25rem 1.375rem 1rem;
+}
+
+.odv .odv-head__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+}
+
+.odv .odv-head__ident {
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.625rem;
+}
+
+.odv .odv-head__order {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--odv-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.odv .odv-head__order .odv-hash {
+    color: var(--odv-muted);
+    font-weight: 500;
+    margin-inline-end: 1px;
+}
+
+.odv .odv-head__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-inline-start: auto;
+}
+
+.odv .odv-head__actions .btn {
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding-inline: 0.875rem;
+    font-size: 0.8125rem;
+    border-radius: var(--odv-radius-sm);
+}
+
+/* The facts strip: date, store, schedule, coupon, map link. Each is a chip so
+   the row stays legible when it wraps on a narrow column. */
+.odv .odv-head__facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-start: 0.875rem;
+}
+
+.odv .odv-fact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 999px;
+    background: var(--odv-surface);
+    border: 1px solid var(--odv-rule);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--odv-ink-soft);
+}
+
+.odv .odv-fact > i {
+    font-size: 0.9375rem;
+    color: var(--odv-muted);
+    flex: 0 0 auto;
+}
+
+.odv .odv-fact strong {
+    font-weight: 600;
+    color: var(--odv-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.odv .odv-fact--warn {
+    background: rgba(255, 187, 56, 0.12);
+    border-color: rgba(255, 187, 56, 0.32);
+    color: #8a6100;
+}
+
+.odv .odv-fact--warn > i {
+    color: #b98200;
+}
+
+.odv .odv-fact--accent {
+    background: rgba(var(--odv-accent-rgb), 0.08);
+    border-color: rgba(var(--odv-accent-rgb), 0.22);
+    color: var(--odv-accent);
+}
+
+.odv .odv-fact--accent > i,
+.odv .odv-fact--accent strong {
+    color: var(--odv-accent);
+}
+
+/* Map link is a chip too, but interactive — it keeps the button element so the
+   modal trigger attributes stay where they were. */
+.odv button.odv-fact {
+    cursor: pointer;
+    border-style: solid;
+    background: #fff;
+    border-color: rgba(var(--odv-accent-rgb), 0.35);
+    color: var(--odv-accent);
+    font-weight: 500;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.odv button.odv-fact > i {
+    color: inherit;
+}
+
+.odv button.odv-fact:hover {
+    background: rgba(var(--odv-accent-rgb), 0.08);
+    border-color: rgba(var(--odv-accent-rgb), 0.55);
+}
+
+.odv .odv-loglink {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--info-dark, #245bd1);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.odv .odv-loglink:hover {
+    color: var(--odv-accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   4. Status pills
+   Soft tint + leading dot. Same vocabulary as the `.tps-pill` family, sized
+   for a heading row rather than a card header.
+   -------------------------------------------------------------------------- */
+
+.odv .odv-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    text-transform: capitalize;
+    background: rgba(124, 139, 161, 0.12);
+    color: #55637a;
+}
+
+.odv .odv-pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: 0 0 auto;
+}
+
+.odv .odv-pill--neutral { background: rgba(124, 139, 161, 0.12); color: #55637a; }
+.odv .odv-pill--info    { background: rgba(36, 91, 209, 0.10);  color: var(--info-dark, #245bd1); }
+.odv .odv-pill--accent  { background: rgba(var(--odv-accent-rgb), 0.10); color: var(--odv-accent); }
+.odv .odv-pill--warn    { background: rgba(230, 168, 50, 0.16); color: #8a6100; }
+.odv .odv-pill--ok      { background: rgba(1, 148, 99, 0.12);   color: var(--success-dark, #019463); }
+.odv .odv-pill--danger  { background: rgba(203, 32, 32, 0.10);  color: var(--danger-dark, #cb2020); }
+
+/* Flag pills carry no state of their own (campaign / edited), so they drop the
+   dot and read as quieter outlines. */
+.odv .odv-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: var(--odv-radius-sm);
+    border: 1px solid var(--odv-rule-strong);
+    background: var(--odv-surface);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--odv-ink-soft);
+}
+
+
+/* --------------------------------------------------------------------------
+   5. Meta grid
+   Replaces the right-aligned `h6` stack the header used to carry. A grid keeps
+   labels and values on a shared baseline no matter how many facts an order
+   has, and it survives the module / payment-method conditionals that make the
+   set of rows vary per order.
+   -------------------------------------------------------------------------- */
+
+/* Flex rather than grid, deliberately. The set of facts varies per order —
+   offline payments add a verification tile plus one per payment_info field,
+   food adds cutlery — so the count is anything from 4 to ~8. A fixed grid
+   leaves the last row short and paints an empty cell; flex lets the final row
+   stretch to fill, and the separators are drawn on the items themselves. */
+.odv .odv-meta {
+    display: flex;
+    flex-wrap: wrap;
+    border-block-end: 1px solid var(--odv-rule);
+}
+
+.odv .odv-meta__item {
+    flex: 1 1 9.5rem;
+    min-width: 9.5rem;
+    padding: 0.8125rem 1.375rem;
+    border-block-start: 1px solid var(--odv-rule);
+    border-inline-start: 1px solid var(--odv-rule);
+}
+
+.odv .odv-meta__item:first-child {
+    border-inline-start: 0;
+}
+
+.odv .odv-meta__label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--odv-muted);
+    margin-block-end: 0.3125rem;
+}
+
+.odv .odv-meta__value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--odv-ink);
+    text-transform: capitalize;
+    overflow-wrap: anywhere;
+}
+
+.odv .odv-meta__value .btn {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    border-radius: var(--odv-radius-sm);
+    text-transform: none;
+}
+
+.odv .odv-meta__value--mono {
+    font-family: "Roboto Mono", ui-monospace, monospace;
+    font-size: 0.78125rem;
+    text-transform: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   6. Notes / callouts
+   -------------------------------------------------------------------------- */
+
+.odv .odv-notes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    padding: 1rem 1.375rem 0;
+}
+
+.odv .odv-note {
+    display: flex;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--odv-radius-sm);
+    border-inline-start: 3px solid var(--odv-rule-strong);
+    background: var(--odv-surface);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--odv-ink-soft);
+}
+
+.odv .odv-note > i {
+    font-size: 1rem;
+    line-height: 1.35;
+    flex: 0 0 auto;
+    color: var(--odv-muted);
+}
+
+.odv .odv-note__label {
+    display: block;
+    font-weight: 600;
+    color: var(--odv-ink);
+    margin-block-end: 0.125rem;
+}
+
+.odv .odv-note__body {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.odv .odv-note--warn {
+    background: rgba(255, 187, 56, 0.10);
+    border-inline-start-color: var(--bs-warning, #ffbb38);
+}
+
+.odv .odv-note--warn > i { color: var(--warning-dark, #e6a832); }
+
+.odv .odv-note--danger {
+    background: rgba(255, 64, 64, 0.07);
+    border-inline-start-color: var(--danger-clr, #ff6d6d);
+}
+
+.odv .odv-note--danger > i { color: var(--danger-dark, #cb2020); }
+.odv .odv-note--danger .odv-note__label { color: var(--danger-dark, #cb2020); }
+
+.odv .odv-note--info {
+    background: rgba(92, 143, 252, 0.08);
+    border-inline-start-color: var(--bs-info, #5c8ffc);
+}
+
+.odv .odv-note--info > i { color: var(--info-dark, #245bd1); }
+
+
+/* --------------------------------------------------------------------------
+   7. Items table
+   admin-tables.css already owns the header caps / row hairlines / hover tint
+   via `.card-table`. What is left here is the per-cell content: the product
+   media block, the variation and addon sub-lists, and the numeric columns.
+   -------------------------------------------------------------------------- */
+
+.odv .odv-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.375rem 0.75rem;
+}
+
+.odv .odv-section-head__title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--odv-ink);
+}
+
+.odv .odv-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding-inline: 0.375rem;
+    border-radius: 999px;
+    background: var(--odv-surface-2);
+    color: var(--odv-ink-soft);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.odv .odv-items td {
+    vertical-align: top;
+    padding-block: 0.875rem;
+}
+
+.odv .odv-items .odv-items__sl {
+    width: 1%;
+    color: var(--odv-muted);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    padding-block-start: 1rem;
+}
+
+.odv .odv-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.odv .odv-item__thumb {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    border-radius: var(--odv-radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--odv-rule);
+    background: var(--odv-surface);
+    display: block;
+}
+
+.odv .odv-item__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.odv .odv-item__body {
+    min-width: 0;
+}
+
+.odv .odv-item__name {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--odv-ink);
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.odv .odv-item__unit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-block-start: 0.1875rem;
+    font-size: 0.75rem;
+    color: var(--odv-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Variation / addon sub-lists. These come out of JSON columns whose shape
+   varies by module, so the markup below them is several nested branches — the
+   styling is kept on the wrapper so every branch lands the same. */
+.odv .odv-item__opts {
+    margin-block-start: 0.4375rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--odv-muted);
+    white-space: normal;
+}
+
+.odv .odv-item__opts strong,
+.odv .odv-item__opts .font-weight-bold {
+    font-weight: 600;
+    color: var(--odv-ink-soft);
+}
+
+.odv .odv-item__opts u {
+    text-decoration: none;
+}
+
+.odv .odv-item__opts-title {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--odv-muted);
+}
+
+.odv .odv-items .odv-qty {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--odv-ink-soft);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+}
+
+.odv .odv-items .odv-line-total {
+    text-align: end;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--odv-ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Totals
+   The block used to be a full-width `dl.row.text-right`, which right-aligned
+   the labels too and left a half-card gap between a label and its own value.
+   Constraining the panel and giving the two sides opposite alignment is what
+   makes it read as an invoice total.
+   -------------------------------------------------------------------------- */
+
+.odv .odv-summary-wrap {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1.25rem 1.375rem 1.5rem;
+}
+
+.odv .odv-summary {
+    width: 100%;
+    max-width: 24rem;
+    margin: 0;
+    padding: 1rem 1.125rem;
+    border: 1px solid var(--odv-rule);
+    border-radius: var(--odv-radius);
+    background: var(--odv-surface);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    row-gap: 0.5rem;
+}
+
+/* The two shared partials (pro-delivery-discount-row, delivery-type-row) emit
+   `dt.col-6` / `dd.col-6` for this layout, so the pairs stay Bootstrap columns
+   and only their alignment and type are restated here. Do not swap them for a
+   grid without updating both partials. */
+.odv .odv-summary > dt,
+.odv .odv-summary > dd {
+    margin: 0;
+    padding: 0;
+    flex: 0 0 50%;
+    max-width: 50%;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+}
+
+.odv .odv-summary > dt {
+    text-align: start;
+    font-weight: 400;
+    color: var(--odv-muted);
+}
+
+.odv .odv-summary > dd {
+    text-align: end;
+    font-weight: 500;
+    color: var(--odv-ink);
+}
+
+.odv .odv-summary > dt i {
+    font-size: 0.875rem;
+    margin-inline-start: 0.125rem;
+    color: var(--odv-muted);
+    cursor: help;
+}
+
+.odv .odv-summary__rule {
+    flex: 0 0 100%;
+    max-width: 100%;
+    height: 1px;
+    margin-block: 0.375rem;
+    background: var(--odv-rule-strong);
+}
+
+.odv .odv-summary > .odv-summary__total-label,
+.odv .odv-summary > .odv-summary__total-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--odv-ink);
+}
+
+.odv .odv-summary__note {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1.375rem 1.25rem;
+}
+
+.odv .odv-summary__note > div {
+    max-width: 24rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   9. Sidebar sections
+   Every sidebar card used to invent its own heading — some with the theme's
+   `.card-header-icon`, some with a bare `h5`, one with a centred `h4`. This is
+   the single vocabulary they all use now.
+   -------------------------------------------------------------------------- */
+
+.odv .odv-sec__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 0.875rem;
+}
+
+.odv .odv-sec__icon {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--odv-radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--odv-accent-rgb), 0.10);
+    color: var(--odv-accent);
+}
+
+.odv .odv-sec__icon i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.odv .odv-sec__icon img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+}
+
+.odv .odv-sec__title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--odv-ink);
+    min-width: 0;
+}
+
+.odv .odv-sec__aside {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--odv-accent);
+}
+
+.odv .odv-sec__aside a,
+.odv a.odv-sec__aside {
+    color: var(--odv-accent);
+    text-decoration: none;
+}
+
+.odv .odv-sec__aside a:hover,
+.odv a.odv-sec__aside:hover {
+    text-decoration: underline;
+}
+
+
+/* Party block — customer / delivery man / store. One layout for all three;
+   the theme's `.customer--information-single` sizing is overridden here so the
+   three cards line up instead of each using its own avatar size. */
+.odv .odv-party {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: var(--odv-radius-sm);
+    background: var(--odv-surface);
+    border: 1px solid var(--odv-rule);
+    text-decoration: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.odv a.odv-party:hover {
+    border-color: rgba(var(--odv-accent-rgb), 0.35);
+    background: rgba(var(--odv-accent-rgb), 0.045);
+}
+
+.odv .odv-party__avatar {
+    flex: 0 0 auto;
+    position: relative;
+    width: 44px;
+    height: 44px;
+}
+
+/* `:not(.position-absolute)` is load-bearing. The customer card renders
+   `partials/_user-avatar`, which puts a SECOND <img> inside this wrapper — the
+   Pro-member badge, positioned absolutely in the corner. A bare
+   `.odv-party__avatar img` rule sizes that badge to the full 44px too, and it
+   then covers the whole portrait. Size the portrait only; the badge gets its
+   own rule below. */
+.odv .odv-party__avatar > img:not(.position-absolute),
+.odv .odv-party__avatar .avatar-img {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid var(--odv-rule-strong);
+}
+
+.odv .odv-party--store .odv-party__avatar > img:not(.position-absolute),
+.odv .odv-party--store .odv-party__avatar .avatar-img {
+    border-radius: var(--odv-radius-sm);
+}
+
+/* Pro badge: sits on the lower-inline-end edge of the portrait rather than over
+   its top corner, with a white ring so it reads as a separate mark.
+   `top: auto !important` is the one !important here and it is unavoidable — the
+   partial tags the badge `.top-0`, and theme.minc619.css declares that as
+   `top: 0 !important`, so no amount of specificity moves it off the top edge. */
+.odv .odv-party__avatar > img.position-absolute {
+    width: 16px;
+    height: 16px;
+    top: auto !important;
+    inset-block-end: -2px;
+    inset-inline-end: -2px;
+    border: 2px solid #fff;
+    background: #fff;
+    box-sizing: content-box;
+}
+
+.odv .odv-party__body {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.odv .odv-party__name {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--odv-ink);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.odv a.odv-party:hover .odv-party__name {
+    color: var(--odv-accent);
+}
+
+.odv .odv-party__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1875rem;
+    margin-block-start: 0.3125rem;
+}
+
+.odv .odv-party__meta span,
+.odv .odv-party__meta a {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--odv-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+.odv .odv-party__meta i {
+    font-size: 0.875rem;
+    color: var(--odv-muted);
+    flex: 0 0 auto;
+}
+
+
+/* Key / value rows inside sidebar cards (cancellation, refund, receiver,
+   delivery info). Replaces `.delivery--information-single`, whose fixed 60px
+   label column truncated anything longer than "Reason". */
+.odv .odv-kv {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.odv .odv-kv__row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
+.odv .odv-kv__label {
+    flex: 0 0 auto;
+    min-width: 5.5rem;
+    color: var(--odv-muted);
+}
+
+.odv .odv-kv__label::after {
+    content: ":";
+    margin-inline-start: 1px;
+}
+
+.odv .odv-kv__value {
+    min-width: 0;
+    flex: 1 1 auto;
+    font-weight: 500;
+    color: var(--odv-ink);
+    overflow-wrap: anywhere;
+}
+
+.odv .odv-kv__value a {
+    color: var(--odv-accent);
+}
+
+/* The house / floor / road trio reads better on one line than as three rows,
+   separated by hairlines rather than by punctuation. */
+.odv .odv-kv__inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 0.375rem;
+}
+
+.odv .odv-kv__inline > .odv-kv__pair {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.375rem;
+}
+
+.odv .odv-kv__inline > .odv-kv__pair + .odv-kv__pair {
+    margin-inline-start: 0.75rem;
+    padding-inline-start: 0.75rem;
+    border-inline-start: 1px solid var(--odv-rule-strong);
+}
+
+.odv .odv-kv__inline .odv-kv__label {
+    min-width: 0;
+}
+
+
+/* Panel used by the "Order setup" card for its payment / failure states. */
+.odv .odv-panel {
+    padding: 1rem;
+    border-radius: var(--odv-radius-sm);
+    background: var(--odv-surface);
+    border: 1px solid var(--odv-rule);
+    text-align: center;
+}
+
+.odv .odv-panel__title {
+    margin: 0 0 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--odv-ink);
+}
+
+.odv .odv-panel__text {
+    margin: 0 0 0.875rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--odv-ink-soft);
+}
+
+.odv .odv-panel .btn--container {
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Status dropdown — the theme renders it as a `.form-control` with a caret, so
+   it is sized like an input rather than like a button on purpose. */
+.odv .odv-status-select {
+    margin-block-start: 1rem;
+}
+
+.odv .odv-status-select > label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--odv-muted);
+    margin-block-end: 0.375rem;
+}
+
+.odv .odv-status-select .dropdown-toggle {
+    height: 42px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--odv-ink);
+    text-transform: capitalize;
+    border-radius: var(--odv-radius-sm);
+    border-color: var(--odv-rule-strong);
+}
+
+.odv .odv-status-select .dropdown-menu {
+    width: 100%;
+    font-size: 0.8125rem;
+    border-radius: var(--odv-radius-sm);
+    border-color: var(--odv-rule);
+    box-shadow: var(--odv-shadow);
+}
+
+.odv .odv-assign-btn {
+    margin-block-start: 0.75rem;
+}
+
+
+/* Image strips — prescription, refund evidence, delivery proof. */
+.odv .odv-thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 0.5rem;
+}
+
+.odv .odv-thumb {
+    aspect-ratio: 1;
+    width: 100%;
+    border-radius: var(--odv-radius-sm);
+    border: 1px solid var(--odv-rule);
+    object-fit: cover;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.odv .odv-thumb:hover {
+    border-color: rgba(var(--odv-accent-rgb), 0.5);
+}
+
+
+/* --------------------------------------------------------------------------
+   10. Empty / fallback states
+   -------------------------------------------------------------------------- */
+
+.odv .odv-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.625rem;
+    border-radius: var(--odv-radius-sm);
+    background: var(--odv-surface);
+    border: 1px dashed var(--odv-rule-strong);
+    font-size: 0.8125rem;
+    color: var(--odv-muted);
+}
+
+
+/* --------------------------------------------------------------------------
+   11. Narrow screens
+   Below 1200px the two columns stack (Bootstrap `col-lg-*` plus the theme's
+   own `.order-print-area-*` widths), so the header grid and the totals panel
+   need to give back the space they reserve for a wide card.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767.98px) {
+    .odv .odv-head,
+    .odv .odv-meta__item,
+    .odv .odv-notes,
+    .odv .odv-section-head,
+    .odv .odv-summary-wrap {
+        padding-inline: 1rem;
+    }
+
+    .odv .odv-summary {
+        max-width: none;
+    }
+
+    .odv .odv-head__order {
+        font-size: 1.125rem;
+    }
+
+    .odv .odv-head__actions {
+        width: 100%;
+        margin-inline-start: 0;
+    }
+
+    .odv .odv-head__actions .btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,587 @@
+/* ==========================================================================
+   Bulk tools — shared extras for the bulk-export and bulk-import screens
+
+   Loaded after third-party-setup.css and scoped under .btk, so it only adds
+   the pieces the .tps vocabulary has no component for: the dataset summary
+   bar, the conditional panels, the file dropzone and the reference asides.
+   Logical properties throughout to keep RTL correct.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Header extras
+   -------------------------------------------------------------------------- */
+
+.btk .btk-head-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.btk .btk-module {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4375rem 0.875rem;
+    border: 1px solid var(--tps-border-strong);
+    border-radius: 40px;
+    background: var(--tps-surface);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.btk .btk-module img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.btk .btk-module i {
+    color: var(--tps-accent);
+    font-size: 1rem;
+}
+
+.btk .btk-module small {
+    font-weight: 500;
+    color: var(--tps-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Dataset summary bar
+
+   Fixed breakpoints rather than auto-fit: the cells are separated by a rule on
+   the inline start edge, and a wrapped auto-fit grid would draw that rule at
+   the start of every new row.
+   -------------------------------------------------------------------------- */
+
+.btk .btk-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-bottom: 1rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+    overflow: hidden;
+}
+
+.btk .btk-stat {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+.btk .btk-stat + .btk-stat {
+    border-block-start: 1px solid var(--tps-border);
+}
+
+@media (min-width: 768px) {
+    .btk .btk-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .btk .btk-stat + .btk-stat {
+        border-block-start: 0;
+        border-inline-start: 1px solid var(--tps-border);
+    }
+}
+
+.btk .btk-stat__icon {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(var(--tps-accent-rgb), 0.08);
+    color: var(--tps-accent);
+    font-size: 1rem;
+}
+
+.btk .btk-stat__label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tps-muted);
+}
+
+.btk .btk-stat__value {
+    display: block;
+    margin-top: 0.125rem;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--tps-title);
+}
+
+.btk .btk-stat__hint {
+    display: block;
+    margin-top: 0.0625rem;
+    font-size: 0.6875rem;
+    color: var(--tps-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Scope picker
+   -------------------------------------------------------------------------- */
+
+.btk .btk-choice-head {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.btk .btk-choice-head i {
+    font-size: 0.9375rem;
+    color: var(--tps-accent);
+}
+
+/* Conditional range panel — hidden until its scope is picked. */
+.btk .btk-panel {
+    display: none;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px dashed var(--tps-border-strong);
+}
+
+.btk .btk-panel__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.btk .btk-panel__title {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.btk .btk-panel__fill {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tps-accent);
+    cursor: pointer;
+}
+
+.btk .btk-panel__fill:hover {
+    text-decoration: underline;
+}
+
+.btk .btk-error {
+    display: none;
+    margin-top: 0.3125rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #b32d2d;
+}
+
+.btk .btk-field--invalid .form-control {
+    border-color: rgba(255, 64, 64, 0.55);
+}
+
+.btk .btk-field--invalid .btk-error {
+    display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Aside: file contents
+   -------------------------------------------------------------------------- */
+
+.btk .btk-cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.btk .btk-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5625rem;
+    border: 1px solid var(--tps-border-strong);
+    border-radius: 6px;
+    background: var(--tps-surface-muted);
+    font-family: SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.6875rem;
+    color: #55617a;
+}
+
+.btk .btk-tips {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.btk .btk-tips li {
+    position: relative;
+    padding-inline-start: 1.375rem;
+    padding-bottom: 0.625rem;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: #55617a;
+}
+
+.btk .btk-tips li:last-child {
+    padding-bottom: 0;
+}
+
+.btk .btk-tips li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 3px;
+    top: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(var(--tps-accent-rgb), 0.45);
+}
+
+.btk .btk-crosslink {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface-muted);
+    color: inherit;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.btk .btk-crosslink:hover {
+    border-color: rgba(var(--tps-accent-rgb), 0.45);
+    background: rgba(var(--tps-accent-rgb), 0.05);
+    text-decoration: none;
+}
+
+.btk .btk-crosslink i {
+    flex: 0 0 auto;
+    font-size: 1.25rem;
+    color: var(--tps-accent);
+}
+
+.btk .btk-crosslink strong {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.btk .btk-crosslink span {
+    display: block;
+    font-size: 0.6875rem;
+    color: var(--tps-muted);
+}
+
+.btk .btk-crosslink .btk-crosslink__go {
+    margin-inline-start: auto;
+    color: var(--tps-muted);
+    font-size: 1rem;
+}
+
+/* RTL: the chevron points back the way it came. */
+[dir="rtl"] .btk .btk-crosslink__go {
+    transform: scaleX(-1);
+}
+
+/* --------------------------------------------------------------------------
+   Footer / submit state
+   -------------------------------------------------------------------------- */
+
+.btk .tps-card__foot .btn {
+    min-width: 7.5rem;
+}
+
+.btk .btn.is-busy {
+    pointer-events: none;
+    opacity: 0.75;
+}
+
+/* --------------------------------------------------------------------------
+   Template strip (bulk import)
+   -------------------------------------------------------------------------- */
+
+.btk .btk-template {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    border: 1px dashed var(--tps-border-strong);
+    border-radius: var(--tps-radius);
+    background: rgba(var(--tps-accent-rgb), 0.04);
+}
+
+.btk .btk-template__icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: var(--tps-surface);
+    border: 1px solid var(--tps-border);
+    color: var(--tps-accent);
+    font-size: 1.125rem;
+}
+
+.btk .btk-template__text {
+    flex: 1 1 12rem;
+    min-width: 0;
+}
+
+.btk .btk-template__text strong {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.btk .btk-template__text span {
+    display: block;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--tps-muted);
+}
+
+.btk .btk-template .btn {
+    margin-inline-start: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Dropzone
+
+   The input covers the whole box rather than sitting in it: that keeps the
+   native file picker on click and the native drop target, so the only thing
+   the script adds is the dragover class and the file summary below.
+   -------------------------------------------------------------------------- */
+
+.btk .btk-drop {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 11.5rem;
+    padding: 1.5rem 1rem;
+    border: 1.5px dashed var(--tps-border-strong);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btk .btk-drop:hover,
+.btk .btk-drop.is-dragover {
+    border-color: rgba(var(--tps-accent-rgb), 0.6);
+    background: rgba(var(--tps-accent-rgb), 0.05);
+}
+
+.btk .btk-drop.is-dragover {
+    box-shadow: 0 0 0 3px rgba(var(--tps-accent-rgb), 0.12);
+}
+
+.btk .btk-drop input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.btk .btk-drop:focus-within {
+    border-color: var(--tps-accent);
+    box-shadow: 0 0 0 3px rgba(var(--tps-accent-rgb), 0.12);
+}
+
+.btk .btk-drop__icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--tps-surface);
+    border: 1px solid var(--tps-border);
+    color: var(--tps-accent);
+    font-size: 1.375rem;
+}
+
+.btk .btk-drop__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.btk .btk-drop__title span {
+    color: var(--tps-accent);
+    text-decoration: underline;
+}
+
+.btk .btk-drop__hint {
+    font-size: 0.6875rem;
+    color: var(--tps-muted);
+}
+
+.btk .btk-field--invalid .btk-drop {
+    border-color: rgba(255, 64, 64, 0.55);
+    background: rgba(255, 64, 64, 0.04);
+}
+
+/* Selected file summary */
+.btk .btk-file {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface);
+}
+
+.btk .btk-file.is-visible {
+    display: flex;
+}
+
+.btk .btk-file__icon {
+    flex: 0 0 auto;
+    color: var(--tps-accent);
+    font-size: 1.25rem;
+}
+
+.btk .btk-file__meta {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.btk .btk-file__name {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btk .btk-file__size {
+    display: block;
+    font-size: 0.6875rem;
+    color: var(--tps-muted);
+}
+
+.btk .btk-file__remove {
+    flex: 0 0 auto;
+    padding: 0.25rem;
+    border: 0;
+    background: none;
+    color: var(--tps-muted);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.btk .btk-file__remove:hover {
+    color: #b32d2d;
+}
+
+/* --------------------------------------------------------------------------
+   Reference list (main category ids)
+   -------------------------------------------------------------------------- */
+
+.btk .btk-parents {
+    max-height: 16rem;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    scrollbar-width: thin;
+}
+
+.btk .btk-parents::-webkit-scrollbar {
+    width: 6px;
+}
+
+.btk .btk-parents::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: var(--tps-border-strong);
+}
+
+.btk .btk-parent {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.4375rem 0.75rem;
+}
+
+.btk .btk-parent + .btk-parent {
+    border-block-start: 1px solid var(--tps-border);
+}
+
+.btk .btk-parent__id {
+    flex: 0 0 auto;
+    padding: 0.125rem 0.4375rem;
+    border-radius: 5px;
+    background: rgba(var(--tps-accent-rgb), 0.08);
+    color: var(--tps-accent);
+    font-family: SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+.btk .btk-parent__name {
+    min-width: 0;
+    font-size: 0.75rem;
+    color: #55617a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btk .btk-parents-empty {
+    display: none;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+    text-align: center;
+}
+
+.btk .btk-filter {
+    margin-bottom: 0.625rem;
+}
+
+.btk .btk-filter .form-control {
+    min-height: 38px;
+    font-size: 0.75rem;
+}
+
+/* Bootstrap paints <code> pink; inside a tip it should read as a sample value. */
+.btk .btk-tips code {
+    padding: 0.0625rem 0.3125rem;
+    border: 1px solid var(--tps-border);
+    border-radius: 4px;
+    background: var(--tps-surface-muted);
+    color: #55617a;
+    font-size: 0.6875rem;
+}

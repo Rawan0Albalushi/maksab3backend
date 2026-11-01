@@ -1,0 +1,192 @@
+/* ==========================================================================
+   Add-on Activation — admin/business-settings/addon-activation
+
+   Builds on the shared third-party-setup.css tokens (.tps), so this file only
+   carries what that sheet has no equivalent for: the licence summary bar and
+   the per-add-on disclosure card. Everything is scoped under .adn.
+   Logical properties throughout to keep the RTL layout correct.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Licence summary bar
+   -------------------------------------------------------------------------- */
+
+.adn .adn-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9375rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+}
+
+.adn .adn-summary__count {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3125rem;
+    font-size: 0.8125rem;
+    color: var(--tps-muted);
+}
+
+.adn .adn-summary__count strong {
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--tps-title);
+}
+
+.adn .adn-summary__total {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--tps-muted);
+}
+
+.adn .adn-summary__domain {
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+.adn .adn-summary__domain .tps-group__label {
+    margin-bottom: 0.375rem;
+}
+
+/* A vertical rule between the count and the domain, but only once they sit
+   on the same line — stacked, it reads as a stray dash. */
+@media (min-width: 768px) {
+    .adn .adn-summary__count {
+        padding-inline-end: 1rem;
+        border-inline-end: 1px solid var(--tps-border);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Add-on card
+   -------------------------------------------------------------------------- */
+
+.adn .adn-card {
+    position: relative;
+}
+
+/* Accent rail marking an activated add-on. .tps-card clips it to the radius. */
+.adn .adn-card.is-on::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--bs-success, #04bb7b);
+}
+
+.adn .adn-card__head {
+    align-items: center;
+}
+
+/* The head is the whole disclosure target, so the switch and the chevron have
+   to opt out of the pointer that the head sets. */
+.adn .adn-card__head.is-clickable {
+    cursor: pointer;
+}
+
+.adn .adn-card__head .tps-card__aside {
+    cursor: default;
+}
+
+.adn .adn-brand img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+.adn .adn-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Disclosure control
+   -------------------------------------------------------------------------- */
+
+.adn .adn-disclose {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.4375rem 0.8125rem;
+    border: 1px solid var(--tps-border-strong);
+    border-radius: 40px;
+    background: var(--tps-surface);
+    color: var(--tps-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.adn .adn-disclose:hover,
+.adn .adn-disclose:focus-visible {
+    background: rgba(var(--tps-accent-rgb), 0.06);
+    border-color: rgba(var(--tps-accent-rgb), 0.45);
+    color: var(--tps-accent);
+    outline: none;
+}
+
+.adn .adn-disclose i {
+    font-size: 0.9375rem;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.adn .adn-disclose[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+/* jQuery slideDown/slideUp drives this, matching the rest of the admin panel. */
+.adn .adn-panel {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Credential grid
+   -------------------------------------------------------------------------- */
+
+.adn .adn-card__body {
+    padding-block-start: 0;
+}
+
+.adn .adn-fields {
+    padding: 1.125rem;
+    border: 1px dashed var(--tps-border-strong);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+}
+
+/* The form controls sit on the muted panel, so they need the plain surface
+   back or the whole block flattens into one grey rectangle. */
+.adn .adn-fields .form-control {
+    background-color: var(--tps-surface);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 575.98px) {
+    .adn .adn-card__head {
+        align-items: flex-start;
+    }
+
+    .adn .adn-summary__count {
+        width: 100%;
+    }
+
+    .adn .adn-fields {
+        padding: 0.875rem;
+    }
+}

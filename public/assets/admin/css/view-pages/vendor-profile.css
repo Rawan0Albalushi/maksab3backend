@@ -1,0 +1,251 @@
+.vpf .vpf-aside {
+    position: sticky;
+    inset-block-start: 1rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.vpf .vpf-main {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (max-width: 1199.98px) {
+    .vpf .vpf-aside {
+        position: static;
+    }
+}
+
+.vpf .vpf-cover {
+    block-size: 88px;
+    background:
+        radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 60%),
+        linear-gradient(135deg, var(--tps-accent) 0%, rgba(var(--tps-accent-rgb), 0.7) 100%);
+}
+
+.vpf .vpf-identity__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-block-start: -52px;
+    padding: 0 1.25rem 1.25rem;
+    text-align: center;
+}
+
+.vpf .vpf-avatar {
+    position: relative;
+    inline-size: 104px;
+    block-size: 104px;
+    border-radius: 50%;
+}
+
+.vpf .vpf-avatar__img {
+    inline-size: 100%;
+    block-size: 100%;
+    border: 4px solid var(--tps-surface);
+    border-radius: 50%;
+    background: var(--tps-surface-muted);
+    box-shadow: 0 8px 20px -8px rgba(51, 66, 87, 0.4);
+    object-fit: cover;
+}
+
+.vpf .vpf-avatar__input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.vpf .vpf-avatar__trigger {
+    position: absolute;
+    inset-block-end: 4px;
+    inset-inline-end: 4px;
+    display: grid;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    margin: 0;
+    border: 2px solid var(--tps-surface);
+    border-radius: 50%;
+    background: var(--tps-accent);
+    font-size: 0.875rem;
+    color: #fff;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.vpf .vpf-avatar__trigger:hover {
+    filter: brightness(0.92);
+    transform: translateY(-1px);
+}
+
+.vpf .vpf-avatar__input:focus-visible + .vpf-avatar__trigger {
+    outline: 2px solid var(--tps-accent);
+    outline-offset: 2px;
+}
+
+.vpf .vpf-name {
+    margin: 0.875rem 0 0.375rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--tps-title);
+    overflow-wrap: anywhere;
+}
+
+.vpf .vpf-name.is-empty {
+    font-weight: 500;
+    color: var(--tps-muted);
+}
+
+.vpf .vpf-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    max-inline-size: 100%;
+    padding-block: 0.1875rem;
+    padding-inline: 0.625rem;
+    border-radius: 999px;
+    background: rgba(var(--tps-accent-rgb), 0.09);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--tps-accent);
+    white-space: nowrap;
+}
+
+.vpf .vpf-role i {
+    font-size: 0.8125rem;
+}
+
+.vpf .vpf-photo-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0.75rem 0 0;
+    padding-block: 0.3125rem;
+    padding-inline: 0.625rem;
+    border-radius: 999px;
+    background: rgba(255, 187, 56, 0.14);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #8a6100;
+}
+
+.vpf .vpf-photo-hint {
+    display: block;
+    margin-block-start: 0.75rem;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--tps-muted);
+}
+
+.vpf .vpf-facts {
+    margin: 0;
+    padding: 0 1.25rem 0.5rem;
+    list-style: none;
+}
+
+.vpf .vpf-facts li {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-inline-size: 0;
+    padding-block: 0.6875rem;
+    border-block-start: 1px dashed var(--tps-border);
+    font-size: 0.75rem;
+}
+
+.vpf .vpf-facts li > i {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    inline-size: 28px;
+    block-size: 28px;
+    border-radius: 8px;
+    background: var(--tps-surface-muted);
+    font-size: 0.875rem;
+    color: var(--tps-muted);
+}
+
+.vpf .vpf-facts__key {
+    color: var(--tps-muted);
+    white-space: nowrap;
+}
+
+.vpf .vpf-facts__value {
+    min-inline-size: 0;
+    margin-inline-start: auto;
+    overflow: hidden;
+    font-weight: 500;
+    color: var(--tps-title);
+    text-align: end;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vpf .vpf-facts__value.is-empty {
+    font-weight: 400;
+    color: var(--tps-muted);
+}
+
+.vpf .tps-card__head {
+    flex-wrap: nowrap;
+}
+
+.vpf .vpf-match {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    margin-block-start: 0.4375rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #04884f;
+}
+
+.vpf .vpf-rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.vpf .vpf-rules li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    padding-block: 0.1875rem;
+    padding-inline: 0.4375rem 0.625rem;
+    border: 1px solid var(--tps-border);
+    border-radius: 999px;
+    background: var(--tps-surface-muted);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--tps-muted);
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.vpf .vpf-rules i {
+    font-size: 0.8125rem;
+}
+
+.vpf .vpf-rules .vpf-rules__met,
+.vpf .vpf-rules li.is-met .vpf-rules__unmet {
+    display: none;
+}
+
+.vpf .vpf-rules li.is-met .vpf-rules__met {
+    display: inline;
+}
+
+.vpf .vpf-rules li.is-met {
+    border-color: rgba(4, 187, 123, 0.3);
+    background: rgba(4, 187, 123, 0.08);
+    color: #04884f;
+}

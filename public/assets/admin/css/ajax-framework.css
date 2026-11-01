@@ -1,0 +1,86 @@
+.ajax-busy {
+    cursor: progress;
+}
+
+form.ajax-busy {
+    position: relative;
+}
+
+form.ajax-busy > * {
+    pointer-events: none;
+}
+
+form.ajax-busy fieldset,
+form.ajax-busy .card-body,
+form.ajax-busy .tps-card__body {
+    opacity: 0.75;
+    transition: opacity 0.15s ease;
+}
+
+a.ajax-busy,
+a.ajax-busy.disabled {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.ajax-region--busy {
+    position: relative;
+    pointer-events: none;
+}
+
+.ajax-region--busy > * {
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+}
+
+.ajax-region--busy::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--primary-clr, #ef7822),
+        transparent
+    );
+    background-size: 40% 100%;
+    background-repeat: no-repeat;
+    animation: ajax-region-sweep 1.1s ease-in-out infinite;
+    z-index: 3;
+}
+
+@keyframes ajax-region-sweep {
+    0% {
+        background-position: -40% 0;
+    }
+    100% {
+        background-position: 140% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ajax-region--busy::after {
+        animation: none;
+        background: var(--primary-clr, #ef7822);
+        background-size: 100% 100%;
+        opacity: 0.5;
+    }
+
+    .ajax-busy,
+    .ajax-region--busy > * {
+        transition: none;
+    }
+}
+
+.form-validation-error {
+    flex-basis: 100%;
+    grid-column: 1 / -1;
+    margin-block-start: 0.25rem;
+}
+
+.is-invalid.form-control,
+.is-invalid.custom-select {
+    border-color: var(--danger-clr, #dc3545);
+}

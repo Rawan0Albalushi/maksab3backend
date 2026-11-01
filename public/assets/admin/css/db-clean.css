@@ -1,0 +1,501 @@
+/* ==========================================================================
+   Clean Database — admin/business-settings/db-index
+
+   Builds on the shared third-party-setup.css tokens (.tps), so this file only
+   carries what that sheet has no equivalent for: the counter strip, the table
+   picker grid and the sticky selection bar. Everything is scoped under .dbc.
+   Logical properties throughout to keep the RTL layout correct — the two
+   exceptions are marked where they appear.
+   ========================================================================== */
+
+.dbc {
+    /*
+     * Selecting a table here means "empty it", so selection is drawn in the
+     * danger colour rather than the panel accent. A teal tick on a screen that
+     * deletes data reads as confirmation, which is the wrong signal.
+     *
+     * The fill tracks the theme's --danger-clr so the ticks match the Clear
+     * button, which style.css paints with that variable and !important. The rgb
+     * triple has to be written out — a var() colour cannot be unpacked for
+     * rgba() — so it mirrors the same #ff6d6d by hand.
+     *
+     * Text uses the deeper red .tps-note--danger already uses: #ff6d6d is a
+     * legible fill behind a white tick but only reaches ~2.5:1 as body text.
+     */
+    --dbc-danger: var(--danger-clr, #ff6d6d);
+    --dbc-danger-rgb: 255, 109, 109;
+    --dbc-danger-text: #b32d2d;
+}
+
+/* --------------------------------------------------------------------------
+   Counter strip
+   -------------------------------------------------------------------------- */
+
+.dbc .dbc-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.dbc .dbc-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.125rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+}
+
+.dbc .dbc-stat__icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: rgba(var(--tps-accent-rgb), 0.08);
+    color: var(--tps-accent);
+    font-size: 18px;
+}
+
+.dbc .dbc-stat--danger .dbc-stat__icon {
+    background: rgba(var(--dbc-danger-rgb), 0.09);
+    color: var(--dbc-danger);
+}
+
+.dbc .dbc-stat__value {
+    display: block;
+    font-size: 1.3125rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--tps-title);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Neutral until something is actually selected — a red 0 on a page whose whole
+   job is deletion reads as a warning about nothing. */
+.dbc.has-selection .dbc-stat--danger .dbc-stat__value {
+    color: var(--dbc-danger-text);
+}
+
+.dbc .dbc-stat__label {
+    display: block;
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Toolbar — search, segmented filter, bulk actions
+   -------------------------------------------------------------------------- */
+
+.dbc .dbc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+}
+
+.dbc .dbc-search {
+    position: relative;
+    flex: 1 1 240px;
+    min-width: 0;
+}
+
+.dbc .dbc-search .form-control {
+    padding-inline-start: 2.375rem;
+    padding-inline-end: 2.25rem;
+}
+
+.dbc .dbc-search .form-control::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.dbc .dbc-search__icon {
+    position: absolute;
+    inset-inline-start: 0.8125rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: var(--tps-muted);
+    pointer-events: none;
+}
+
+.dbc .dbc-search__clear {
+    position: absolute;
+    inset-inline-end: 0.375rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--tps-muted);
+    font-size: 0.9375rem;
+    line-height: 1;
+}
+
+.dbc .dbc-search__clear:hover {
+    background: var(--tps-surface-muted);
+    color: var(--tps-title);
+}
+
+.dbc.has-query .dbc-search__clear {
+    display: inline-flex;
+}
+
+/* Segmented All / With data / Empty */
+.dbc .dbc-seg {
+    display: inline-flex;
+    flex: 0 0 auto;
+    padding: 3px;
+    border-radius: 40px;
+    background: var(--tps-surface-muted);
+    border: 1px solid var(--tps-border);
+}
+
+.dbc .dbc-seg input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.dbc .dbc-seg label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0.3125rem 0.75rem;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tps-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dbc .dbc-seg label:hover {
+    color: var(--tps-title);
+}
+
+.dbc .dbc-seg input:checked + label {
+    background: var(--tps-surface);
+    color: var(--tps-title);
+    box-shadow: 0 1px 2px rgba(51, 66, 87, 0.12);
+}
+
+.dbc .dbc-seg input:focus-visible + label {
+    outline: 2px solid rgba(var(--tps-accent-rgb), 0.5);
+    outline-offset: 1px;
+}
+
+.dbc .dbc-seg__count {
+    padding: 0.0625rem 0.375rem;
+    border-radius: 40px;
+    background: rgba(var(--tps-accent-rgb), 0.1);
+    color: var(--tps-accent);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.dbc .dbc-bulk {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 0.375rem;
+    margin-inline-start: auto;
+}
+
+.dbc .dbc-bulk .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   Table picker
+   -------------------------------------------------------------------------- */
+
+.dbc .dbc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+    gap: 0.5rem;
+}
+
+.dbc .dbc-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0.5625rem 0.75rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dbc .dbc-item:hover {
+    border-color: var(--tps-border-strong);
+    background: var(--tps-surface-muted);
+}
+
+.dbc .dbc-item.is-hidden {
+    display: none;
+}
+
+.dbc .dbc-item:has(.dbc-check:checked) {
+    border-color: rgba(var(--dbc-danger-rgb), 0.38);
+    background: rgba(var(--dbc-danger-rgb), 0.05);
+}
+
+/* Native box stays in the DOM and stays focusable — the ring is drawn on the
+   tick below, which is what the admin actually sees. */
+.dbc .dbc-check {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+.dbc .dbc-item__tick {
+    flex: 0 0 auto;
+    position: relative;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--tps-border-strong);
+    border-radius: 5px;
+    background: #fff;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/*
+ * Physical `left` and physical borders on purpose. The glyph is a rotated box,
+ * which has no logical equivalent, and a checkmark must not mirror under
+ * [dir="rtl"] — inset-inline-start would push it off centre and
+ * border-inline-end would draw a backwards tick in Arabic.
+ */
+.dbc .dbc-item__tick::after {
+    content: "";
+    position: absolute;
+    left: 4.5px;
+    top: 1.5px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.dbc .dbc-check:checked ~ .dbc-item__tick {
+    background: var(--dbc-danger);
+    border-color: var(--dbc-danger);
+}
+
+.dbc .dbc-check:checked ~ .dbc-item__tick::after {
+    opacity: 1;
+}
+
+.dbc .dbc-check:focus-visible ~ .dbc-item__tick {
+    outline: 2px solid rgba(var(--tps-accent-rgb), 0.55);
+    outline-offset: 2px;
+}
+
+.dbc .dbc-item__body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.dbc .dbc-item__name {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--tps-title);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dbc .dbc-item.is-empty .dbc-item__name {
+    font-weight: 500;
+    color: var(--tps-muted);
+}
+
+.dbc .dbc-item__link {
+    display: none;
+    font-size: 0.75rem;
+    line-height: 1;
+    color: var(--dbc-danger-text);
+}
+
+.dbc .dbc-item.is-linked .dbc-item__link {
+    display: inline-block;
+}
+
+.dbc .dbc-item__count {
+    flex: 0 0 auto;
+    padding: 0.125rem 0.4375rem;
+    border-radius: 40px;
+    border: 1px solid var(--tps-border);
+    background: var(--tps-surface-muted);
+    color: var(--tps-title);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.dbc .dbc-item.is-empty .dbc-item__count {
+    color: var(--tps-muted);
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Empty search result
+   -------------------------------------------------------------------------- */
+
+.dbc .dbc-empty {
+    display: none;
+    padding: 2.75rem 1rem;
+    text-align: center;
+    border: 1px dashed var(--tps-border-strong);
+    border-radius: var(--tps-radius-lg);
+    color: var(--tps-muted);
+    font-size: 0.8125rem;
+}
+
+.dbc .dbc-empty i {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+    opacity: 0.5;
+}
+
+.dbc.is-no-results .dbc-empty {
+    display: block;
+}
+
+.dbc.is-no-results .dbc-grid {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Selection bar
+
+   Sticky to the bottom of the viewport: with two hundred tables the Clear
+   button would otherwise be a scroll away from whatever was just selected.
+   -------------------------------------------------------------------------- */
+
+.dbc .dbc-actionbar {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.875rem 1.125rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: 0 -8px 24px -18px rgba(51, 66, 87, 0.5), var(--tps-shadow);
+}
+
+.dbc .dbc-actionbar__text {
+    flex: 1 1 240px;
+    min-width: 0;
+}
+
+.dbc .dbc-actionbar__summary {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-muted);
+}
+
+.dbc.has-selection .dbc-actionbar__summary {
+    color: var(--dbc-danger-text);
+}
+
+.dbc .dbc-actionbar__hint {
+    display: none;
+    margin: 0.1875rem 0 0;
+    font-size: 0.6875rem;
+    color: var(--tps-muted);
+}
+
+.dbc.has-hidden-selection .dbc-actionbar__hint {
+    display: block;
+}
+
+.dbc .dbc-actionbar__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-inline-start: auto;
+}
+
+/* style.css already paints .btn--danger with --danger-clr and !important, so
+   only the label colour and the disabled state are left to set here. */
+.dbc .btn--danger {
+    color: #fff;
+}
+
+.dbc .btn--danger:hover,
+.dbc .btn--danger:focus {
+    color: #fff;
+}
+
+.dbc .btn--danger:disabled,
+.dbc .btn--danger.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767.98px) {
+    .dbc .dbc-bulk {
+        margin-inline-start: 0;
+        width: 100%;
+    }
+
+    .dbc .dbc-bulk .btn {
+        flex: 1 1 auto;
+    }
+
+    .dbc .dbc-actionbar__buttons {
+        margin-inline-start: 0;
+        width: 100%;
+    }
+
+    .dbc .dbc-actionbar__buttons .btn {
+        flex: 1 1 auto;
+    }
+}

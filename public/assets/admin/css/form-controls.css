@@ -1,0 +1,61 @@
+.form-control,
+.form-control-lg,
+.custom-select,
+.custom-file-label,
+.input-group-text,
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple,
+.select2-container--default.select2-container--open.select2-container--below .select2-selection--single,
+.select2-container--default.select2-container--open.select2-container--below .select2-selection--multiple {
+    border-radius: var(--field-radius);
+}
+
+.form-control-sm,
+.input-group-sm > .form-control,
+.input-group-sm > .custom-select,
+.input-group-sm > .input-group-prepend > .input-group-text,
+.input-group-sm > .input-group-append > .input-group-text {
+    border-radius: var(--field-radius-sm);
+}
+
+.custom-file-label::after {
+    border-radius: 0 var(--field-radius) var(--field-radius) 0;
+}
+
+.input-group-merge .input-group-prepend .input-group-text:first-child,
+.input-group-merge .custom-select:not(:first-child),
+.input-group-merge .form-control:not(:first-child) {
+    border-top-left-radius: var(--field-radius);
+    border-bottom-left-radius: var(--field-radius);
+}
+
+.input-group-merge .input-group-append .input-group-text:last-child,
+.input-group-merge .custom-select:not(:last-child),
+.input-group-merge .form-control:not(:last-child) {
+    border-top-right-radius: var(--field-radius);
+    border-bottom-right-radius: var(--field-radius);
+}
+
+/* HSSelect2 renders its selection as `.select2-selection.custom-select` and drops
+   select2's own `select2-selection--single`, so every default scoped to that class
+   never applies -- including the one that keeps the chosen label on a single line.
+   On top of that, style.css:3289 forces `white-space: normal !important` on EVERY
+   `.select2-selection__rendered`, which the multi-selects need so their tags wrap.
+   A single select inherited it too, so any label wider than its control wrapped to
+   two lines and spilled out of a box whose height is fixed -- that is what put
+   "All advertisements" half outside its filter on the advertisement list.
+   `!important` here only to answer that one.
+
+   `:not(.select2-selection--multiple)` matters: HSSelect2 puts `custom-select` on a
+   multi-select's selection too, and there the rendered element is the <ul> of tag
+   chips -- those have to keep wrapping.
+
+   `display: block` is the other half. select2 renders the label as an inline span,
+   and `overflow` / `text-overflow` do nothing on an inline box, so the text simply
+   ran past the 30px the control reserves for its chevron. */
+.select2-container--default .select2-selection.custom-select:not(.select2-selection--multiple) .select2-selection__rendered {
+    display: block;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+}

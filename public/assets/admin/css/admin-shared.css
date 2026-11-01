@@ -1,0 +1,267 @@
+/* ==========================================================================
+   Shared admin components
+   Small pieces used by more than one screen — the empty-state card and the
+   inline notice bar. They live here rather than in a feature stylesheet so a
+   page can never use one without loading its styles.
+
+   ── Empty state ──────────────────────────────────────────────────────────
+   The "you have nothing here yet" card.
+
+   Measurements come from the design frame: a 70px/20px card, a 60px mark, a
+   20px rhythm between blocks, and a 414px measure so the body copy wraps to
+   two comfortable lines instead of running the full card width.
+
+   Kept in its own file rather than in style.css so it can be pushed only by
+   the pages that use it, and so `.empty--data` elsewhere in the panel keeps
+   its current look.
+   ========================================================================== */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 70px 20px;
+}
+
+.empty-state__icon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+.empty-state__title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--title-clr, #222324);
+    text-transform: capitalize;
+    margin: 0 0 8px;
+    max-width: 414px;
+}
+
+.empty-state__text {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #656566;
+    max-width: 414px;
+    margin: 0 0 20px;
+}
+
+/* The design's button is shorter than the panel default. */
+.empty-state .btn {
+    min-width: 100px;
+    height: 35px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 5px;
+}
+
+@media screen and (max-width: 575px) {
+    .empty-state {
+        padding: 40px 16px;
+    }
+}
+
+
+/* ── Inline notice ─────────────────────────────────────────────────────────
+   Amber standing note at the top of a page or above a field group. */
+.admin-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #FFF8E7;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--title-clr, #222324);
+}
+
+.admin-alert__icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: #F0AF34;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    font-style: italic;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+
+/* Green variant, for a notice that confirms rather than warns. */
+/* Sticky variant — pins the notice to the bottom of a scrolling panel so it
+   stays in reach while the fields above it move under it. Opt-in, because in
+   its usual place (the top of a page) a notice should scroll away normally.
+
+   Two things are required of the panel. It has to be the scroll container —
+   in the zone settings drawer that is .custom-offcanvas-body, which already
+   carries overflow-y: auto. And it must not have bottom padding: a sticky
+   element is clamped to its containing block, which is the panel's content
+   box, so padding there becomes a strip below the pinned card that the fields
+   sliding under it show through, and no bottom/margin offset can reach over
+   it. Hence the pb-0 on the drawer body. Nothing goes below the card here for
+   the same reason. */
+.admin-alert--sticky {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    /* The fill is opaque, so content cannot bleed through; the lift is what
+       says the card is floating over the fields rather than sitting after
+       them. */
+    box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.07);
+}
+
+.admin-alert--success {
+    background: #EAF7F1;
+}
+
+.admin-alert--success .admin-alert__icon {
+    background: #039D55;
+    font-style: normal;
+    font-family: inherit;
+}
+
+
+/* ── Setup prompt modal ────────────────────────────────────────────────────
+   The single-action prompt shown when something has been created but is not
+   yet usable — a zone without a delivery charge rule, say. One mark, one
+   sentence, one way on; the close cross is the only other way out.
+
+   The theme widens every .modal-dialog to 600px, which leaves the design's
+   measure adrift, so the dialog is pulled back in here. */
+.setup-prompt-modal .modal-dialog {
+    max-width: 500px;
+}
+
+.setup-prompt-modal .modal-content {
+    border: 0;
+    border-radius: 10px;
+}
+
+.setup-prompt-modal .modal-body {
+    padding: 0 40px 48px;
+}
+
+/* The cross sits in the corner of the card rather than on a header bar of its
+   own, so the body starts at the top and the header only carries the button. */
+.setup-prompt-modal .modal-header {
+    padding: 16px 16px 8px;
+}
+
+.setup-prompt-modal .close {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    background: #F4F5F6;
+    color: #656566;
+    font-size: 14px;
+    line-height: 32px;
+    opacity: 1;
+    text-shadow: none;
+}
+
+.setup-prompt-modal .close:hover {
+    background: #E9E9EA;
+    color: var(--title-clr, #222324);
+}
+
+/* Drawn at the mark's own size, so it is never resampled. */
+.setup-prompt-modal__icon {
+    display: block;
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    margin: 0 auto 24px;
+}
+
+.setup-prompt-modal__title {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--title-clr, #222324);
+    margin: 0 0 12px;
+}
+
+/* The measure the design wraps its sentence to — three lines, centred. */
+.setup-prompt-modal__text {
+    max-width: 380px;
+    margin: 0 auto 32px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: #656566;
+}
+
+.setup-prompt-modal .btn--primary {
+    min-width: 190px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+@media screen and (max-width: 575px) {
+    .setup-prompt-modal .modal-body {
+        padding: 0 20px 32px;
+    }
+}
+
+/* ── Zone list: the unfinished-setup mark ──────────────────────────────────
+   A zone that cannot price a delivery or quote a time is flagged in its row.
+   The notice behind the mark used to be open on every such row as the page
+   loaded, so a list with a few unfinished zones was mostly panels; it now
+   waits for the pointer, exactly like the mark's own tooltip would.
+
+   The mark is not a control - there is nothing to press - so it keeps the
+   arrow cursor. The panel and its arrow are descendants of the wrapper, which
+   is what keeps the notice open while the pointer travels across to the setup
+   links inside it. */
+/* The mark opens the readiness dialog, so it is a real control and keeps the pointer.
+   The hover panel that used to sit beside it is gone: the dialog says the same thing,
+   and one explanation reached one way beats two that can drift apart. */
+.zone-setup-warning__mark {
+    cursor: pointer;
+}
+
+/* ── BOGO: the rejection reason ────────────────────────────────────────────
+   Shown read-only in the enrolment drawers. A reason is free text up to a
+   thousand characters, and a single unbroken run of them - a pasted link is
+   the usual culprit - has no space to break at, so it used to widen the panel
+   and push everything beside it off screen. The field wraps mid-word and takes
+   the scrolling on itself, and it is disabled because there is nothing to edit
+   here: the decision has already been made. */
+.bogo-rejection-reason {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    resize: vertical;
+    max-height: 160px;
+    background-color: #fff;
+    cursor: default;
+}
+
+/* The notice belongs with the footer, not trailing the fields. auto only eats
+   space that is actually free, so once the form is long enough to scroll this
+   has no effect and .admin-alert--sticky takes over the job. */
+.offcanvas-body--fill > .admin-alert {
+    margin-top: auto;
+}

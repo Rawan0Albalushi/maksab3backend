@@ -1,0 +1,121 @@
+.credential-field {
+    background: #f8f9fb;
+    border: 1px solid #e8eaed;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: #364a63;
+    width: 100%;
+    cursor: default;
+}
+
+.credential-copy-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    border: 1px solid #e0e3e8;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.credential-copy-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.credential-copy-btn.copied {
+    color: var(--success-clr);
+    border-color: var(--success-clr);
+}
+
+.credentials-banner {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+
+.credentials-banner__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.credentials-banner__title i {
+    color: var(--success-clr);
+    font-size: 18px;
+}
+
+.credentials-banner__title span {
+    font-weight: 600;
+    font-size: 14px;
+    color: #15803d;
+}
+
+.credentials-banner__subtitle {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 16px;
+}
+
+.credential-group {
+    margin-bottom: 12px;
+}
+
+.credential-group:last-child {
+    margin-bottom: 0;
+}
+
+.credential-group__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 4px;
+}
+
+.credential-group__field {
+    position: relative;
+}
+
+.header-action-link {
+    font-size: 13px;
+    color: #6b7280;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+    transition: color 0.15s ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.header-action-link:hover {
+    color: var(--primary-clr);
+    text-decoration: none;
+}
+
+.header-action-link i {
+    font-size: 15px;
+}
+
+.header-actions-divider {
+    width: 1px;
+    height: 16px;
+    background: #e0e3e8;
+}

@@ -1,0 +1,246 @@
+.bnr .bnr-aside {
+    position: sticky;
+    inset-block-start: 5rem;
+}
+
+.bnr .bnr-types {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+@media (max-width: 767.98px) {
+    .bnr .bnr-types {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.bnr .bnr-type__icon {
+    flex: 0 0 auto;
+    inline-size: 34px;
+    block-size: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(var(--tps-accent-rgb), 0.09);
+    color: var(--tps-accent);
+    font-size: 1.0625rem;
+}
+
+.bnr .tps-choice input:checked ~ .tps-choice__box .bnr-type__icon {
+    background: var(--tps-accent);
+    color: #fff;
+}
+
+.bnr .bnr-target {
+    margin-block-start: 1rem;
+}
+
+.bnr .bnr-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem;
+    border: 1px dashed var(--tps-border-strong);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+}
+
+.bnr .bnr-drop__media {
+    inline-size: 100%;
+    max-inline-size: 26rem;
+}
+
+.bnr .bnr-drop__media .upload-file_custom {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+}
+
+.bnr .bnr-drop__media .upload-file_custom .upload-file__wrapper {
+    inline-size: 100%;
+    block-size: auto;
+    border-color: var(--tps-border-strong);
+}
+
+.bnr .bnr-drop__media .upload-file_custom:hover .upload-file__wrapper {
+    border-color: rgba(var(--tps-accent-rgb), 0.55);
+}
+
+.bnr .bnr-stage {
+    padding: 1rem;
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+}
+
+.bnr .bnr-phone {
+    padding: 0.75rem 0.75rem 0.875rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+}
+
+.bnr .bnr-phone__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 0.625rem;
+}
+
+.bnr .bnr-phone__search {
+    flex: 1 1 auto;
+    block-size: 22px;
+    border-radius: 40px;
+    background: var(--tps-surface-muted);
+    border: 1px solid var(--tps-border);
+}
+
+.bnr .bnr-phone__avatar {
+    flex: 0 0 auto;
+    inline-size: 22px;
+    block-size: 22px;
+    border-radius: 50%;
+    background: var(--tps-surface-muted);
+    border: 1px solid var(--tps-border);
+}
+
+.bnr .bnr-slide {
+    position: relative;
+    aspect-ratio: 3 / 1;
+    border-radius: var(--tps-radius);
+    background: rgba(var(--tps-accent-rgb), 0.06);
+    overflow: hidden;
+}
+
+.bnr .bnr-slide img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+.bnr .bnr-slide.has-image img {
+    display: block;
+}
+
+.bnr .bnr-slide__empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+    color: var(--tps-muted);
+}
+
+.bnr .bnr-slide__empty i {
+    font-size: 1.125rem;
+}
+
+.bnr .bnr-slide.has-image .bnr-slide__empty {
+    display: none;
+}
+
+.bnr .bnr-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-block-start: 0.625rem;
+}
+
+.bnr .bnr-dots span {
+    inline-size: 5px;
+    block-size: 5px;
+    border-radius: 50%;
+    background: var(--tps-border-strong);
+}
+
+.bnr .bnr-dots span.is-active {
+    inline-size: 14px;
+    border-radius: 40px;
+    background: var(--tps-accent);
+}
+
+.bnr .bnr-facts {
+    margin: 1rem 0 0;
+    display: grid;
+    gap: 0.625rem;
+}
+
+.bnr .bnr-facts > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-block-end: 0.625rem;
+    border-block-end: 1px dashed var(--tps-border);
+}
+
+.bnr .bnr-facts > div:last-child {
+    padding-block-end: 0;
+    border-block-end: 0;
+}
+
+.bnr .bnr-facts dt {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--tps-muted);
+}
+
+.bnr .bnr-facts dd {
+    margin: 0;
+    min-inline-size: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-align: end;
+    word-break: break-word;
+    color: var(--tps-title);
+}
+
+/* The dropdowns are sized by the shared .tps select2 block in
+   third-party-setup.css. Repeating it here under .select2-selection--single only
+   covered the store picker -- the zone one is an HSSelect2 select, which renders
+   no --single class -- and the two paddings stacked where it did match. */
+
+.bnr .bnr-phone__store {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 0.625rem;
+}
+
+.bnr .bnr-phone__logo {
+    flex: 0 0 auto;
+    inline-size: 26px;
+    block-size: 26px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--tps-border);
+}
+
+.bnr .bnr-phone__name {
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.bnr .table .media {
+    min-inline-size: 19rem;
+}
+
+.bnr .table .bnr-link {
+    max-inline-size: 16rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

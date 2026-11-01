@@ -1,0 +1,542 @@
+/* --------------------------------------------------------------------------
+   System add-ons (admin/business-settings/system-addon)
+   Scoped under .addon-page so nothing here leaks into other admin screens.
+   -------------------------------------------------------------------------- */
+
+.addon-page .addon-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-block-end: 16px;
+}
+
+.addon-page .addon-section-head h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+.addon-page .addon-count-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.addon-page .addon-count-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--bs-border-color);
+    background: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    color: #5b6777;
+    line-height: 1.4;
+}
+
+.addon-page .addon-count-chip b {
+    color: var(--text-title);
+    font-weight: 600;
+}
+
+.addon-page .addon-count-chip .dot {
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.addon-page .addon-count-chip--active {
+    color: var(--success-dark);
+}
+
+.addon-page .addon-count-chip--inactive {
+    color: #94a0b0;
+}
+
+.addon-page .addon-info-trigger {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    line-height: 1;
+}
+
+/* ---------- upload ---------- */
+.addon-page .addon-dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-block-size: 196px;
+    padding: 24px 16px;
+    margin: 0;
+    text-align: center;
+    border: 1.5px dashed rgba(var(--text-title-rgb), 0.25);
+    border-radius: 12px;
+    background: #fbfcfe;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.addon-page .addon-dropzone:hover,
+.addon-page .addon-dropzone.is-dragover {
+    border-color: rgba(var(--primary-clr-rgb), 0.7);
+    background: rgba(var(--primary-clr-rgb), 0.04);
+}
+
+.addon-page .addon-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.addon-page .addon-dropzone__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 48px;
+    block-size: 48px;
+    margin-block-end: 4px;
+    border-radius: 50%;
+    background: rgba(var(--primary-clr-rgb), 0.1);
+    color: var(--primary-clr);
+    font-size: 22px;
+}
+
+.addon-page .addon-dropzone__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+.addon-page .addon-dropzone__hint {
+    font-size: 12px;
+    color: #8a94a4;
+}
+
+.addon-page .addon-dropzone__hint u {
+    color: var(--primary-clr);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.addon-page .addon-file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 10px;
+    background: #fff;
+}
+
+/* .d--none carries no !important, so it needs to outrank .addon-page .addon-file */
+.addon-page .addon-file.d--none {
+    display: none;
+}
+
+.addon-page .addon-file__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: 36px;
+    block-size: 36px;
+    border-radius: 8px;
+    background: rgba(var(--primary-clr-rgb), 0.1);
+    color: var(--primary-clr);
+    font-size: 18px;
+}
+
+.addon-page .addon-file__meta {
+    inline-size: 0;
+    flex-grow: 1;
+}
+
+.addon-page .addon-progress {
+    block-size: 6px;
+    margin-block-start: 6px;
+    border-radius: 99px;
+    background: #eef1f5;
+    overflow: hidden;
+}
+
+.addon-page .addon-progress__bar {
+    block-size: 100%;
+    inline-size: 0;
+    border-radius: 99px;
+    background: var(--primary-clr);
+    transition: inline-size 0.2s ease;
+}
+
+.addon-page .addon-req {
+    block-size: 100%;
+    padding: 18px 20px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 12px;
+    background: var(--section-bg);
+}
+
+.addon-page .addon-req__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.addon-page .addon-req__status--ok {
+    background: rgba(var(--bs-success-rgb), 0.12);
+    color: var(--success-dark);
+}
+
+.addon-page .addon-req__status--warn {
+    background: rgba(var(--bs-warning-rgb), 0.16);
+    color: #9a6c12;
+}
+
+.addon-page .addon-req__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding-block: 12px;
+    border-block-end: 1px solid rgba(var(--text-title-rgb), 0.08);
+}
+
+.addon-page .addon-req__item:last-child {
+    padding-block-end: 0;
+    border-block-end: 0;
+}
+
+.addon-page .addon-req__icon {
+    flex-shrink: 0;
+    font-size: 17px;
+    line-height: 1.35;
+}
+
+.addon-page .addon-req__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-title);
+    line-height: 1.4;
+}
+
+.addon-page .addon-req__hint {
+    font-size: 11.5px;
+    color: #8a94a4;
+    line-height: 1.5;
+}
+
+.addon-page .addon-req__value {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid var(--bs-border-color);
+    font-family: "Roboto Mono", monospace;
+    font-size: 11px;
+    color: #5b6777;
+    white-space: nowrap;
+}
+
+/* ---------- installed add-on cards ---------- */
+.addon-page .addon-card {
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 14px;
+    background: #fff;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.addon-page .addon-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(var(--shadow-color-rgb), 0.08);
+    border-color: rgba(var(--primary-clr-rgb), 0.3);
+}
+
+.addon-page .addon-card__media {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    background: linear-gradient(180deg, #f6f8fa, #eceff4);
+}
+
+.addon-page .addon-card__media img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.addon-page .addon-badge {
+    position: absolute;
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 6px rgba(var(--shadow-color-rgb), 0.12);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.addon-page .addon-badge .dot {
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.addon-page .addon-badge--active {
+    color: var(--success-dark);
+}
+
+.addon-page .addon-badge--inactive {
+    color: #94a0b0;
+}
+
+.addon-page .addon-card__body {
+    flex-grow: 1;
+    padding: 14px 16px 12px;
+}
+
+.addon-page .addon-card__title {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-title);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.addon-page .addon-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.addon-page .addon-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(var(--text-title-rgb), 0.06);
+    color: #5b6777;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.addon-page .addon-chip--ok {
+    background: rgba(var(--bs-success-rgb), 0.12);
+    color: var(--success-dark);
+}
+
+.addon-page .addon-chip--warn {
+    background: rgba(var(--bs-warning-rgb), 0.16);
+    color: #9a6c12;
+}
+
+.addon-page .addon-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 16px;
+    border-block-start: 1px solid var(--bs-border-color);
+    background: #fcfdfe;
+}
+
+/* switch-styled activation trigger — a button, so cancelling the confirm
+   modal can never leave the control showing a state the server does not have */
+.addon-page .addon-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #94a0b0;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.addon-page .addon-switch__track {
+    position: relative;
+    flex-shrink: 0;
+    inline-size: 38px;
+    block-size: 21px;
+    border-radius: 99px;
+    background: #d7dce4;
+    transition: background-color 0.2s ease;
+}
+
+.addon-page .addon-switch__thumb {
+    position: absolute;
+    inset-block-start: 3px;
+    inset-inline-start: 3px;
+    inline-size: 15px;
+    block-size: 15px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(var(--shadow-color-rgb), 0.25);
+    transition: transform 0.2s ease;
+}
+
+.addon-page .addon-switch[aria-checked="true"] {
+    color: var(--success-dark);
+}
+
+.addon-page .addon-switch[aria-checked="true"] .addon-switch__track {
+    background: var(--bs-success);
+}
+
+.addon-page .addon-switch[aria-checked="true"] .addon-switch__thumb {
+    transform: translateX(17px);
+}
+
+html[dir="rtl"] .addon-page .addon-switch[aria-checked="true"] .addon-switch__thumb {
+    transform: translateX(-17px);
+}
+
+/* in-flight: the switch is disabled, so make the whole card read as pending
+   rather than leaving a control that silently ignores clicks */
+.addon-page .addon-card.is-busy {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+.addon-page .addon-switch[disabled] {
+    cursor: progress;
+}
+
+.addon-page .addon-switch:focus-visible,
+.addon-page .addon-icon-btn:focus-visible {
+    outline: 2px solid rgba(var(--primary-clr-rgb), 0.5);
+    outline-offset: 2px;
+}
+
+.addon-page .addon-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: 32px;
+    block-size: 32px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    background: #fff;
+    color: #94a0b0;
+    font-size: 16px;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.addon-page .addon-icon-btn:hover {
+    color: var(--bs-danger);
+    border-color: rgba(var(--bs-danger-rgb), 0.4);
+    background: rgba(var(--bs-danger-rgb), 0.06);
+}
+
+/* ---------- refresh notice ---------- */
+/* Shown once a switch has flipped: the sidebar and header are rendered by the
+   layout, so their menus only catch up on the next page load. */
+.addon-page .addon-refresh {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(var(--primary-clr-rgb), 0.25);
+    background: rgba(var(--primary-clr-rgb), 0.06);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #5b6777;
+}
+
+.addon-page .addon-refresh__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: 30px;
+    block-size: 30px;
+    border-radius: 50%;
+    background: rgba(var(--primary-clr-rgb), 0.12);
+    color: var(--primary-clr);
+    font-size: 15px;
+}
+
+/* ---------- alert + empty state ---------- */
+.addon-page .addon-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(var(--bs-info-rgb), 0.25);
+    background: rgba(var(--bs-info-rgb), 0.07);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #5b6777;
+}
+
+.addon-page .addon-alert code {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(var(--bs-info-rgb), 0.14);
+    color: var(--info-dark);
+}
+
+.addon-page .addon-empty {
+    padding: 56px 24px;
+    text-align: center;
+    border: 1px dashed rgba(var(--text-title-rgb), 0.2);
+    border-radius: 14px;
+    background: #fff;
+}
+
+/* ---------- "how it works" guide (rendered outside .addon-page) ---------- */
+.addon-guide__step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #5b6777;
+}
+
+.addon-guide__num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    inline-size: 24px;
+    block-size: 24px;
+    margin-block-start: 1px;
+    border-radius: 50%;
+    background: rgba(var(--primary-clr-rgb), 0.1);
+    color: var(--primary-clr);
+    font-size: 11px;
+    font-weight: 600;
+}

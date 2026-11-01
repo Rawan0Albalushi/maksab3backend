@@ -1,0 +1,161 @@
+.pbn .pbn-aside {
+    position: sticky;
+    inset-block-start: 5rem;
+}
+
+.pbn .pbn-drop {
+    padding: 1.25rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+}
+
+.pbn .pbn-drop .upload-file_custom {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    max-inline-size: 100%;
+}
+
+.pbn .pbn-drop .upload-file__wrapper {
+    inline-size: 100%;
+    block-size: auto;
+    border-color: var(--tps-border-strong);
+    background: var(--tps-surface);
+}
+
+.pbn .pbn-drop .upload-file_custom:hover .upload-file__wrapper {
+    border-color: rgba(var(--tps-accent-rgb), 0.55);
+}
+
+.pbn .pbn-drop p {
+    margin-block-end: 0;
+}
+
+.pbn .pbn-stage {
+    padding-block: 1.25rem;
+    padding-inline: 1rem;
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+}
+
+.pbn .pbn-phone {
+    inline-size: 100%;
+    max-inline-size: 17.5rem;
+    margin-inline: auto;
+    padding: 0.875rem;
+    border-radius: 18px;
+    border: 1px solid var(--tps-border);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+}
+
+.pbn .pbn-skel {
+    border-radius: 6px;
+    background: #eef1f5;
+}
+
+.pbn .pbn-phone__search {
+    block-size: 22px;
+    border-radius: 40px;
+    margin-block-end: 0.8125rem;
+}
+
+.pbn .pbn-phone__tiles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-block-end: 0.875rem;
+}
+
+.pbn .pbn-phone__tile {
+    aspect-ratio: 1;
+    border-radius: 10px;
+}
+
+.pbn .pbn-phone__row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 0.5rem;
+}
+
+.pbn .pbn-phone__thumb {
+    flex: 0 0 auto;
+    inline-size: 34px;
+    block-size: 34px;
+    border-radius: 8px;
+}
+
+.pbn .pbn-phone__lines {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    display: grid;
+    gap: 0.3125rem;
+}
+
+.pbn .pbn-phone__line {
+    block-size: 7px;
+}
+
+.pbn .pbn-phone__line--short {
+    inline-size: 55%;
+}
+
+.pbn .pbn-phone__slot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 5 / 1;
+    margin-block-start: 0.875rem;
+    border-radius: 8px;
+    border: 1px dashed var(--tps-border-strong);
+    background: var(--tps-surface-muted);
+    overflow: hidden;
+}
+
+.pbn .pbn-phone__slot.has-image {
+    border-color: transparent;
+}
+
+.pbn .pbn-phone__slot img {
+    display: none;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+}
+
+.pbn .pbn-phone__slot.has-image img {
+    display: block;
+}
+
+.pbn .pbn-phone__slot.has-image .pbn-phone__empty {
+    display: none;
+}
+
+.pbn .pbn-phone__empty {
+    padding-inline: 0.5rem;
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--tps-muted);
+}
+
+.pbn .pbn-stage__caption {
+    margin: 0.8125rem 0 0;
+    font-size: 0.6875rem;
+    text-align: center;
+    color: var(--tps-muted);
+}
+
+.pbn .tps-card__aside .status-toggle {
+    gap: 0.5rem;
+}
+
+@media (max-width: 1199.98px) {
+    .pbn .pbn-aside {
+        position: static;
+    }
+}

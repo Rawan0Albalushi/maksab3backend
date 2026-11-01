@@ -1,0 +1,495 @@
+/* ==========================================================================
+   Backup & Restore Database
+   admin/business-settings/database/backup, .../database/restore
+
+   Builds on the shared third-party-setup.css tokens (.tps), so this file only
+   carries what that sheet has no equivalent for: the vault counter strip, the
+   backup source picker, the upload dropzone and the two-key restore arming
+   panel. Everything is scoped under .dbk.
+
+   The backup list itself is a plain .datatable-custom table, so it inherits
+   admin-tables.css and nothing here restyles it beyond the status tags.
+
+   Logical properties throughout to keep the RTL layout correct.
+   ========================================================================== */
+
+.dbk {
+    /*
+     * Backup is a safe action and restore is not, so the two pages are drawn in
+     * different colours on purpose: green for "a copy now exists", amber for
+     * "this replaces everything". The rgb triples have to be written out — a
+     * var() colour cannot be unpacked for rgba() — so they mirror the hex by hand.
+     */
+    --dbk-ok: #1a9d6b;
+    --dbk-ok-rgb: 26, 157, 107;
+    --dbk-warn: #b7791f;
+    --dbk-warn-rgb: 183, 121, 31;
+    --dbk-danger: var(--danger-clr, #ff6d6d);
+    --dbk-danger-rgb: 255, 109, 109;
+    --dbk-danger-text: #b32d2d;
+}
+
+/* --------------------------------------------------------------------------
+   Counter strip
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.dbk .dbk-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.125rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+}
+
+.dbk .dbk-stat__icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: rgba(var(--tps-accent-rgb), 0.08);
+    color: var(--tps-accent);
+    font-size: 18px;
+}
+
+.dbk .dbk-stat--ok .dbk-stat__icon {
+    background: rgba(var(--dbk-ok-rgb), 0.1);
+    color: var(--dbk-ok);
+}
+
+.dbk .dbk-stat--warn .dbk-stat__icon {
+    background: rgba(var(--dbk-warn-rgb), 0.1);
+    color: var(--dbk-warn);
+}
+
+.dbk .dbk-stat__value {
+    display: block;
+    font-size: 1.3125rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--tps-title);
+    font-variant-numeric: tabular-nums;
+}
+
+.dbk .dbk-stat__label {
+    display: block;
+    margin-block-start: 0.125rem;
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Option rows — the create-backup form and the restore switches
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.75rem;
+}
+
+.dbk .dbk-opt {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface-muted);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dbk .dbk-opt:hover {
+    border-color: var(--tps-border-strong);
+}
+
+.dbk .dbk-opt input {
+    flex: 0 0 auto;
+    margin-block-start: 0.1875rem;
+    accent-color: var(--tps-accent);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.dbk .dbk-opt__title {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.dbk .dbk-opt__desc {
+    display: block;
+    margin-block-start: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--tps-muted);
+}
+
+.dbk .dbk-opt:has(input:checked) {
+    border-color: rgba(var(--tps-accent-rgb), 0.45);
+    background: rgba(var(--tps-accent-rgb), 0.05);
+}
+
+.dbk .dbk-opt--danger input {
+    accent-color: var(--dbk-danger);
+}
+
+.dbk .dbk-opt--danger:has(input:checked) {
+    border-color: rgba(var(--dbk-danger-rgb), 0.5);
+    background: rgba(var(--dbk-danger-rgb), 0.06);
+}
+
+.dbk .dbk-opt--danger:has(input:checked) .dbk-opt__title {
+    color: var(--dbk-danger-text);
+}
+
+/* --------------------------------------------------------------------------
+   Tags on the backup list
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 40px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    background: rgba(var(--tps-accent-rgb), 0.09);
+    color: var(--tps-accent);
+}
+
+.dbk .dbk-tag--auto {
+    background: rgba(var(--dbk-warn-rgb), 0.12);
+    color: var(--dbk-warn);
+}
+
+.dbk .dbk-tag--upload {
+    background: rgba(122, 135, 155, 0.14);
+    color: #5b6779;
+}
+
+.dbk .dbk-tag--structure {
+    background: rgba(var(--dbk-danger-rgb), 0.1);
+    color: var(--dbk-danger-text);
+}
+
+.dbk .dbk-file {
+    display: block;
+    font-weight: 600;
+    color: var(--tps-title);
+    word-break: break-all;
+}
+
+.dbk .dbk-meta {
+    display: block;
+    margin-block-start: 0.125rem;
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+}
+
+.dbk .dbk-num {
+    font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   Source picker — the vault list on the restore page
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-sources {
+    display: grid;
+    gap: 0.5rem;
+    max-height: 340px;
+    overflow-y: auto;
+    padding-inline-end: 0.25rem;
+}
+
+.dbk .dbk-source {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9375rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dbk .dbk-source:hover {
+    border-color: var(--tps-border-strong);
+}
+
+.dbk .dbk-source input {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--dbk-warn);
+    cursor: pointer;
+}
+
+.dbk .dbk-source:has(input:checked) {
+    border-color: rgba(var(--dbk-warn-rgb), 0.55);
+    background: rgba(var(--dbk-warn-rgb), 0.06);
+}
+
+.dbk .dbk-source__body {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.dbk .dbk-source__size {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tps-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.dbk .dbk-source.is-hidden {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Upload dropzone
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 150px;
+    padding: 1.25rem;
+    border: 1.5px dashed var(--tps-border-strong);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dbk .dbk-drop:hover,
+.dbk .dbk-drop.is-over {
+    border-color: var(--tps-accent);
+    background: rgba(var(--tps-accent-rgb), 0.05);
+}
+
+.dbk .dbk-drop i {
+    font-size: 30px;
+    color: var(--tps-accent);
+}
+
+.dbk .dbk-drop__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.dbk .dbk-drop__hint {
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+}
+
+.dbk .dbk-drop input[type="file"] {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Step numbers
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-steptitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dbk .dbk-step {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(var(--primary-clr-rgb, 16, 121, 128), 0.1);
+    color: var(--primary-clr, #107980);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.dbk .dbk-arm__title .dbk-step {
+    background: rgba(var(--dbk-danger-rgb), 0.12);
+    color: var(--dbk-danger-text);
+}
+
+/* --------------------------------------------------------------------------
+   Arming panel — the two keys that unlock a restore
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-arm {
+    border: 1px solid rgba(var(--dbk-danger-rgb), 0.35);
+    border-radius: var(--tps-radius-lg);
+    background: rgba(var(--dbk-danger-rgb), 0.04);
+    padding: 1.125rem 1.25rem;
+}
+
+.dbk .dbk-arm__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.25rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--dbk-danger-text);
+}
+
+.dbk .dbk-arm__desc {
+    margin: 0 0 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--tps-muted);
+}
+
+.dbk .dbk-arm__fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 0.875rem;
+}
+
+.dbk .dbk-token {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.dbk .dbk-arm .tps-field__hint code {
+    padding: 0.0625rem 0.3125rem;
+    border-radius: 4px;
+    background: rgba(var(--dbk-danger-rgb), 0.12);
+    color: var(--dbk-danger-text);
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Sticky action bar
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-actionbar {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.875rem;
+    margin-block-start: 1rem;
+    padding: 0.875rem 1.125rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: 0 -6px 20px -14px rgba(51, 66, 87, 0.4), var(--tps-shadow);
+}
+
+.dbk .dbk-actionbar__summary {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.dbk .dbk-actionbar__hint {
+    margin: 0.125rem 0 0;
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+}
+
+.dbk .dbk-actionbar__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.dbk .dbk-actionbar .btn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Empty state
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--tps-muted);
+    font-size: 0.8125rem;
+}
+
+.dbk .dbk-empty i {
+    font-size: 32px;
+    opacity: 0.45;
+}
+
+/*
+ * The search empty state is toggled with the `hidden` attribute. Nothing in the
+ * admin bundle carries a [hidden] rule — bootstrap.min.css here does not — so
+ * the only one in play is the UA default, and an author `display: flex` beats a
+ * UA rule at any specificity. Without this the "no match" line would sit under
+ * a full list permanently.
+ */
+.dbk .dbk-empty[hidden] {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   In-flight state — a dump can run for minutes, so the button says so
+   -------------------------------------------------------------------------- */
+
+.dbk .dbk-busy {
+    pointer-events: none;
+}
+
+.dbk .dbk-busy .dbk-busy__spin {
+    display: inline-block;
+    animation: dbk-spin 0.9s linear infinite;
+}
+
+@keyframes dbk-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dbk .dbk-busy .dbk-busy__spin {
+        animation: none;
+    }
+}

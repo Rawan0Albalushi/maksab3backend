@@ -1,0 +1,1172 @@
+.msg-page {
+    --msg-radius: 12px;
+    --msg-radius-sm: 8px;
+    --msg-surface: #fff;
+    --msg-line: var(--bs-border-color);
+    --msg-muted: #7a879b;
+    --msg-canvas: #f6f8fa;
+    --msg-accent: var(--primary-clr);
+    --msg-accent-soft: rgba(var(--primary-clr-rgb), 0.08);
+    --msg-accent-line: rgba(var(--primary-clr-rgb), 0.22);
+    /* +32px over the pre-breadcrumb value: the trail bar above the page measures
+       41.36px, less the 9.6px `.bcx ~ .content` hands back from the container's
+       own top padding. Below 576px the bar is 5px shorter, which this
+       over-subtracts by the same 5px - short is safe, tall overflows. */
+    --msg-shell-height: calc(100dvh - 247px);
+    --msg-rail-width: 340px;
+}
+
+/* --------------------------------------------------------------------------
+   Page header
+   -------------------------------------------------------------------------- */
+
+.msg-page .msg-page__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-block-end: 16px;
+}
+
+.msg-page .msg-page__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: var(--ph-title-size);
+    font-weight: var(--ph-title-weight);
+    line-height: var(--ph-title-line);
+    color: var(--ph-title-color);
+    text-transform: capitalize;
+}
+
+.msg-page .msg-page__title i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 34px;
+    block-size: 34px;
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: var(--msg-accent-soft);
+    color: var(--msg-accent);
+    font-size: 17px;
+}
+
+.msg-page .msg-page__subtitle {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--msg-muted);
+}
+
+.msg-page .msg-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.msg-page .msg-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--msg-line);
+    border-radius: 999px;
+    background: var(--msg-surface);
+    font-size: 12px;
+    color: var(--msg-muted);
+    white-space: nowrap;
+}
+
+.msg-page .msg-stat b {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+.msg-page .msg-stat--unread b {
+    color: var(--msg-accent);
+}
+
+.msg-page .msg-stat__dot {
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 50%;
+    background: var(--msg-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Two pane shell
+   -------------------------------------------------------------------------- */
+
+.msg-page .msg-shell {
+    display: grid;
+    grid-template-columns: var(--msg-rail-width) minmax(0, 1fr);
+    gap: 16px;
+    block-size: var(--msg-shell-height);
+    min-block-size: 520px;
+}
+
+.msg-page .msg-pane {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    border: 1px solid var(--msg-line);
+    border-radius: var(--msg-radius);
+    background: var(--msg-surface);
+    box-shadow: var(--bs-box-shadow-sm);
+    overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   Left rail: search, filters, conversation list
+   -------------------------------------------------------------------------- */
+
+.msg-page .msg-rail__head {
+    flex-shrink: 0;
+    padding: 14px;
+    border-block-end: 1px solid var(--msg-line);
+}
+
+.msg-page .msg-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.msg-page .msg-search__icon {
+    position: absolute;
+    inset-inline-start: 12px;
+    display: flex;
+    color: var(--msg-muted);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.msg-page .msg-search__input {
+    inline-size: 100%;
+    block-size: 42px;
+    padding-inline: 38px;
+    border: 1px solid var(--msg-line);
+    border-radius: var(--msg-radius-sm);
+    background: var(--section-bg);
+    font-size: 13px;
+    color: var(--text-title);
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.msg-page .msg-search__input::placeholder {
+    color: var(--msg-muted);
+}
+
+.msg-page .msg-search__input:focus {
+    outline: none;
+    background: var(--msg-surface);
+    border-color: var(--msg-accent-line);
+    box-shadow: 0 0 0 3px var(--msg-accent-soft);
+}
+
+.msg-page .msg-search__clear {
+    position: absolute;
+    inset-inline-end: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: 24px;
+    block-size: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--msg-muted);
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.msg-page .msg-search__clear:hover {
+    background: var(--section-bg);
+    color: var(--text-title);
+}
+
+.msg-page .msg-search.has-value .msg-search__clear {
+    display: flex;
+}
+
+.msg-page .msg-filters {
+    display: flex;
+    gap: 4px;
+    margin-block-start: 12px;
+    padding: 3px;
+    border-radius: var(--msg-radius-sm);
+    background: var(--section-bg);
+}
+
+.msg-page .msg-filter {
+    flex: 1 1 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--msg-muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.msg-page .msg-filter:hover {
+    color: var(--text-title);
+}
+
+.msg-page .msg-filter.is-active {
+    background: var(--msg-surface);
+    color: var(--msg-accent);
+    box-shadow: var(--bs-box-shadow-sm);
+}
+
+.msg-page .msg-filter__count {
+    min-inline-size: 18px;
+    padding-inline: 5px;
+    border-radius: 999px;
+    background: rgba(var(--text-title-rgb), 0.08);
+    font-size: 11px;
+    line-height: 18px;
+}
+
+.msg-page .msg-filter.is-active .msg-filter__count {
+    background: var(--msg-accent-soft);
+    color: var(--msg-accent);
+}
+
+.msg-page .msg-rail__list {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+/* Row --------------------------------------------------------------------- */
+
+.msg-page .msg-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    inline-size: 100%;
+    padding: 13px 14px;
+    border: 0;
+    border-block-end: 1px solid var(--msg-line);
+    background: transparent;
+    text-align: start;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.msg-page .msg-item::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 3px;
+    background: var(--msg-accent);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.msg-page .msg-item:hover {
+    background: var(--section-bg);
+}
+
+.msg-page .msg-item:focus-visible {
+    outline: 2px solid var(--msg-accent);
+    outline-offset: -2px;
+}
+
+/* Beats the global .conv-active rule, which paints its own borders. */
+.msg-page .msg-item.conv-active {
+    border-block-start: 0;
+    border-block-end: 1px solid var(--msg-line);
+    background: var(--msg-accent-soft);
+}
+
+.msg-page .msg-item.conv-active::before {
+    opacity: 1;
+}
+
+.msg-page .msg-item__avatar {
+    position: relative;
+    margin-block-start: 2px;
+}
+
+.msg-page .msg-item__avatar img {
+    border: 1px solid var(--msg-line);
+    background: var(--section-bg);
+}
+
+.msg-page .msg-item__body {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+}
+
+.msg-page .msg-item__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.msg-page .msg-item__name {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--text-title);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.msg-page .msg-item.is-unread .msg-item__name {
+    font-weight: 600;
+}
+
+.msg-page .msg-item__time {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--msg-muted);
+    white-space: nowrap;
+}
+
+.msg-page .msg-item.is-unread .msg-item__time {
+    color: var(--msg-accent);
+    font-weight: 500;
+}
+
+.msg-page .msg-item__preview {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    margin: 3px 0 0;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--msg-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.msg-page .msg-item.is-unread .msg-item__preview {
+    color: var(--text-title);
+    font-weight: 500;
+}
+
+.msg-page .msg-item__preview i {
+    margin-inline-end: 3px;
+    font-size: 13px;
+    vertical-align: -1px;
+}
+
+.msg-page .msg-item__badge {
+    flex-shrink: 0;
+    align-self: flex-end;
+    min-inline-size: 20px;
+    margin-block-start: 3px;
+    padding-inline: 6px;
+    border-radius: 999px;
+    background: var(--msg-accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: center;
+}
+
+.msg-page .msg-item__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-block-start: 6px;
+}
+
+.msg-page .msg-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(var(--text-title-rgb), 0.06);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    color: var(--msg-muted);
+    white-space: nowrap;
+}
+
+.msg-page .msg-chip i {
+    font-size: 12px;
+}
+
+.msg-page .msg-chip--customer {
+    background: rgba(var(--bs-info-rgb), 0.1);
+    color: var(--info-dark);
+}
+
+.msg-page .msg-chip--deliveryman {
+    background: rgba(var(--bs-warning-rgb), 0.15);
+    color: var(--cus-warning-clr);
+}
+
+.msg-page .msg-item__phone {
+    overflow: hidden;
+    font-size: 11px;
+    color: var(--msg-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* List states ------------------------------------------------------------- */
+
+.msg-page .msg-rail__foot {
+    flex-shrink: 0;
+    padding: 10px;
+    border-block-start: 1px solid var(--msg-line);
+    background: var(--section-bg);
+    font-size: 12px;
+    color: var(--msg-muted);
+    text-align: center;
+}
+
+.msg-page .msg-rail__foot[hidden] {
+    display: none;
+}
+
+.msg-page .msg-spinner {
+    display: inline-block;
+    inline-size: 14px;
+    block-size: 14px;
+    margin-inline-end: 6px;
+    border: 2px solid var(--msg-accent-line);
+    border-block-start-color: var(--msg-accent);
+    border-radius: 50%;
+    vertical-align: -2px;
+    animation: msg-spin 0.7s linear infinite;
+}
+
+@keyframes msg-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.msg-page .msg-empty {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    block-size: 100%;
+    padding: 40px 24px;
+    text-align: center;
+}
+
+.msg-page .msg-empty i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 56px;
+    block-size: 56px;
+    margin-block-end: 6px;
+    border-radius: 50%;
+    background: var(--msg-accent-soft);
+    color: var(--msg-accent);
+    font-size: 26px;
+}
+
+.msg-page .msg-empty h6 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+.msg-page .msg-empty p {
+    max-inline-size: 320px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--msg-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Right pane: thread
+   -------------------------------------------------------------------------- */
+
+.msg-page .msg-thread {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+    min-block-size: 0;
+}
+
+.msg-page .msg-thread__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    padding: 12px 16px;
+    border-block-end: 1px solid var(--msg-line);
+    background: var(--msg-surface);
+}
+
+.msg-page .msg-thread__back {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: 34px;
+    block-size: 34px;
+    flex-shrink: 0;
+    border: 1px solid var(--msg-line);
+    border-radius: var(--msg-radius-sm);
+    background: transparent;
+    color: var(--text-title);
+    cursor: pointer;
+}
+
+.msg-page .msg-thread__identity {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-inline-size: 0;
+}
+
+.msg-page .msg-thread__name {
+    margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-title);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-transform: capitalize;
+}
+
+.msg-page .msg-thread__sub {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block-start: 3px;
+    font-size: 12px;
+    color: var(--msg-muted);
+}
+
+.msg-page .msg-thread__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.msg-page .msg-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 34px;
+    block-size: 34px;
+    padding: 0;
+    border: 1px solid var(--msg-line);
+    border-radius: var(--msg-radius-sm);
+    background: transparent;
+    color: var(--msg-muted);
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.msg-page .msg-icon-btn:hover {
+    border-color: var(--msg-accent-line);
+    background: var(--msg-accent-soft);
+    color: var(--msg-accent);
+}
+
+/* Beats .conv-dropdown-menu, which hard-positions itself for the old markup. */
+.msg-page .msg-thread__actions .dropdown-menu {
+    inset-inline-start: auto !important;
+    inset-inline-end: 0 !important;
+    inset-block-start: 100% !important;
+    min-inline-size: 190px;
+    padding: 6px;
+    border: 1px solid var(--msg-line);
+    border-radius: var(--msg-radius-sm);
+    box-shadow: var(--bs-box-shadow);
+    transform: none !important;
+}
+
+.msg-page .msg-thread__actions .dropdown-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text-title);
+}
+
+.msg-page .msg-thread__actions .dropdown-menu li a:hover {
+    background: var(--section-bg);
+    color: var(--msg-accent);
+}
+
+.msg-page .msg-thread__actions .dropdown-menu li:not(:last-child) {
+    border: 0;
+}
+
+/* Message canvas ---------------------------------------------------------- */
+
+.msg-page .msg-thread__body {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    padding: 18px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--msg-canvas);
+}
+
+.msg-page .msg-day {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-block: 6px 16px;
+}
+
+.msg-page .msg-day::before,
+.msg-page .msg-day::after {
+    content: "";
+    flex: 1 1 auto;
+    block-size: 1px;
+    background: var(--msg-line);
+}
+
+.msg-page .msg-day span {
+    padding: 4px 12px;
+    border: 1px solid var(--msg-line);
+    border-radius: 999px;
+    background: var(--msg-surface);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--msg-muted);
+    white-space: nowrap;
+}
+
+.msg-page .msg-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-block-end: 12px;
+}
+
+.msg-page .msg-row.is-grouped {
+    margin-block-end: 4px;
+}
+
+.msg-page .msg-row--out {
+    flex-direction: row-reverse;
+}
+
+.msg-page .msg-row__avatar {
+    flex-shrink: 0;
+    inline-size: 28px;
+}
+
+.msg-page .msg-row__avatar img {
+    border: 1px solid var(--msg-line);
+    background: var(--msg-surface);
+}
+
+.msg-page .msg-row__stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-inline-size: min(560px, 76%);
+    min-inline-size: 0;
+}
+
+.msg-page .msg-row--out .msg-row__stack {
+    align-items: flex-end;
+}
+
+/* Logical radii, so the flat corner stays on the speaker's side in RTL. */
+.msg-page .msg-bubble {
+    padding: 9px 14px;
+    border: 1px solid var(--msg-line);
+    border-start-start-radius: 14px;
+    border-start-end-radius: 14px;
+    border-end-end-radius: 14px;
+    border-end-start-radius: 4px;
+    background: var(--msg-surface);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-title);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    box-shadow: var(--bs-box-shadow-sm);
+}
+
+.msg-page .msg-row--out .msg-bubble {
+    border-color: transparent;
+    border-end-end-radius: 4px;
+    border-end-start-radius: 14px;
+    background: var(--msg-accent);
+    color: #fff;
+}
+
+.msg-page .msg-row.is-grouped .msg-bubble {
+    border-start-start-radius: 6px;
+}
+
+.msg-page .msg-row--out.is-grouped .msg-bubble {
+    border-start-start-radius: 14px;
+    border-start-end-radius: 6px;
+}
+
+.msg-page .msg-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-block-start: 4px;
+    padding-inline: 4px;
+    font-size: 11px;
+    color: var(--msg-muted);
+}
+
+.msg-page .msg-meta i {
+    font-size: 13px;
+}
+
+.msg-page .msg-meta .is-seen {
+    color: var(--msg-accent);
+}
+
+/* Attachments ------------------------------------------------------------- */
+
+.msg-page .msg-attachments {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 6px;
+    margin-block-start: 6px;
+    max-inline-size: 360px;
+}
+
+.msg-page .msg-attachment {
+    position: relative;
+    display: block;
+    padding: 0;
+    border: 1px solid var(--msg-line);
+    border-radius: 10px;
+    background: var(--msg-surface);
+    cursor: zoom-in;
+    overflow: hidden;
+}
+
+.msg-page .msg-attachment img {
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+}
+
+.msg-page .msg-attachment:hover img {
+    transform: scale(1.04);
+}
+
+/* Order card -------------------------------------------------------------- */
+
+.msg-page .msg-order {
+    inline-size: 100%;
+    margin-block-end: 6px;
+    border: 1px solid var(--msg-line);
+    border-radius: 12px;
+    background: var(--msg-surface);
+    overflow: hidden;
+}
+
+.msg-page .msg-order__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px;
+    border-block-end: 1px solid var(--msg-line);
+    background: var(--section-bg);
+}
+
+.msg-page .msg-order__id {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+.msg-page .msg-order__id i {
+    color: var(--msg-accent);
+    font-size: 15px;
+}
+
+.msg-page .msg-status {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.msg-page .msg-status--progress {
+    background: rgba(var(--bs-info-rgb), 0.12);
+    color: var(--info-dark);
+}
+
+.msg-page .msg-status--done {
+    background: rgba(var(--bs-success-rgb), 0.12);
+    color: var(--success-dark);
+}
+
+.msg-page .msg-status--failed {
+    background: rgba(var(--bs-danger-rgb), 0.12);
+    color: var(--danger-dark);
+}
+
+.msg-page .msg-order__body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 12px 14px;
+}
+
+.msg-page .msg-order__field dt {
+    margin: 0 0 3px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--msg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.msg-page .msg-order__field dd {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-title);
+}
+
+.msg-page .msg-order__field dd.is-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--success-dark);
+}
+
+/* Composer ---------------------------------------------------------------- */
+
+.msg-page .msg-composer {
+    flex-shrink: 0;
+    padding: 12px 16px 14px;
+    border-block-start: 1px solid var(--msg-line);
+    background: var(--msg-surface);
+}
+
+.msg-page .msg-composer__previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block-end: 10px;
+}
+
+.msg-page .msg-composer__previews:empty {
+    display: none;
+}
+
+.msg-page .msg-preview {
+    position: relative;
+    inline-size: 62px;
+    block-size: 62px;
+    border: 1px solid var(--msg-line);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.msg-page .msg-preview img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+}
+
+.msg-page .msg-preview__remove {
+    position: absolute;
+    inset-block-start: 3px;
+    inset-inline-end: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 20px;
+    block-size: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.msg-page .msg-composer__box {
+    position: relative;
+    border: 1px solid var(--msg-line);
+    border-radius: var(--msg-radius);
+    background: var(--msg-surface);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.msg-page .msg-composer__box:focus-within {
+    border-color: var(--msg-accent-line);
+    box-shadow: 0 0 0 3px var(--msg-accent-soft);
+}
+
+.msg-page .msg-composer__input {
+    display: block;
+    inline-size: 100%;
+    max-block-size: 140px;
+    padding: 12px 14px 4px;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-title);
+    resize: none;
+    overflow-y: auto;
+}
+
+.msg-page .msg-composer__input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.msg-page .msg-composer__tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px 8px 10px;
+}
+
+.msg-page .msg-composer__spacer {
+    flex: 1 1 auto;
+}
+
+.msg-page .msg-tool {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 32px;
+    block-size: 32px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--msg-muted);
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.msg-page .msg-tool:hover,
+.msg-page .msg-tool.is-active {
+    background: var(--msg-accent-soft);
+    color: var(--msg-accent);
+}
+
+.msg-page .msg-composer__hint {
+    margin-inline-end: 4px;
+    font-size: 11px;
+    color: var(--msg-muted);
+}
+
+.msg-page .msg-send {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--msg-accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.msg-page .msg-send:hover {
+    opacity: 0.9;
+}
+
+.msg-page .msg-send:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Emoji picker ------------------------------------------------------------ */
+
+.msg-page .msg-emoji {
+    position: relative;
+}
+
+.msg-page .msg-emoji__panel {
+    position: absolute;
+    inset-block-end: calc(100% + 8px);
+    inset-inline-start: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+    inline-size: 268px;
+    max-block-size: 190px;
+    padding: 8px;
+    border: 1px solid var(--msg-line);
+    border-radius: var(--msg-radius);
+    background: var(--msg-surface);
+    box-shadow: var(--bs-box-shadow-lg);
+    overflow-y: auto;
+}
+
+.msg-page .msg-emoji__panel[hidden] {
+    display: none;
+}
+
+.msg-page .msg-emoji__btn {
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    font-size: 18px;
+    line-height: 30px;
+    cursor: pointer;
+}
+
+.msg-page .msg-emoji__btn:hover {
+    background: var(--section-bg);
+}
+
+/* Lightbox ---------------------------------------------------------------- */
+
+.msg-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    background: rgba(0, 0, 0, 0.82);
+}
+
+.msg-lightbox[hidden] {
+    display: none;
+}
+
+.msg-lightbox img {
+    max-inline-size: 100%;
+    max-block-size: 100%;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
+.msg-lightbox__close {
+    position: absolute;
+    inset-block-start: 20px;
+    inset-inline-end: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 40px;
+    block-size: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive: below lg the rail and the thread take turns
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1399.98px) {
+    .msg-page {
+        --msg-rail-width: 300px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .msg-page {
+        --msg-shell-height: calc(100dvh - 222px);
+    }
+
+    .msg-page .msg-shell {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .msg-page .msg-shell .msg-pane--thread {
+        display: none;
+    }
+
+    .msg-page .msg-shell.is-thread-open .msg-pane--rail {
+        display: none;
+    }
+
+    .msg-page .msg-shell.is-thread-open .msg-pane--thread {
+        display: flex;
+    }
+
+    .msg-page .msg-thread__back {
+        display: flex;
+    }
+
+    .msg-page .msg-row__stack {
+        max-inline-size: 88%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .msg-page .msg-page__head {
+        align-items: flex-start;
+    }
+
+    .msg-page .msg-composer__hint {
+        display: none;
+    }
+
+    .msg-page .msg-send span {
+        display: none;
+    }
+
+    .msg-page .msg-send {
+        padding: 8px 12px;
+    }
+}

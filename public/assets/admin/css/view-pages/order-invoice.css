@@ -1,0 +1,421 @@
+/* ==========================================================================
+   Admin — Order invoice (thermal receipt) screen
+   --------------------------------------------------------------------------
+   Scope root: `.oiv` on the page wrapper (`content container-fluid oiv`).
+   Every selector below is nested under it, which matters more here than on
+   most screens: the receipt markup lives in a partial that is ALSO rendered by
+   the dedicated print route and by the vendor screen (which prints by swapping
+   `document.body.innerHTML` with `#printableArea`). In both of those the `.oiv`
+   ancestor is absent, so nothing here can reach the printed output — the paper
+   framing and the zoom are screen affordances only.
+
+   Load order: pushed from the view via @push('css_or_js'), which the admin
+   layout emits AFTER style.css / theme.min / admin-tables.css. That is what
+   lets these rules win on plain specificity — there is no `!important` here
+   except where style.css already used one on the same property (noted inline).
+
+   Logical properties throughout (`margin-inline-*`, `padding-block-*`) so RTL
+   locales lay out with no second stylesheet.
+
+   Sections: 1. tokens · 2. page chrome · 3. facts bar · 4. stage + paper
+             5. receipt legibility · 6. responsive · 7. print
+   ========================================================================== */
+
+.oiv {
+    --oiv-ink: var(--text-title, #334257);
+    --oiv-ink-soft: #5b6b80;
+    --oiv-muted: #8593a5;
+    --oiv-rule: #e9eef3;
+    --oiv-rule-strong: #dde5ec;
+    --oiv-surface: #f7f9fb;
+    --oiv-canvas: #eef2f6;
+    --oiv-accent: var(--primary-clr, #107980);
+    --oiv-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --oiv-radius: 0.75rem;
+    --oiv-radius-sm: 0.5rem;
+    --oiv-shadow: 0 1px 2px rgba(22, 42, 60, 0.04), 0 8px 24px -16px rgba(22, 42, 60, 0.18);
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Page chrome
+   The old screen opened with a centred blue button captioned
+   "Proceed, if the thermal printer is ready." and a red Back link, with no
+   page title at all. Title on the left, actions on the right — the same header
+   shape every other admin screen uses.
+   -------------------------------------------------------------------------- */
+
+.oiv .page-header {
+    margin-block-end: 1.25rem;
+}
+
+.oiv .page-header-icon i {
+    font-size: 1.25rem;
+    color: var(--oiv-accent);
+}
+
+/* The order number rides inside the title's own <span>, so it inherits the
+   heading baseline instead of being pushed out by
+   `.page-header-title > span:not(:first-child) { margin-inline-start: 10px }`. */
+.oiv .oiv-id {
+    display: inline-block;
+    margin-inline-start: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(var(--oiv-accent-rgb), 0.1);
+    color: var(--oiv-accent);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    vertical-align: middle;
+    font-variant-numeric: tabular-nums;
+}
+
+.oiv .oiv-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.oiv .oiv-actions .btn {
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding-inline: 0.875rem;
+    font-size: 0.8125rem;
+    border-radius: var(--oiv-radius-sm);
+}
+
+.oiv .oiv-actions .btn i {
+    font-size: 1rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Facts bar
+   Deliberately carries only what the receipt does NOT print — order status,
+   payment status, assignment, schedule — plus the total, so the bar answers
+   "what is this order doing?" rather than repeating the paper underneath it.
+   -------------------------------------------------------------------------- */
+
+.oiv .oiv-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.25rem;
+    padding: 0.875rem 1.125rem;
+    margin-block-end: 1.25rem;
+    background: #fff;
+    border: 1px solid var(--oiv-rule);
+    border-radius: var(--oiv-radius);
+    box-shadow: var(--oiv-shadow);
+}
+
+.oiv .oiv-bar__facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+/* No divider rule between the chips and the total: the chip row wraps as soon
+   as an order carries a schedule or a reference code, and a border that only
+   makes sense on one line would then hang off a line of its own. Weight and
+   size do the separating instead. */
+.oiv .oiv-bar__total {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-inline-start: auto;
+}
+
+.oiv .oiv-bar__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--oiv-muted);
+}
+
+.oiv .oiv-bar__amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--oiv-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Chips and pills share the vocabulary of the order details screen
+   (`.odv-fact` / `.odv-pill`) so the two screens read as one family. */
+.oiv .oiv-fact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.3125rem 0.625rem;
+    border-radius: 999px;
+    background: var(--oiv-surface);
+    border: 1px solid var(--oiv-rule);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--oiv-ink-soft);
+}
+
+.oiv .oiv-fact > i {
+    font-size: 0.9375rem;
+    color: var(--oiv-muted);
+    flex: 0 0 auto;
+}
+
+.oiv .oiv-fact strong {
+    font-weight: 600;
+    color: var(--oiv-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.oiv .oiv-fact--warn {
+    background: rgba(255, 187, 56, 0.12);
+    border-color: rgba(255, 187, 56, 0.32);
+    color: #8a6100;
+}
+
+.oiv .oiv-fact--warn > i {
+    color: #b98200;
+}
+
+.oiv .oiv-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    text-transform: capitalize;
+}
+
+.oiv .oiv-pill::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: 0 0 auto;
+}
+
+.oiv .oiv-pill--neutral { background: rgba(124, 139, 161, 0.12); color: #55637a; }
+.oiv .oiv-pill--info    { background: rgba(36, 91, 209, 0.10);   color: var(--info-dark, #245bd1); }
+.oiv .oiv-pill--accent  { background: rgba(var(--oiv-accent-rgb), 0.10); color: var(--oiv-accent); }
+.oiv .oiv-pill--warn    { background: rgba(230, 168, 50, 0.16);  color: #8a6100; }
+.oiv .oiv-pill--ok      { background: rgba(1, 148, 99, 0.12);    color: var(--success-dark, #019463); }
+.oiv .oiv-pill--danger  { background: rgba(203, 32, 32, 0.10);   color: var(--danger-dark, #cb2020); }
+
+
+/* --------------------------------------------------------------------------
+   4. Stage + paper
+   The receipt used to float on the page background with nothing to say it was
+   a receipt. It now sits on a tinted canvas as a sheet of paper with torn
+   edges, so the preview is legibly a preview of something printed.
+   -------------------------------------------------------------------------- */
+
+.oiv .oiv-stage {
+    border: 1px solid var(--oiv-rule);
+    border-radius: var(--oiv-radius);
+    background-color: var(--oiv-canvas);
+    background-image: radial-gradient(rgba(22, 42, 60, 0.07) 1px, transparent 1px);
+    background-size: 16px 16px;
+    padding: 1.75rem 1rem 2rem;
+}
+
+.oiv .oiv-stage__cap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 1.25rem;
+}
+
+.oiv .oiv-stage__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.75rem;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--oiv-rule-strong);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--oiv-ink-soft);
+}
+
+.oiv .oiv-stage__tag i {
+    font-size: 0.9375rem;
+    color: var(--oiv-accent);
+}
+
+/* Width hint ("80 mm") is a format hint, not copy — it stays out of the
+   translation file and is set apart typographically instead. The chip mirrors
+   under RTL, but the measurement itself must not: bidi reorders a number
+   followed by a unit into "mm 80" unless the run is isolated. */
+.oiv .oiv-stage__tag span {
+    padding-inline-start: 0.5rem;
+    margin-inline-start: 0.125rem;
+    border-inline-start: 1px solid var(--oiv-rule-strong);
+    font-weight: 500;
+    color: var(--oiv-muted);
+    font-variant-numeric: tabular-nums;
+    direction: ltr;
+    unicode-bidi: isolate;
+}
+
+.oiv .oiv-stage__note {
+    margin: 1.5rem 0 0;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--oiv-ink-soft);
+}
+
+/* The sheet. `mask` clips the zigzag out of the box, so the shadow has to be a
+   `drop-shadow()` filter — a `box-shadow` would be clipped away with it. The
+   three mask layers compose additively: body, top teeth, bottom teeth.
+   Browsers without `mask` support simply get a plain white rectangle plus the
+   shadow, which degrades cleanly. */
+.oiv .oiv-paper {
+    --oiv-tooth: 16px;
+    --oiv-tooth-h: 8px;
+    width: -webkit-fit-content;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    background: #fff;
+    padding: calc(var(--oiv-tooth-h) + 0.875rem) 0.375rem;
+    -webkit-mask:
+        linear-gradient(#000 0 0) 50% 50% / 100% calc(100% - 2 * var(--oiv-tooth-h)) no-repeat,
+        conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% 0 / var(--oiv-tooth) var(--oiv-tooth-h) repeat-x,
+        conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 100% / var(--oiv-tooth) var(--oiv-tooth-h) repeat-x;
+    mask:
+        linear-gradient(#000 0 0) 50% 50% / 100% calc(100% - 2 * var(--oiv-tooth-h)) no-repeat,
+        conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 50% 0 / var(--oiv-tooth) var(--oiv-tooth-h) repeat-x,
+        conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% 100% / var(--oiv-tooth) var(--oiv-tooth-h) repeat-x;
+    filter:
+        drop-shadow(0 2px 3px rgba(22, 42, 60, 0.06))
+        drop-shadow(0 16px 28px rgba(22, 42, 60, 0.14));
+}
+
+
+/* --------------------------------------------------------------------------
+   5. Receipt legibility — screen only
+   The receipt is set in 10px monospace with -0.05em tracking because that is
+   what an 80mm thermal head wants; on a desktop monitor it is a squint. `zoom`
+   scales the whole sheet as layout (so the preview stays proportional to the
+   print, unlike a font-size override), and the tracking is handed back.
+   -------------------------------------------------------------------------- */
+
+/* No vertical padding is set here on purpose: style.css pins
+   `.print--invoice { padding-top/bottom: 0 !important }`, so the sheet's
+   breathing room comes from `.oiv-paper`'s own padding instead. */
+.oiv .print--invoice {
+    zoom: 1.15;
+    width: 366px;
+    max-width: 100%;
+}
+
+.oiv .order-info-details {
+    letter-spacing: normal;
+}
+
+/* The label / colon / value groups are flex rows, and a flex container drops
+   whitespace-only text between its children — so "Phone" ":" "0123" renders
+   glued together. Give the value back its space. */
+.oiv .print--invoice .d-flex > span + span + span {
+    margin-inline-start: 4px;
+}
+
+.oiv .invoice--table tr th {
+    border-block-end: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+.oiv .checkout--info .total {
+    padding-block-start: 0.375rem;
+    border-block-start: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767.98px) {
+    .oiv .oiv-bar__total {
+        margin-inline-start: 0;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .oiv .oiv-actions .btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+
+    .oiv .oiv-stage {
+        padding-inline: 0.5rem;
+    }
+
+    /* At phone width the sheet is already as wide as the viewport, so the
+       preview scale has to come back to 1 or it overflows. */
+    .oiv .print--invoice {
+        zoom: 1;
+        width: 100%;
+    }
+}
+
+
+/* --------------------------------------------------------------------------
+   7. Print
+   The Print button opens the dedicated print route in a new tab, so this block
+   only covers an admin hitting Ctrl+P on the preview itself: drop the page
+   chrome, the canvas and the scale, and let the receipt print at its true size.
+
+   This is why the header, the bar and the caption do NOT carry the theme's
+   `.non-printable` class — that class also sets `white-space: break-spaces`
+   (style.css), which stops Blade's own indentation from collapsing and blows a
+   ~75px hole into every chip between its icon and its label. Hide chrome here,
+   not with that class.
+   -------------------------------------------------------------------------- */
+
+@media print {
+    .oiv .page-header,
+    .oiv .oiv-bar,
+    .oiv .oiv-stage__cap,
+    .oiv .oiv-stage__note {
+        display: none;
+    }
+
+    .oiv .oiv-stage {
+        border: 0;
+        padding: 0;
+        background: none;
+    }
+
+    .oiv .oiv-paper {
+        width: auto;
+        padding: 0;
+        -webkit-mask: none;
+        mask: none;
+        filter: none;
+    }
+
+    .oiv .print--invoice {
+        zoom: 1;
+        width: auto;
+    }
+}

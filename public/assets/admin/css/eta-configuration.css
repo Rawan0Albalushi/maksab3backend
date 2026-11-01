@@ -1,0 +1,49 @@
+/* ==========================================================================
+   ETA Configuration
+   Only what this screen adds. The method picker reuses the delivery rule's
+   own .rule-method-grid--two, and the tinted field panel is .surge-section,
+   so neither is redefined here.
+   ========================================================================== */
+
+/* --- minute fields -------------------------------------------------------
+   Every timing on this screen is minutes, so the unit is fixed to the input
+   rather than repeated in each label or offered as a choice. */
+.eta-minute-input .input-group-text {
+    background: #F4F5F6;
+    border-color: #E9E9EA;
+    color: #656566;
+    font-size: 13px;
+    min-width: 52px;
+    justify-content: center;
+}
+
+/* The example range under the gap field, which the form script keeps in step
+   with whatever has been typed. */
+.eta-preview {
+    font-size: 12px;
+    color: #656566;
+    margin-top: 6px;
+}
+
+.eta-preview strong {
+    color: var(--title-clr, #222324);
+}
+
+/* --- list cells ----------------------------------------------------------
+   Two figures to a cell, the second below the first. */
+.eta-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.eta-cell__line {
+    font-size: 13px;
+    color: #656566;
+    white-space: nowrap;
+}
+
+.eta-cell__line strong {
+    font-weight: 500;
+    color: var(--title-clr, #222324);
+}

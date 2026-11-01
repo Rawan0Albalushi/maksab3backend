@@ -1,0 +1,187 @@
+/* ==========================================================================
+   WebSocket Configuration — admin/business-settings/websocket
+
+   Builds on the shared third-party-setup.css tokens (.tps), so this file only
+   carries what that sheet has no equivalent for: the header status chip, the
+   live endpoint preview and the capability rows explaining what the connection
+   powers. Everything is scoped under .wsk.
+   Logical properties throughout to keep the RTL layout correct.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Header aside — live status chip beside the "How it Works" trigger
+   -------------------------------------------------------------------------- */
+
+.wsk .wsk-head__aside {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.wsk .wsk-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--tps-border);
+    border-radius: 40px;
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tps-muted);
+    white-space: nowrap;
+}
+
+.wsk .wsk-status__dot {
+    position: relative;
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tps-border-strong);
+}
+
+.wsk .wsk-status.is-live {
+    color: #04884f;
+}
+
+.wsk .wsk-status.is-live .wsk-status__dot {
+    background: #04bb7b;
+}
+
+/* The halo only rides along with a live connection, so it never draws
+   attention to a switch that is off. */
+.wsk .wsk-status.is-live .wsk-status__dot::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: rgba(4, 187, 123, 0.28);
+    animation: wsk-pulse 1.8s ease-out infinite;
+}
+
+@keyframes wsk-pulse {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wsk .wsk-status.is-live .wsk-status__dot::after {
+        animation: none;
+        opacity: 0.35;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Endpoint preview — the URL and port fields joined into the one string the
+   apps actually dial, so the admin can read back what they just typed.
+   -------------------------------------------------------------------------- */
+
+.wsk .wsk-endpoint {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: linear-gradient(180deg, var(--tps-surface-muted), var(--tps-surface));
+}
+
+.wsk .wsk-endpoint__label {
+    flex: 0 0 auto;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tps-muted);
+}
+
+.wsk .wsk-endpoint__box {
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+.wsk .wsk-endpoint .tps-readonly {
+    background: var(--tps-surface);
+    border-style: solid;
+}
+
+.wsk .wsk-endpoint__value.is-empty {
+    color: var(--tps-muted);
+    font-style: italic;
+}
+
+.wsk .wsk-endpoint .tps-readonly__copy[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Capability rows — what the connection is actually used for
+   -------------------------------------------------------------------------- */
+
+.wsk .wsk-uses {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.wsk .wsk-use {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.875rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface-muted);
+}
+
+.wsk .wsk-use__icon {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(var(--tps-accent-rgb), 0.1);
+    color: var(--tps-accent);
+    font-size: 1rem;
+}
+
+.wsk .wsk-use__text h3 {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.wsk .wsk-use__text p {
+    margin: 0.125rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--tps-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 575.98px) {
+    .wsk .wsk-head__aside {
+        width: 100%;
+    }
+
+    .wsk .wsk-endpoint__label {
+        flex-basis: 100%;
+    }
+}

@@ -1,0 +1,588 @@
+/* ==========================================================================
+   Delivery Rule Setup
+   Pricing-method picker, hint bars, charge tables and the detail summary.
+   Colours come from the existing tokens; nothing new is introduced.
+   ========================================================================== */
+
+/* --- pricing method picker -----------------------------------------------
+   One white box holding four evenly-spread options. The options are separated
+   by whitespace only — no dividers — so the box reads as a single control. */
+.rule-method-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    background: #fff;
+    border: 1px solid #E9E9EA;
+    border-radius: 8px;
+    padding: 20px 24px;
+}
+
+@media screen and (max-width: 991px) {
+    .rule-method-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .rule-method-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.rule-method {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.rule-method__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Bootstrap's .form-check-input is absolutely positioned with a negative
+   margin, which floats the radio over its own title inside a flex row. */
+.rule-method__head .form-check-input {
+    position: static;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.rule-method__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--title-clr, #222324);
+}
+
+/* Aligned to the title rather than the radio — radio width plus its gap. */
+.rule-method__hint {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #656566;
+    padding-inline-start: 30px;
+}
+
+/* --- hint bars -----------------------------------------------------------
+   Standing explanation of whichever method is active, and the note beside the
+   area/zip charge tables. The bulb is markup, so a bare .rule-hint is empty. */
+.rule-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #EFF3FE;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--title-clr, #222324);
+    margin-top: 16px;
+}
+
+/* The bulb is the shared svg asset now, so it is sized rather than font-styled,
+   and nudged down to sit on the first line of the hint. */
+.rule-hint > img {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    margin-top: 3px;
+}
+
+.rule-hint a {
+    color: var(--theameColor, #006fbd);
+    text-decoration: underline;
+}
+
+/* --- charge tables -------------------------------------------------------
+   Columns are divided by rules and rows alternate, as designed. Bootstrap's
+   .table resets are avoided entirely so those borders survive. */
+.rule-charge-table {
+    background: #fff;
+    border: 1px solid #E9E9EA;
+    border-radius: 8px;
+    max-height: 340px;
+    overflow: auto;
+}
+
+.rule-charge-table__table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.rule-charge-table__table th,
+.rule-charge-table__table td {
+    padding: 12px 20px;
+    font-size: 14px;
+    color: var(--title-clr, #222324);
+    vertical-align: middle;
+    border-inline-end: 1px solid #E9E9EA;
+}
+
+.rule-charge-table__table th:last-child,
+.rule-charge-table__table td:last-child {
+    border-inline-end: 0;
+}
+
+.rule-charge-table__table thead th {
+    background: #F8F9FB;
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom: 1px solid #E9E9EA;
+}
+
+.rule-charge-table__table tbody tr:nth-child(even) {
+    background: #F8F9FB;
+}
+
+.rule-charge-table__sl {
+    width: 72px;
+    text-align: center;
+}
+
+/* The input owns its cell; the row tint shows around it. */
+.rule-charge-table .form-control {
+    max-width: none;
+    background-color: #fff;
+}
+
+/* --- coverage empty state ------------------------------------------------
+   Replaces the whole pane when the chosen zone has nothing to price yet. */
+.rule-coverage-empty {
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.rule-coverage-empty__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--title-clr, #222324);
+    margin-bottom: 8px;
+}
+
+.rule-coverage-empty__text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #656566;
+    max-width: 900px;
+    margin: 0 auto 12px;
+}
+
+.rule-coverage-empty a {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--theameColor, #006fbd);
+    text-decoration: underline;
+}
+
+/* --- detail summary ------------------------------------------------------ */
+.rule-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.rule-summary__label {
+    display: block;
+    font-size: 12px;
+    color: #656566;
+    margin-bottom: 4px;
+}
+
+.rule-summary__value {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--title-clr, #222324);
+}
+
+.rule-status-pill {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #E9E9EA;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--title-clr, #222324);
+}
+
+/* --- success modal mark -------------------------------------------------- */
+.rule-success-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #22C55E;
+    color: #fff;
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+/* ---------------------------------------------------------------------------
+   The parcel wizard's stepper.
+
+   Three states per step: future (outlined circle showing its number), current
+   and done (filled teal circle showing a check). The connector between two
+   completed steps is teal, otherwise grey. Hidden entirely unless a
+   parcel-capable module is connected — see _form-scripts.blade.php.
+   --------------------------------------------------------------------------- */
+.rule-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 8px 0 24px;
+}
+
+.rule-stepper__step {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rule-stepper__badge {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid #e7eaf3;
+    color: #8c98a4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Future steps show their number; reached steps show the check instead.
+   Cross-faded rather than swapped with `display`, which cannot transition — the
+   two glyphs are stacked on the badge and trade opacity, so Next reads as the
+   number turning into a tick rather than as it being replaced between frames. */
+.rule-stepper__badge .tio-done,
+.rule-stepper__badge .rule-stepper__number {
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.rule-stepper__badge .tio-done {
+    font-size: 17px;
+    opacity: 0;
+    transform: scale(0.55);
+}
+
+.rule-stepper__label {
+    font-size: 15px;
+    color: #8c98a4;
+    transition: color 0.3s ease;
+}
+
+.rule-stepper__step.is-current .rule-stepper__badge,
+.rule-stepper__step.is-done .rule-stepper__badge {
+    background-color: var(--base, #0f766e);
+    border-color: var(--base, #0f766e);
+    color: #fff;
+}
+
+.rule-stepper__step.is-current .rule-stepper__badge .tio-done,
+.rule-stepper__step.is-done .rule-stepper__badge .tio-done {
+    opacity: 1;
+    transform: none;
+}
+
+.rule-stepper__step.is-current .rule-stepper__badge .rule-stepper__number,
+.rule-stepper__step.is-done .rule-stepper__badge .rule-stepper__number {
+    opacity: 0;
+    transform: scale(0.55);
+}
+
+.rule-stepper__step.is-current .rule-stepper__label,
+.rule-stepper__step.is-done .rule-stepper__label {
+    color: var(--base, #0f766e);
+    font-weight: 600;
+}
+
+.rule-stepper__line {
+    position: relative;
+    width: 90px;
+    max-width: 12vw;
+    height: 2px;
+    background-color: #e7eaf3;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* The travelling fill. `transform-origin: left` is what makes one rule serve both
+   directions: growing 0 -> 1 runs the teal left-to-right towards the step being
+   entered, and shrinking 1 -> 0 collapses it back the way it came. Previous is
+   therefore the literal reverse of Next, with no second rule and no direction
+   class on the line itself. */
+.rule-stepper__line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--base, #0f766e);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rule-stepper__line.is-done::after {
+    transform: scaleX(1);
+}
+
+/* ---------------------------------------------------------------------------
+   Direction, and why the stepper needs to know it.
+
+   Run both halves at once and Next reads as everything changing simultaneously,
+   which is the same non-event the instant colour flip was. Staggering gives the
+   move a cause and an effect: the connector travels, and the badge it reaches
+   lights up on arrival. Reversing swaps the order — the badge lets go first,
+   then the connector drains back — so Previous is legible as an undo rather than
+   as a different animation that happens to end in the right place.
+
+   Set by showStep() in _form-scripts.blade.php, which compares the step it is
+   moving to against the one it is leaving, and cleared once the move is over.
+   --------------------------------------------------------------------------- */
+.rule-stepper.is-advancing .rule-stepper__step.is-current .rule-stepper__badge,
+.rule-stepper.is-advancing .rule-stepper__step.is-current .rule-stepper__badge .tio-done,
+.rule-stepper.is-advancing .rule-stepper__step.is-current .rule-stepper__badge .rule-stepper__number,
+.rule-stepper.is-advancing .rule-stepper__step.is-current .rule-stepper__label {
+    transition-delay: 0.26s;
+}
+
+.rule-stepper.is-advancing .rule-stepper__step.is-current .rule-stepper__badge {
+    animation: rule-stepper-arrive 0.42s ease 0.26s both;
+}
+
+.rule-stepper.is-reversing .rule-stepper__line::after {
+    transition-delay: 0.14s;
+}
+
+@keyframes rule-stepper-arrive {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.13); }
+    100% { transform: scale(1); }
+}
+
+/* Revealing the stepper, or rebuilding it after the module selection changes, is
+   not a step move. Without this the whole row would animate itself into its
+   resting state the moment a parcel module is picked. */
+.rule-stepper.rule-stepper--instant,
+.rule-stepper.rule-stepper--instant * {
+    transition: none !important;
+    animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .rule-stepper,
+    .rule-stepper * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* The amber note beside each parcel table — an instruction about filling the
+   table in, distinct from the blue bulb hints that explain the feature. */
+.rule-note {
+    display: flex;
+    gap: 10px;
+    background-color: #fff8e6;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6b5a2e;
+}
+
+.rule-note .tio-info-outined {
+    color: #e0a800;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.rule-note a {
+    color: #1366d6;
+    text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+    .rule-stepper {
+        gap: 8px;
+    }
+
+    .rule-stepper__line {
+        width: 24px;
+    }
+
+    .rule-stepper__label {
+        font-size: 13px;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   Delivery Rule detail — the header card and the parcel tabs.
+
+   The design puts the rule name above an inset panel carrying the zone and the
+   module chips, then a hairline, then a row of labelled meta values. When the
+   rule connects a parcel module, the delivery method and the two tiers become
+   tabs rather than stacked cards.
+   --------------------------------------------------------------------------- */
+.rule-detail__name {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--title-color, #1b2b41);
+    margin-bottom: 16px;
+}
+
+.rule-detail__panel {
+    background-color: #f7f8fa;
+    border-radius: 10px;
+    padding: 20px 24px;
+}
+
+.rule-detail__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #8c98a4;
+    line-height: 1.6;
+}
+
+.rule-detail__label i {
+    font-size: 15px;
+    color: #8c98a4;
+}
+
+.rule-detail__value {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--title-color, #1b2b41);
+    margin-top: 4px;
+}
+
+.rule-detail__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.rule-detail__chip {
+    background-color: #eef0f4;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 14px;
+    color: var(--title-color, #1b2b41);
+    white-space: nowrap;
+}
+
+/* The meta row sits under a hairline and wraps rather than scrolling — a parcel
+   rule carries six values and a narrow screen must still read them all. */
+.rule-detail__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 48px;
+    border-top: 1px solid #e7eaf3;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+.rule-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.rule-tab {
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 15px;
+    color: #5b6b7f;
+    background-color: transparent;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.rule-tab:hover {
+    color: var(--base, #0f766e);
+}
+
+.rule-tab.is-active {
+    background-color: var(--base, #0f766e);
+    color: #fff;
+}
+
+.rule-tab.is-active:hover {
+    color: #fff;
+}
+
+@media (max-width: 575px) {
+    .rule-detail__meta {
+        gap: 12px 24px;
+    }
+
+    .rule-tab {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* The detail header's three controls — Delete, the Status box, Edit.
+
+   `stretch` rather than `center`: the status box sets its own padding around a
+   toggle and comes out taller than a .btn, so centring them lines up their
+   middles while leaving three different heights. Stretching gives one height
+   and the buttons centre their own label inside it. */
+.rule-detail__actions {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.rule-detail__actions .btn,
+.rule-detail__actions .rule-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.rule-detail__actions .rule-status-pill {
+    /* The vertical padding now comes from the shared height. */
+    padding-top: 0;
+    padding-bottom: 0;
+    white-space: nowrap;
+}
+
+/* Free Delivery's type picker has two cards rather than the delivery rule's four. */
+.rule-method-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+    .rule-method-grid--two {
+        grid-template-columns: 1fr;
+    }
+}

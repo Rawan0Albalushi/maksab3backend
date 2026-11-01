@@ -1,0 +1,108 @@
+<?php
+
+namespace Modules\AI\app\Agents\Tools;
+
+use Modules\AI\app\Agents\AiResponseContext;
+use Modules\RideShare\Entities\PromotionManagement\CouponSetup;
+use App\Models\User;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Laravel\Ai\Contracts\Tool;
+use Laravel\Ai\Tools\Request;
+
+class GetRideCouponsTool implements Tool
+{
+    /**
+     * @param int[] $zoneIds Overlapping zones the customer falls inside.
+     */
+    public function __construct(
+        private readonly AiResponseContext $context,
+        private readonly ?User             $user    = null,
+        private readonly array             $zoneIds = [],
+    ) {}
+
+    public function description(): string
+    {
+        return 'List the ride-share coupons currently applicable to the customer in their area. Use for "any ride coupons?", "ride discounts", "promo for cabs". Returns coupon code, discount, min trip amount, and expiry. Read-only — does not apply the coupon (apply happens at booking).';
+    }
+
+    public function schema(JsonSchema $schema): array
+    {
+        return [];
+    }
+
+    public function handle(Request $request): string
+    {
+        $this->context->recordTool('GetRideCouponsTool');
+
+        $today = date('Y-m-d');
+
+        $query = CouponSetup::query()
+            ->where('is_active', 1)
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->where(function ($q) {
+                $q->where('category_coupon_type', 'like', '%"all"%')
+                  ->orWhere('category_coupon_type', 'like', '%"ride_request"%');
+            });
+
+        if (!empty($this->zoneIds)) {
+            $zoneIds = $this->zoneIds;
+            $query->where(function ($q) use ($zoneIds) {
+                $q->where('zone_coupon_type', 'all')
+                  ->orWhereHas('zones', fn ($z) => $z->whereIn('zones.id', $zoneIds));
+            });
+        } else {
+            $query->where('zone_coupon_type', 'all');
+        }
+
+        if ($this->user) {
+            $userId = $this->user->getKey();
+            $query->where(function ($q) use ($userId) {
+                $q->where('customer_coupon_type', 'all')
+                  ->orWhereHas('customers', fn ($c) => $c->where('users.id', $userId));
+            });
+        } else {
+            $query->where('customer_coupon_type', 'all');
+        }
+
+        $coupons = $query
+            ->orderBy('end_date')
+            ->limit(8)
+            ->get([
+                'id', 'coupon_code', 'name', 'coupon', 'amount_type',
+                'max_coupon_amount', 'min_trip_amount', 'end_date',
+            ]);
+
+        if ($coupons->isEmpty()) {
+            return 'No ride coupons are active for your area right now. Check back later or watch the app for new promotions.';
+        }
+
+        $lines = $coupons->map(function (CouponSetup $c) {
+            $code      = $c->getAttribute('coupon_code') ?: ('#' . $c->getKey());
+            $amount    = (float) $c->getAttribute('coupon');
+            $type      = (string) $c->getAttribute('amount_type');
+            $discount  = $type === 'percentage'
+                ? round($amount) . '% off'
+                : 'flat ' . round($amount, 2) . ' off';
+            $cap       = (float) $c->getAttribute('max_coupon_amount');
+            $capPart   = ($type === 'percentage' && $cap > 0)
+                ? ', max ' . round($cap, 2)
+                : '';
+            $minTrip   = (float) $c->getAttribute('min_trip_amount');
+            $minPart   = $minTrip > 0
+                ? ', min trip ' . round($minTrip, 2)
+                : '';
+            $expires   = $c->getAttribute('end_date');
+            $expiresAt = $expires
+                ? ' (expires ' . (is_string($expires) ? $expires : $expires->format('Y-m-d')) . ')'
+                : '';
+            $name      = $c->getAttribute('name');
+            $namePart  = $name ? ' — ' . $name : '';
+            return '• ' . $code . ': ' . $discount . $capPart . $minPart . $expiresAt . $namePart;
+        })->implode(PHP_EOL);
+
+        return 'Active ride coupons for your area:' . PHP_EOL
+            . $lines . PHP_EOL
+            . 'Apply the code at booking time.';
+    }
+}

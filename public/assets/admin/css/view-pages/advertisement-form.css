@@ -1,0 +1,190 @@
+.advf .advf-aside {
+    position: sticky;
+    inset-block-start: 5rem;
+}
+
+.advf .advf-types {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+@media (max-width: 575.98px) {
+    .advf .advf-types {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.advf .advf-type__icon {
+    flex: 0 0 auto;
+    inline-size: 34px;
+    block-size: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(var(--tps-accent-rgb), 0.09);
+    color: var(--tps-accent);
+    font-size: 1.0625rem;
+}
+
+.advf .tps-choice input:checked ~ .tps-choice__box .advf-type__icon {
+    background: var(--tps-accent);
+    color: #fff;
+}
+
+.advf .advf-drop {
+    margin-block-start: 1rem;
+    padding: 1rem;
+    border: 1px dashed var(--tps-border-strong);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+}
+
+.advf .advf-drop__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.advf .advf-drop__slot {
+    flex: 1 1 14rem;
+    min-inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.875rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface);
+}
+
+.advf .advf-drop__slot--wide {
+    flex-basis: 100%;
+}
+
+.advf .advf-drop__name {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tps-title);
+}
+
+.advf .advf-drop__ratio {
+    padding-block: 0.125rem;
+    padding-inline: 0.4375rem;
+    border-radius: 40px;
+    background: rgba(var(--tps-accent-rgb), 0.1);
+    color: var(--tps-accent);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.advf .advf-drop__meta {
+    margin: 0;
+    font-size: 0.6875rem;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--tps-muted);
+}
+
+.advf .advf-drop__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    block-size: 11.25rem;
+}
+
+.advf .advf-drop .upload-file {
+    inline-size: 100%;
+    max-inline-size: 11.25rem;
+    margin-inline: auto;
+}
+
+.advf .advf-drop__slot--banner .upload-file,
+.advf .advf-drop__slot--wide .upload-file {
+    max-inline-size: 20rem;
+}
+
+.advf .advf-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-block-start: 0.875rem;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius);
+    background: var(--tps-surface-muted);
+}
+
+.advf .advf-checks__label {
+    flex: 1 1 100%;
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+}
+
+.advf .advf-checks .form-check {
+    margin: 0;
+}
+
+.advf .advf-date .form-control {
+    padding-inline-end: 2.75rem;
+    background-color: var(--tps-surface);
+}
+
+.advf .advf-date__icon {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 0.875rem;
+    transform: translateY(-50%);
+    color: var(--tps-muted);
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.advf .advf-stage {
+    padding: 1rem;
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface-muted);
+}
+
+.advf .advf-stage .video-preview-box > div,
+.advf .advf-stage .profile-preview-box > div {
+    box-shadow: var(--tps-shadow);
+}
+
+.advf .select2-container--default .select2-selection--single {
+    height: auto;
+    min-height: 44px;
+    border-radius: var(--tps-radius);
+    border-color: var(--tps-border-strong);
+}
+
+.advf .select2-container--default .select2-selection--single .select2-selection__rendered {
+    padding-block: 0.625rem;
+    padding-inline: 0.875rem 1.75rem;
+    line-height: 1.5;
+    font-size: 0.8125rem;
+    color: var(--tps-title);
+}
+
+.advf .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #aab3c0;
+}
+
+.advf .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 42px;
+}
+
+.advf .select2-container--default.select2-container--focus .select2-selection--single,
+.advf .select2-container--default.select2-container--open .select2-selection--single {
+    border-color: rgba(var(--tps-accent-rgb), 0.55);
+    box-shadow: 0 0 0 3px rgba(var(--tps-accent-rgb), 0.12);
+}

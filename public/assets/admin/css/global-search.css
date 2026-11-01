@@ -1,0 +1,568 @@
+/* ==========================================================================
+   Global search palette — shared by the admin and vendor panels.
+
+   Markup: resources/views/layouts/{admin,vendor}/partials/_header.blade.php
+   Behaviour: public/assets/admin/js/global-search.js
+
+   Rendered for both the v1 and the v2 header chrome, so the palette owns its
+   own tokens and only borrows the v2 ones when `body.v2-chrome` is present.
+   ========================================================================== */
+
+.gsearch {
+    --gs-surface: #ffffff;
+    --gs-soft: #f6f9f8;
+    --gs-hover: #f1f5f3;
+    --gs-border: #e7ecea;
+    --gs-border-soft: #eef2f0;
+    --gs-text: #1b2622;
+    --gs-text-soft: #4d5a55;
+    --gs-muted: #8a9490;
+    --gs-accent: var(--primary-clr, #107980);
+    --gs-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --gs-accent-tint: rgba(var(--gs-accent-rgb), 0.09);
+    --gs-radius: 16px;
+}
+
+body.v2-chrome .gsearch {
+    --gs-surface: var(--v2-panel, #fff);
+    --gs-soft: var(--v2-bg, #f7faf8);
+    --gs-hover: var(--v2-hover, #f0f3f1);
+    --gs-border: var(--v2-border, #eaeeec);
+    --gs-border-soft: var(--v2-border, #eaeeec);
+    --gs-text: var(--v2-text, #1a2420);
+    --gs-text-soft: var(--v2-text-soft, #4f5a54);
+    --gs-muted: var(--v2-text-muted, #818c87);
+    --gs-accent: var(--v2-primary, #107980);
+}
+
+/* --------------------------------------------------------------------------
+   Shell
+   -------------------------------------------------------------------------- */
+
+.gsearch-modal .gsearch-dialog {
+    max-width: 640px;
+}
+
+/* Palettes read better anchored near the top than dead-centre, but the dialog
+   keeps `.modal-dialog-centered` so short viewports still centre gracefully. */
+@media (min-height: 620px) {
+    .gsearch-modal .gsearch-dialog.modal-dialog-centered {
+        align-items: flex-start;
+        padding-top: 7vh;
+    }
+}
+
+.gsearch-modal .modal-content.gsearch {
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    background: var(--gs-surface);
+    box-shadow: 0 24px 64px rgba(12, 34, 28, 0.18), 0 2px 8px rgba(12, 34, 28, 0.06);
+    overflow: hidden;
+}
+
+body.gsearch-open .modal-backdrop.show {
+    opacity: 0.42;
+    background-color: #0b1a16;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* --------------------------------------------------------------------------
+   Search bar
+   -------------------------------------------------------------------------- */
+
+.gsearch-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    min-height: 58px;
+    border-bottom: 1px solid var(--gs-border);
+}
+
+.gsearch-head-ico {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    color: var(--gs-muted);
+    transition: color 0.15s ease;
+}
+
+.gsearch-head-ico svg {
+    width: 18px;
+    height: 18px;
+}
+
+.gsearch:focus-within .gsearch-head-ico {
+    color: var(--gs-accent);
+}
+
+.gsearch-form {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+}
+
+.gsearch-modal .gsearch-input,
+.gsearch-modal .gsearch-input:focus {
+    width: 100%;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--gs-text);
+}
+
+.gsearch-modal .gsearch-input::placeholder {
+    color: var(--gs-muted);
+    font-weight: 400;
+}
+
+/* The native "x" duplicates our own clear button. */
+.gsearch-modal .gsearch-input::-webkit-search-cancel-button,
+.gsearch-modal .gsearch-input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.gsearch-clear {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--gs-soft);
+    color: var(--gs-text-soft);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.gsearch-clear:hover {
+    background: var(--gs-hover);
+    color: var(--gs-text);
+}
+
+.gsearch-clear[hidden] {
+    display: none;
+}
+
+.gsearch-clear svg {
+    width: 13px;
+    height: 13px;
+}
+
+.gsearch-esc {
+    flex: 0 0 auto;
+    padding: 4px 9px;
+    border: 1px solid var(--gs-border);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    background: var(--gs-surface);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--gs-muted);
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.gsearch-esc:hover {
+    border-color: var(--gs-muted);
+    color: var(--gs-text-soft);
+}
+
+/* Thin progress line that runs while a request is in flight. */
+.gsearch-progress {
+    position: relative;
+    height: 2px;
+    overflow: hidden;
+    background: transparent;
+}
+
+.gsearch.is-loading .gsearch-progress::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, var(--gs-accent), transparent);
+    animation: gsearch-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes gsearch-slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+}
+
+/* --------------------------------------------------------------------------
+   Result surface
+   -------------------------------------------------------------------------- */
+
+.gsearch-body {
+    max-height: min(58vh, 460px);
+    min-height: 268px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding: 10px;
+}
+
+.gsearch-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.gsearch-body::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background-clip: content-box;
+    background-color: #d6ddda;
+}
+
+.gsearch-note {
+    display: block;
+    margin: 0 2px 10px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: var(--gs-accent-tint);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--gs-text-soft);
+}
+
+.gsearch-group + .gsearch-group {
+    margin-top: 14px;
+}
+
+.gsearch-group-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gs-muted);
+}
+
+.gsearch-count {
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--gs-soft);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--gs-text-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Result rows
+   -------------------------------------------------------------------------- */
+
+.gsearch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.gsearch-modal .gsearch-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    transition: background 0.12s ease;
+}
+
+.gsearch-modal .gsearch-item:hover,
+.gsearch-modal .gsearch-item:focus {
+    text-decoration: none;
+    background: var(--gs-hover);
+}
+
+.gsearch-modal .gsearch-item.is-active {
+    background: var(--gs-accent-tint);
+    box-shadow: inset 0 0 0 1px rgba(var(--gs-accent-rgb), 0.22);
+}
+
+.gsearch-item-ico {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 9px;
+    background: var(--gs-soft);
+    color: var(--gs-text-soft);
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.gsearch-item-ico svg {
+    width: 16px;
+    height: 16px;
+}
+
+.gsearch-item.is-active .gsearch-item-ico,
+.gsearch-item:hover .gsearch-item-ico {
+    background: rgba(var(--gs-accent-rgb), 0.14);
+    color: var(--gs-accent);
+}
+
+.gsearch-item-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.gsearch-item-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--gs-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gsearch-item-path {
+    display: block;
+    margin-top: 1px;
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--gs-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    direction: ltr;
+    text-align: start;
+}
+
+.gsearch-modal .gsearch-item mark {
+    padding: 0;
+    border-radius: 3px;
+    background: rgba(var(--gs-accent-rgb), 0.15);
+    color: var(--gs-accent);
+    font-weight: 700;
+}
+
+.gsearch-item-go {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    flex: 0 0 18px;
+    color: var(--gs-accent);
+    opacity: 0;
+    transform: translateX(-3px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.gsearch-item-go svg {
+    width: 15px;
+    height: 15px;
+}
+
+.gsearch-item.is-active .gsearch-item-go,
+.gsearch-item:hover .gsearch-item-go {
+    opacity: 1;
+    transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Empty, error and loading states
+   -------------------------------------------------------------------------- */
+
+.gsearch-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 248px;
+    padding: 24px 28px;
+    text-align: center;
+}
+
+.gsearch-state-ico {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--gs-soft);
+    color: var(--gs-muted);
+}
+
+.gsearch-state-ico svg {
+    width: 22px;
+    height: 22px;
+}
+
+.gsearch-state-ico img {
+    width: 24px;
+    height: auto;
+}
+
+.gsearch-state-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gs-text);
+}
+
+.gsearch-state-text {
+    max-width: 34ch;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--gs-muted);
+}
+
+.gsearch-state--error .gsearch-state-ico {
+    background: rgba(255, 109, 109, 0.12);
+    color: #d94b4b;
+}
+
+.gsearch-skel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 10px;
+}
+
+.gsearch-skel-ico,
+.gsearch-skel-line {
+    background: linear-gradient(90deg, var(--gs-soft) 25%, var(--gs-hover) 37%, var(--gs-soft) 63%);
+    background-size: 400% 100%;
+    animation: gsearch-shimmer 1.3s ease infinite;
+}
+
+.gsearch-skel-ico {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 9px;
+}
+
+.gsearch-skel-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.gsearch-skel-line {
+    height: 9px;
+    border-radius: 5px;
+}
+
+.gsearch-skel-line + .gsearch-skel-line {
+    margin-top: 7px;
+    height: 7px;
+}
+
+@keyframes gsearch-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gsearch-skel-ico,
+    .gsearch-skel-line,
+    .gsearch.is-loading .gsearch-progress::after {
+        animation: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Footer legend
+   -------------------------------------------------------------------------- */
+
+.gsearch-foot {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 9px 14px;
+    border-top: 1px solid var(--gs-border);
+    background: var(--gs-soft);
+    font-size: 11.5px;
+    color: var(--gs-muted);
+}
+
+.gsearch-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.gsearch-foot kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border: 1px solid var(--gs-border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: var(--gs-surface);
+    box-shadow: none;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--gs-text-soft);
+}
+
+@media (max-width: 575.98px) {
+    .gsearch-modal .gsearch-dialog.modal-dialog-centered {
+        padding-top: 0;
+    }
+
+    .gsearch-head {
+        min-height: 52px;
+        padding-inline: 12px;
+    }
+
+    .gsearch-modal .gsearch-input {
+        height: 40px;
+        font-size: 15px;
+    }
+
+    .gsearch-body {
+        min-height: 220px;
+        max-height: 62vh;
+    }
+
+    /* Only the Esc hint survives; arrows and Enter are desktop affordances. */
+    .gsearch-hint:not(:last-child) {
+        display: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   RTL
+   -------------------------------------------------------------------------- */
+
+/* The path stays `direction: ltr` so URLs read correctly, but it still has to
+   hang off the same edge as the title it sits under. */
+[dir="rtl"] .gsearch-item-path {
+    text-align: right;
+}
+
+[dir="rtl"] .gsearch-item-go {
+    transform: scaleX(-1) translateX(-3px);
+}
+
+[dir="rtl"] .gsearch-item.is-active .gsearch-item-go,
+[dir="rtl"] .gsearch-item:hover .gsearch-item-go {
+    transform: scaleX(-1);
+}

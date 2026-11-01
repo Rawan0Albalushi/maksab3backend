@@ -1,0 +1,1285 @@
+/* ==========================================================================
+   Admin / Vendor data tables — shared visual layer
+   --------------------------------------------------------------------------
+   The panel's list screens all share one markup vocabulary inherited from the
+   Front theme:
+
+       <div class="table-responsive datatable-custom">
+         <table class="table table-borderless table-thead-bordered
+                       table-nowrap table-align-middle card-table">
+           <thead class="thead-light"> ...
+
+   This sheet restyles that vocabulary in place, so every list screen is
+   upgraded without touching a single Blade file. Nothing here introduces new
+   class names that views are required to use — the extra `.table--*` classes
+   at the bottom are optional opt-ins.
+
+   Load order matters: this file must come AFTER style.css / theme.min /
+   bootstrap.min and BEFORE @stack('css_or_js'), so pages keep the last word.
+
+   Specificity note: the theme styles headers with `.table .thead-light th`
+   (0,2,1) and cells with `.card-sm .card-table td` (0,2,1), so the rules here
+   are written as `.datatable-custom .table thead th` (0,2,2) to win on
+   specificity rather than on `!important`.
+
+   Logical properties throughout — RTL locales (`<html dir="rtl">`) lay out
+   correctly with no second stylesheet.
+   ========================================================================== */
+
+:root {
+    --tbl-head-bg: #f6f9fa;
+    --tbl-head-text: #6b7a8d;
+    --tbl-head-rule: #e4eaee;
+    --tbl-row-rule: #eef2f5;
+    --tbl-text: var(--text-title, #334257);
+    --tbl-text-muted: #7c8ba1;
+    --tbl-accent: var(--primary-clr, #107980);
+    --tbl-accent-rgb: var(--primary-clr-rgb, 16, 121, 128);
+    --tbl-hover: rgba(var(--tbl-accent-rgb), 0.045);
+    --tbl-cell-y: 0.8125rem;
+    --tbl-cell-x: 1rem;
+    --tbl-cell-edge: 1.3125rem;
+    /* Row actions. The panel's --success-clr / --danger-clr are tuned for
+       filled buttons; on a tinted chip they need the darker pair to clear
+       4.5:1 against the wash. */
+    --tbl-act-ok: var(--success-clr, #00aa6d);
+    --tbl-act-ok-ink: var(--success-dark, #019463);
+    --tbl-act-ok-rgb: 0, 170, 109;
+    --tbl-act-no: var(--danger-clr, #ff6d6d);
+    --tbl-act-no-ink: var(--danger-dark, #cb2020);
+    --tbl-act-no-rgb: 203, 32, 32;
+    --tbl-act-ghost: rgba(22, 42, 60, 0.05);
+    /* Ageing cue on a queue row. The panel's --warning-clr is a mid amber that
+       fails 4.5:1 as text on the card, so the ink is the darkened pair the
+       item queue already uses. */
+    --tbl-warn-ink: #a35f00;
+}
+
+
+/* --------------------------------------------------------------------------
+   1. Scroll container
+   `table-nowrap` makes some of these tables wider than the card, so the
+   horizontal scroll needs to be both discoverable and unobtrusive: edge
+   shadows that fade in only when there is more content that way.
+
+   The scrollbar itself is left to the platform. In Chromium and Safari, ANY
+   author rule matching `::-webkit-scrollbar` opts that scroller out of the OS
+   overlay scrollbar: the bar stops being an overlay that fades when idle and
+   becomes a classic one that reserves its track and stays painted for as long
+   as the element can scroll. This sheet used to style it (plus
+   `scrollbar-color`) for a slim 8px bar and dropped both for that reason — but
+   dropping them here was not enough on its own, because style.css declared
+   `::-webkit-scrollbar` with NO selector prefix, which matches every scroller
+   in the document. Those two blocks are now written as
+   `:not(.table-responsive)::-webkit-scrollbar`; see the comment there before
+   touching them.
+
+   What is left is `scrollbar-width: thin`, which is safe: it slims the bar
+   where the platform draws a real one (Windows, Linux) and leaves the macOS
+   overlay alone.
+   -------------------------------------------------------------------------- */
+
+.table-responsive.datatable-custom {
+    position: relative;
+    scrollbar-width: thin;
+    /* Covers (local) sit on top of shadows (scroll): the shadow is only
+       revealed once the content is actually scrolled away from that edge. */
+    background:
+        linear-gradient(to right, #fff 40%, rgba(255, 255, 255, 0)) left center / 32px 100% no-repeat local,
+        linear-gradient(to left, #fff 40%, rgba(255, 255, 255, 0)) right center / 32px 100% no-repeat local,
+        radial-gradient(farthest-side at 0 50%, rgba(22, 42, 60, 0.13), rgba(22, 42, 60, 0)) left center / 14px 100% no-repeat scroll,
+        radial-gradient(farthest-side at 100% 50%, rgba(22, 42, 60, 0.13), rgba(22, 42, 60, 0)) right center / 14px 100% no-repeat scroll;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. Table shell
+   -------------------------------------------------------------------------- */
+
+.datatable-custom > .table,
+.table.card-table,
+.table.table--pro {
+    width: 100%;
+    margin-bottom: 0;
+    color: var(--tbl-text);
+    font-size: 0.875rem;
+    /* Digits line up column-wise in amount / count / ID columns. */
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. Header row
+   Was: 13px sentence-case grey on #f8fafd, visually the same weight as the
+   body — which is what made these tables read as undesigned. Now it is a
+   proper eyebrow: small, uppercase, tracked, with a hard rule underneath.
+   The rule is a box-shadow rather than a border so it survives `position:
+   sticky` (collapsed borders detach from sticky cells in Chrome).
+   -------------------------------------------------------------------------- */
+
+.datatable-custom .table thead th,
+.table.card-table thead th,
+.table.table--pro thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 0.875rem var(--tbl-cell-x);
+    background-color: var(--tbl-head-bg);
+    color: var(--tbl-head-text);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    border: 0;
+    box-shadow: inset 0 -1px 0 var(--tbl-head-rule);
+    /* The theme hard-locks header type with two `!important` rules —
+       `.table thead th { font-size: .87rem !important }` in style.css and
+       `.table thead th { text-transform: capitalize !important }` in
+       vendor.min.css — which is exactly why headers currently carry the same
+       visual weight as the body text they label. Matching `!important` is the
+       only way to win, and only these two properties need it. */
+    font-size: 0.72rem !important;
+    text-transform: uppercase !important;
+}
+
+.datatable-custom .table thead th:first-child,
+.table.card-table thead th:first-child,
+.table.table--pro thead th:first-child {
+    padding-inline-start: var(--tbl-cell-edge);
+}
+
+.datatable-custom .table thead th:last-child,
+.table.card-table thead th:last-child,
+.table.table--pro thead th:last-child {
+    padding-inline-end: var(--tbl-cell-edge);
+}
+
+/* Summary / totals tables opt out of a header rule via the theme's
+   `table-thead-borderless`; respect that intent. */
+.datatable-custom .table.table-thead-borderless thead th,
+.table.card-table.table-thead-borderless thead th {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Sortable headers keep the theme's own indicator — `.datatable-custom
+   .sorting:after` in theme.min is an inline-flex SVG that sits right after the
+   label, which reads better than a chevron pinned to the cell edge. All that
+   is added here is a hover cue, since the arrow alone is easy to miss. */
+.datatable-custom .table thead th.sorting,
+.datatable-custom .table thead th.sorting_asc,
+.datatable-custom .table thead th.sorting_desc {
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.datatable-custom .table thead th.sorting:hover,
+.datatable-custom .table thead th.sorting_asc:hover,
+.datatable-custom .table thead th.sorting_desc:hover {
+    color: var(--tbl-accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   4. Body rows
+   `table-borderless` stripped every separator, so long lists read as one
+   block of text. A hairline per row plus a hover tint restores scannability.
+   -------------------------------------------------------------------------- */
+
+.datatable-custom .table tbody tr,
+.table.card-table tbody tr,
+.table.table--pro tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.datatable-custom .table tbody td,
+.table.card-table tbody td,
+.table.table--pro tbody td {
+    padding: var(--tbl-cell-y) var(--tbl-cell-x);
+    vertical-align: middle;
+    line-height: 1.45;
+    color: var(--tbl-text);
+    border: 0;
+    border-bottom: 1px solid var(--tbl-row-rule);
+}
+
+.datatable-custom .table tbody td:first-child,
+.table.card-table tbody td:first-child,
+.table.table--pro tbody td:first-child {
+    padding-inline-start: var(--tbl-cell-edge);
+}
+
+.datatable-custom .table tbody td:last-child,
+.table.card-table tbody td:last-child,
+.table.table--pro tbody td:last-child {
+    padding-inline-end: var(--tbl-cell-edge);
+}
+
+/* The last hairline would double up with the `<hr>` / pagination block that
+   follows most of these tables. */
+.datatable-custom .table tbody tr:last-child td,
+.table.card-table tbody tr:last-child td,
+.table.table--pro tbody tr:last-child td {
+    border-bottom-color: transparent;
+}
+
+.datatable-custom .table tbody tr:hover,
+.table.card-table tbody tr:hover,
+.table.table--pro tbody tr:hover {
+    background-color: var(--tbl-hover);
+}
+
+/* Accent marker on the hovered row — tells you which row your cursor is on
+   even when the row is wider than the viewport and you have scrolled sideways
+   away from the identifying column.
+
+   Drawn as an inset shadow rather than a positioned pseudo-element, so no
+   `position: relative` is forced onto the first cell — that would silently
+   become the containing block for anything absolutely positioned inside that
+   column. box-shadow has no logical-property form, hence the `[dir]` pair. */
+.datatable-custom .table tbody tr:hover td:first-child,
+.table.card-table tbody tr:hover td:first-child,
+.table.table--pro tbody tr:hover td:first-child {
+    box-shadow: inset 3px 0 0 var(--tbl-accent);
+}
+
+[dir="rtl"] .datatable-custom .table tbody tr:hover td:first-child,
+[dir="rtl"] .table.card-table tbody tr:hover td:first-child,
+[dir="rtl"] .table.table--pro tbody tr:hover td:first-child {
+    box-shadow: inset -3px 0 0 var(--tbl-accent);
+}
+
+/* "No matching records" rows are not real data — no hover, no marker. */
+.datatable-custom .table tbody tr:hover td.dataTables_empty,
+.table.card-table tbody tr:hover td.dataTables_empty {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.datatable-custom .table tbody td.dataTables_empty,
+.table.card-table tbody td.dataTables_empty {
+    padding-block: 2.5rem;
+    text-align: center;
+    color: var(--tbl-text-muted);
+}
+
+/* Keyboard users get the same row feedback as mouse users. */
+.datatable-custom .table tbody tr:focus-within,
+.table.card-table tbody tr:focus-within,
+.table.table--pro tbody tr:focus-within {
+    background-color: var(--tbl-hover);
+}
+
+.datatable-custom .table tfoot td,
+.datatable-custom .table tfoot th,
+.table.card-table tfoot td,
+.table.card-table tfoot th {
+    padding: 0.875rem var(--tbl-cell-x);
+    border: 0;
+    box-shadow: inset 0 1px 0 var(--tbl-head-rule);
+    font-weight: 600;
+    color: var(--tbl-text);
+}
+
+
+/* --------------------------------------------------------------------------
+   5. Content inside cells
+   -------------------------------------------------------------------------- */
+
+/* Primary identifiers (order id, store name…) read as links, not body text. */
+.datatable-custom .table tbody td a:not(.btn):not(.dropdown-item):not(.badge):not(.action-btn),
+.table.card-table tbody td a:not(.btn):not(.dropdown-item):not(.badge):not(.action-btn) {
+    color: var(--tbl-accent);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.datatable-custom .table tbody td a:not(.btn):not(.dropdown-item):not(.badge):not(.action-btn):hover,
+.table.card-table tbody td a:not(.btn):not(.dropdown-item):not(.badge):not(.action-btn):hover {
+    color: var(--dark-clr, #005555);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* Secondary lines (timestamps, sub-labels) recede so the primary value leads. */
+.datatable-custom .table tbody td small,
+.datatable-custom .table tbody td .text-muted,
+.table.card-table tbody td small,
+.table.card-table tbody td .text-muted {
+    color: var(--tbl-text-muted);
+    font-size: 0.78125rem;
+}
+
+/* Thumbnails get a hairline ring so light product shots do not bleed into the
+   row. box-shadow follows the element's own radius, so circle avatars stay
+   circular. */
+.datatable-custom .table tbody td .avatar-img,
+.table.card-table tbody td .avatar-img {
+    box-shadow: 0 0 0 1px rgba(22, 42, 60, 0.08);
+}
+
+/* Status pills. `.table .badge { min-width: 80px }` from style.css keeps
+   status columns from going ragged — kept, but centred and rounded. */
+.datatable-custom .table .badge,
+.table.card-table .badge,
+.table.table--pro .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+    padding: 0.4em 0.75em;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.015em;
+    line-height: 1.45;
+    white-space: nowrap;
+}
+
+/* Row action buttons: square-ish icon buttons with a tinted resting state and
+   a filled hover, instead of the flat outline pair they were.
+
+   Size tracks the theme's own pair (style.css :601 — 30px, going 32px at
+   1650px). This sheet used to pin 32px at every width, which cost ~10px per
+   action column on the 1280–1440px screens most of the panel is used at. */
+.datatable-custom .table .action-btn,
+.table.card-table .action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+@media (min-width: 1650px) {
+
+    .datatable-custom .table .action-btn,
+    .table.card-table .action-btn {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+.btn-group > .btn.action-btn:not(.dropdown-toggle) {
+    border-radius: 9px;
+}
+
+.datatable-custom .table .action-btn:hover,
+.table.card-table .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -4px rgba(22, 42, 60, 0.35);
+}
+
+.datatable-custom .table .action-btn:focus-visible,
+.table.card-table .action-btn:focus-visible {
+    outline: 2px solid var(--tbl-accent);
+    outline-offset: 2px;
+}
+
+.datatable-custom .table .btn--container,
+.table.card-table .btn--container {
+    gap: 8px;
+}
+
+/* Neutral resting state for icon actions, so the row reads as data and the
+   colour is spent on the decision the screen is actually asking for. Each
+   variant only claims its colour on hover / focus.
+
+   Every view / edit / delete row action in admin, vendor and the modules uses
+   these. What stays on the theme's `btn--primary btn-outline-primary` pairs is
+   deliberate: print, export, approve, reject, complete, reverse. Those are the
+   decisions a queue exists to make, and they are the ones the colour is being
+   saved for.
+
+   Written as `.action-btn.action-btn--view` (0,2,0) rather than scoped to the
+   two table roots, because a large family of report, wallet and settings
+   screens draws its list with a plain `.table table-borderless` that matches
+   neither. Scoping left those action columns on the theme's coloured outline
+   pair while every other list in the panel had gone neutral. The modifier is
+   only ever put on a row action, so an unscoped rule reaches exactly the
+   buttons it should; the compound selector clears Bootstrap's own `.btn`
+   colour without an `!important`. Sizing still comes from `.action-btn` in
+   style.css (:610), which is global already.
+
+   `--menu` is the dropdown trigger that collects a row's remaining actions. It
+   is a container, not a decision, so it takes the same neutral pair.
+
+   `--open` is the fourth verb: a row action that opens a related setup screen
+   rather than this row's own record — the zone list's Connect Module, Surge
+   Price and Smart Banner. It resolves to the same neutral-then-accent pair as
+   `--view`; it exists so the markup does not have to call a drawer trigger a
+   "view". Its glyphs are inline SVG, so they must be authored with
+   `fill="currentColor"` to follow the button through the hover.
+
+   `--copy` and `--send` are the subscriber list's two housekeeping actions:
+   put a row's address on the clipboard, open a mail composer for it. Neither
+   is a decision the screen exists to make, so they take the same neutral pair;
+   they are separate names only so a row that copies an email is not marked up
+   as a `--view`.
+
+   `--print` is the same case one screen over: the invoice button beside a row's
+   View. Print keeps the theme's coloured pair on the queues where printing IS
+   the decision the screen exists to make (the report and dispatch sheets); on
+   an order list it is housekeeping of equal weight to View, and the coloured
+   outline left one cell holding a grey square next to a blue one for two
+   actions that rank the same. */
+.action-btn.action-btn--view,
+.action-btn.action-btn--edit,
+.action-btn.action-btn--open,
+.action-btn.action-btn--copy,
+.action-btn.action-btn--send,
+.action-btn.action-btn--print,
+.action-btn.action-btn--menu,
+.action-btn.action-btn--delete {
+    background-color: var(--tbl-act-ghost);
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: var(--tbl-text-muted);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.action-btn.action-btn--view:hover,
+.action-btn.action-btn--edit:hover,
+.action-btn.action-btn--open:hover,
+.action-btn.action-btn--copy:hover,
+.action-btn.action-btn--send:hover,
+.action-btn.action-btn--print:hover,
+.action-btn.action-btn--menu:hover,
+.action-btn.action-btn--delete:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -4px rgba(22, 42, 60, 0.35);
+}
+
+.action-btn.action-btn--view:focus-visible,
+.action-btn.action-btn--edit:focus-visible,
+.action-btn.action-btn--open:focus-visible,
+.action-btn.action-btn--copy:focus-visible,
+.action-btn.action-btn--send:focus-visible,
+.action-btn.action-btn--print:focus-visible,
+.action-btn.action-btn--menu:focus-visible,
+.action-btn.action-btn--delete:focus-visible {
+    outline: 2px solid var(--tbl-accent);
+    outline-offset: 2px;
+}
+
+.action-btn.action-btn--view:hover,
+.action-btn.action-btn--edit:hover,
+.action-btn.action-btn--open:hover,
+.action-btn.action-btn--copy:hover,
+.action-btn.action-btn--send:hover,
+.action-btn.action-btn--print:hover,
+.action-btn.action-btn--menu:hover {
+    background-color: var(--tbl-accent);
+    border-color: var(--tbl-accent);
+    color: #fff;
+}
+
+.action-btn.action-btn--delete:hover {
+    background-color: var(--tbl-act-no-ink);
+    border-color: var(--tbl-act-no-ink);
+    color: #fff;
+}
+
+/* The exception to "neutral at rest". `--alert` is not a verb the admin picks,
+   it is the row telling them something is wrong — an unfinished zone. Given the
+   neutral treatment it would be a grey triangle, and spotting the broken rows in
+   a long list is the entire job of the control, so it keeps its colour at rest
+   and takes §5b's soft-tint-then-solid pair rather than the theme's outline one.
+   Geometry, hover lift and focus ring still come from the group above. */
+.action-btn.action-btn--alert {
+    background-color: rgba(var(--tbl-act-no-rgb), 0.08);
+    border: 1px solid rgba(var(--tbl-act-no-rgb), 0.2);
+    border-radius: 9px;
+    color: var(--tbl-act-no-ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.action-btn.action-btn--alert:hover {
+    background-color: var(--tbl-act-no-ink);
+    border-color: var(--tbl-act-no-ink);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -4px rgba(22, 42, 60, 0.35);
+}
+
+.action-btn.action-btn--alert:focus-visible {
+    outline: 2px solid var(--tbl-act-no-ink);
+    outline-offset: 2px;
+}
+
+/* An action the row is not allowed to offer yet — a role that still has
+   employees, a happy hour that is running. It stays visible so the column
+   keeps its shape and the reason can be read off the `title`, which is why
+   `pointer-events` is put back: Bootstrap's own `.btn.disabled` sets it to
+   `none`, and a tooltip on an element that cannot be hovered never opens. */
+.action-btn--view.disabled,
+.action-btn--edit.disabled,
+.action-btn--delete.disabled {
+    background-color: var(--tbl-act-ghost);
+    border-color: transparent;
+    color: var(--tbl-text-muted);
+    opacity: 0.5;
+    pointer-events: auto;
+    cursor: not-allowed;
+}
+
+.action-btn--view.disabled:hover,
+.action-btn--edit.disabled:hover,
+.action-btn--delete.disabled:hover {
+    background-color: var(--tbl-act-ghost);
+    border-color: transparent;
+    color: var(--tbl-text-muted);
+    transform: none;
+    box-shadow: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   5b. Grouped row actions
+   A queue row can carry five actions at once (decide, inspect, edit, delete).
+   As five identical squares they are five hover-and-guess targets, and the
+   destructive one sits a few pixels from the one that publishes a product.
+
+   So the cell is split: the decisions the screen exists for are labelled
+   chips, the housekeeping stays icon-only and neutral, and a hairline keeps
+   the two groups from being read — or clicked — as one run.
+
+       <div class="table-actions justify-content-center">
+         <a class="btn action-pill action-pill--approve">…</a>
+         <a class="btn action-pill action-pill--deny">…</a>
+         <span class="table-actions__sep" aria-hidden="true"></span>
+         <a class="btn action-btn action-btn--view">…</a>
+         …
+
+   `.action-pill` deliberately does NOT take `.action-btn`: the theme pins that
+   class at `padding: 0 !important; font-size: .8em !important` (style.css
+   :601), which a labelled control cannot live with.
+   -------------------------------------------------------------------------- */
+
+.datatable-custom .table .table-actions,
+.table.card-table .table-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 4px;
+}
+
+.datatable-custom .table .table-actions__sep,
+.table.card-table .table-actions__sep {
+    flex: 0 0 auto;
+    align-self: stretch;
+    width: 1px;
+    min-height: 22px;
+    margin-inline: 2px;
+    background-color: var(--tbl-head-rule);
+}
+
+/* Height tracks `.action-btn` so the chips and the icon squares sit on one
+   line; see the 1650px bump below. */
+.datatable-custom .table .action-pill,
+.table.card-table .action-pill {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 0.28rem;
+    height: 30px;
+    padding-inline: 0.5625rem;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.datatable-custom .table .action-pill i,
+.table.card-table .action-pill i {
+    font-size: 0.9375rem;
+    line-height: 1;
+}
+
+@media (min-width: 1650px) {
+
+    .datatable-custom .table .action-pill,
+    .table.card-table .action-pill {
+        height: 32px;
+        padding-inline: 0.6875rem;
+    }
+}
+
+.datatable-custom .table .action-pill:hover,
+.table.card-table .action-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px -4px rgba(22, 42, 60, 0.35);
+}
+
+.datatable-custom .table .action-pill:focus-visible,
+.table.card-table .action-pill:focus-visible {
+    outline: 2px solid var(--tbl-accent);
+    outline-offset: 2px;
+}
+
+.datatable-custom .table .action-pill--approve,
+.table.card-table .action-pill--approve {
+    background-color: rgba(var(--tbl-act-ok-rgb), 0.1);
+    border-color: rgba(var(--tbl-act-ok-rgb), 0.22);
+    color: var(--tbl-act-ok-ink);
+}
+
+.datatable-custom .table .action-pill--approve:hover,
+.table.card-table .action-pill--approve:hover {
+    background-color: var(--tbl-act-ok-ink);
+    border-color: var(--tbl-act-ok-ink);
+    color: #fff;
+}
+
+.datatable-custom .table .action-pill--deny,
+.table.card-table .action-pill--deny {
+    background-color: rgba(var(--tbl-act-no-rgb), 0.08);
+    border-color: rgba(var(--tbl-act-no-rgb), 0.2);
+    color: var(--tbl-act-no-ink);
+}
+
+.datatable-custom .table .action-pill--deny:hover,
+.table.card-table .action-pill--deny:hover {
+    background-color: var(--tbl-act-no-ink);
+    border-color: var(--tbl-act-no-ink);
+    color: #fff;
+}
+
+/* The already-decided state. It holds the slot the live control would occupy,
+   so the icon group below does not shift left row to row. */
+.datatable-custom .table .action-pill--done,
+.table.card-table .action-pill--done {
+    background-color: transparent;
+    border-color: var(--tbl-row-rule);
+    border-style: dashed;
+    color: var(--tbl-text-muted);
+    cursor: default;
+}
+
+.datatable-custom .table .action-pill--done:hover,
+.table.card-table .action-pill--done:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+@media (max-width: 991.98px) {
+
+    .datatable-custom .table .action-pill,
+    .table.card-table .action-pill {
+        padding-inline: 0.5rem;
+        font-size: 0.6875rem;
+    }
+
+    .datatable-custom .table .table-actions,
+    .table.card-table .table-actions {
+        gap: 4px;
+    }
+}
+
+
+/* --------------------------------------------------------------------------
+   5c. Row status toggle
+   A bare switch in a table only says what it is once you know which side is
+   on, and when the row is saved over ajax nothing else on screen moves. So the
+   switch is paired with the word it sets, and the wrapper carries the state:
+
+       <div class="status-toggle" data-status="1">
+         <label class="toggle-switch toggle-switch-sm"> … </label>
+         <span class="status-toggle__text" aria-live="polite">Active</span>
+       </div>
+
+   Add `.status-toggle--busy` on the wrapper for the in-flight request — it
+   dims and locks the switch and spins the label, so a slow round trip reads as
+   pending rather than ignored.
+   -------------------------------------------------------------------------- */
+
+.status-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-toggle .toggle-switch {
+    flex: 0 0 auto;
+    margin-block-end: 0;
+}
+
+/* `min-width` holds the slot the longer of the two words needs, so the column
+   does not reflow as rows are switched. */
+.status-toggle__text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 3.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--tbl-text-muted);
+}
+
+.status-toggle[data-status="1"] .status-toggle__text {
+    color: var(--tbl-act-ok-ink);
+}
+
+/* In flight. Most switches in the panel are a bare `label.toggle-switch` with
+   no wrapper, so status-toggle.js marks whichever of the two it finds. */
+.status-toggle--busy {
+    cursor: progress;
+}
+
+.status-toggle--busy .toggle-switch,
+label.toggle-switch.status-toggle--busy {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.status-toggle--busy .status-toggle__text::after {
+    content: "";
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1.5px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: tbl-status-spin 0.6s linear infinite;
+}
+
+@keyframes tbl-status-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* --------------------------------------------------------------------------
+   5d. Row priority select
+   The Normal/Medium/High select on the category and store-category lists.
+   priority-select.js saves it over ajax and moves its tone class with the
+   value; this only covers the in-flight moment, matching .status-toggle--busy
+   above so both row edits read the same while they are pending.
+   -------------------------------------------------------------------------- */
+
+.priority-select--busy {
+    opacity: 0.55;
+    cursor: progress;
+    pointer-events: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   5e. Timestamp over its age
+   A queue row's date answers "when", but the number that says whether the
+   queue is being worked is how long the row has been sitting there. So the
+   cell carries both, and `--stale` colours the age once the wait crosses the
+   threshold the screen sets:
+
+       <span class="table-when table-when--stale">
+         <span class="table-when__day">07 Sep 2026</span>
+         <span class="table-when__ago">4 days ago</span>
+       </span>
+
+   The exact date stays available as the `title` of the age line, so the short
+   form costs nothing. Page-scoped copies of this pattern predate it
+   (`.itm-when` in item-list.css, `.wdr-when` in the withdraw sheets); new
+   screens use this one.
+   -------------------------------------------------------------------------- */
+
+.table-when {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.table-when__day {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tbl-text);
+}
+
+.table-when__ago {
+    font-size: 0.75rem;
+    color: var(--tbl-text-muted);
+}
+
+.table-when--stale .table-when__ago {
+    font-weight: 600;
+    color: var(--tbl-warn-ink);
+}
+
+
+/* --------------------------------------------------------------------------
+   6. Table footer — pagination + empty state
+   The blocks that bookend every table, so they are part of "the table" as far
+   as the eye is concerned.
+   -------------------------------------------------------------------------- */
+
+/* Every list screen ends with the same two elements:
+
+       @if(count($x) !== 0) <hr> @endif
+       <div class="page-area">{!! $x->links() !!}</div>
+
+   `bootstrap-4.blade.php` opens with `@if ($paginator->hasPages())`, so a
+   result set that fits on one page renders NOTHING — leaving a rule that
+   separates nothing and an empty box holding the card open. On the several
+   pages whose `.page-area` also carries `px-4 pb-3` (or a `<tfoot
+   class="border-top">` inside it) the dead space is a good 40px plus a second
+   stray line.
+
+   So the divider is taken off the `<hr>` and given to the footer itself: the
+   footer draws its own top rule when it has something to show, and collapses
+   completely when it does not.
+
+   `<nav>` is the reliable tell — it comes only from the paginator view, and
+   every wrapper variant in the codebase (bare, `.d-flex` wrapper, or nested in
+   a stray `<table><tfoot>`) keeps it as a descendant. Note `:has()` cannot be
+   nested inside `:has()`, which is why the `<hr>` is hidden unconditionally
+   rather than only when the footer turns out to be empty.
+
+   Browsers without `:has()` drop all three rules together and get today's
+   behaviour back — degradation is consistent, never half-applied. */
+
+hr:has(+ .page-area) {
+    display: none;
+}
+
+.page-area:has(nav) {
+    border-top: 1px solid var(--tbl-head-rule);
+    padding-block: 0.875rem;
+    padding-inline: var(--tbl-cell-edge);
+}
+
+.page-area:not(:has(nav)) {
+    display: none;
+}
+
+.page-area .pagination {
+    gap: 4px;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+}
+
+.page-area .pagination .page-item .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.5rem;
+    margin: 0;
+    border: 1px solid var(--tbl-head-rule);
+    border-radius: 8px;
+    background-color: #fff;
+    color: var(--tbl-text);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.page-area .pagination .page-item .page-link:hover {
+    background-color: var(--tbl-hover);
+    border-color: rgba(var(--tbl-accent-rgb), 0.35);
+    color: var(--tbl-accent);
+}
+
+.page-area .pagination .page-item .page-link:focus {
+    box-shadow: 0 0 0 3px rgba(var(--tbl-accent-rgb), 0.18);
+    outline: none;
+}
+
+.page-area .pagination .page-item.active .page-link {
+    background-color: var(--tbl-accent);
+    border-color: var(--tbl-accent);
+    color: #fff;
+}
+
+.page-area .pagination .page-item.disabled .page-link {
+    background-color: transparent;
+    border-color: var(--tbl-row-rule);
+    color: #b3bec8;
+}
+
+/* Prev/next carry a tio chevron rather than a text guillemet. Not scoped to
+   .page-area — 26 of the 306 `links()` call sites paginate outside it. The
+   glyph is the link's whole content, so it wants centring, not the icon/label
+   optical offset button-icons.css measures: inside .page-area the page-link is
+   inline-flex and centres it, elsewhere it stays inline and `vertical-align`
+   does. Mirrored in RTL for the reason button-icons.css §3 gives — a "next"
+   chevron still pointing right is pointing backwards. */
+.pagination [class^="tio-"],
+.pagination [class*=" tio-"] {
+    font-size: 1.125rem;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+[dir="rtl"] .pagination [class^="tio-"],
+[dir="rtl"] .pagination [class*=" tio-"] {
+    display: inline-block;
+    transform: scaleX(-1);
+}
+
+.empty--data {
+    padding: 2.75rem 1.25rem;
+}
+
+.empty--data h5 {
+    color: var(--tbl-text-muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+.empty--data p {
+    max-width: 30rem;
+    margin: 0.375rem auto 0;
+    color: var(--tbl-text-muted);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+}
+
+
+/* --------------------------------------------------------------------------
+   7. Card header — table title + subtitle
+   Rendered by `resources/views/partials/_table-head.blade.php`. The header is a
+   flex row (`.search--button-wrapper`) shared with the search box, export and
+   filter controls, so the title block is a column that keeps the auto margin
+   the bare `.card-title` used to hold.
+   -------------------------------------------------------------------------- */
+
+.table-head {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    margin-inline-end: auto;
+}
+
+/* `.search--button-wrapper > .card-title` carries `margin-inline-end: auto
+   !important` in style.css; the title is now nested one level deeper, so the
+   auto margin has to move out to the wrapper with equal force. */
+.search--button-wrapper > .table-head {
+    margin-inline-end: auto !important;
+}
+
+/* style.css gutters the header controls with
+       .search--button-wrapper > .btn, … , .search--button-wrapper .card-title,
+       .search--button-wrapper > div { margin: 7px !important }
+   which cancels the wrapper's own `margin: 0 -7px`. Two of those selectors now
+   apply at once: `> div` matches `.table-head`, and `.card-title` is a
+   DESCENDANT selector so it keeps matching the title nested inside it. The 7px
+   lands twice and the title sits a notch right of the table's first column, so
+   the inner one is given back — `!important` is required to outrank it. */
+.search--button-wrapper .table-head .card-title {
+    margin: 0 !important;
+}
+
+.table-head .card-title {
+    margin-bottom: 0;
+}
+
+.table-head__sub {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.45;
+    color: var(--tbl-text-muted);
+    /* `.card-title` is `text-transform: capitalize`; a sentence should not be. */
+    text-transform: none;
+}
+
+/* Subtitle-only: the page `<h1>` already names this table, so the card shows
+   just the descriptive line. On its own it would read as an orphaned caption,
+   so it carries a little more weight than when it sits under a title. */
+.table-head--sub-only .table-head__sub {
+    font-size: 0.875rem;
+    color: var(--tbl-text);
+}
+
+/* `.table-head`'s `margin-inline-end: auto` only pushes the filter controls away
+   when the flex row has spare room to give it -- a row crowded with several
+   selects plus the search box and export button can leave almost none, so the
+   sentence-length sub-only subtitle ends up sitting right against the first
+   filter. `padding-inline-end` is not part of that auto-margin's "free space"
+   calculation, so it holds a floor the margin can't collapse below. */
+.table-head--sub-only.table-head {
+    padding-inline-end: 1rem;
+}
+
+@media (max-width: 575.98px) {
+    .table-head {
+        margin-bottom: 0.5rem;
+    }
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Optional opt-ins
+   Nothing above depends on these; add them per page when the content calls
+   for it.
+   -------------------------------------------------------------------------- */
+
+/* Freeze the header while a long table scrolls. The header is already
+   `position: sticky`, but it has no effect until the wrapper is height-capped
+   — that is all this class does. */
+.table-responsive.table-sticky-head {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Banded rows, for wide numeric tables where the eye loses the row. */
+.table--striped tbody tr:nth-child(even) {
+    background-color: rgba(22, 42, 60, 0.018);
+}
+
+/* Density overrides. */
+.table--compact tbody td {
+    padding-block: 0.5rem;
+}
+
+.table--relaxed tbody td {
+    padding-block: 1.125rem;
+}
+
+/* Let a wide table's headers wrap instead of setting the column width.
+
+   `table-nowrap` pins `white-space: nowrap` on every cell, header included, and
+   the sheet's headers are uppercase micro-caps — so on a ten-column list most
+   columns end up as wide as their label rather than as wide as their data.
+   Measured on the admin order list: CUSTOMER INFORMATION, TOTAL AMOUNT, ORDER
+   STATUS and ITEMS each ran 24-38px past their widest cell, ~150px in total,
+   which was the whole difference between fitting and scrolling at 1600px.
+
+   Only the header is released; cells keep `nowrap` so a phone number or an
+   amount still never breaks. A column can still not shrink below its longest
+   single word, so nothing collapses to one character per line. */
+.datatable-custom .table.table--wrap-head thead th,
+.table.card-table.table--wrap-head thead th {
+    white-space: normal;
+    vertical-align: bottom;
+}
+
+/* col--numeric headers (Price, Orders, ...) opt back out of the wrap above.
+   Their column width is driven by short numeric body content, not by the
+   label, so it's narrower than a wide text column -- too narrow to also fit
+   the sortable header's inline icon (theme.min's .sorting:after sits right
+   after the label, not pinned to the cell edge) next to a one-word label like
+   "Orders", so the icon wrapped to its own line while sibling headers stayed
+   on one line. These labels are single words already, so keeping them
+   nowrap can't reintroduce the over-wide-column problem table--wrap-head
+   exists to avoid. */
+.datatable-custom .table.table--wrap-head thead th.col--numeric,
+.table.card-table.table--wrap-head thead th.col--numeric {
+    white-space: nowrap;
+}
+
+/* Pin the row-actions column to the trailing edge of a table that has to scroll.
+
+   A ten-column list is wider than the panel's content area below ~1800px, and
+   the column that falls off the end is Action — the one the row exists to let
+   you use. Rather than shave a name cell until the table fits, this pins the
+   last cell so the actions stay reachable at every width and the rest of the
+   row scrolls under them.
+
+   The cell paints its own background because a sticky cell sits over the rows
+   behind it, so the hover tint has to be repeated here or the pinned cell
+   stays white while its row lights up. `thead th` is already sticky-top in this
+   sheet; sticky on both axes is fine and only needs the higher stacking order
+   so the header corner wins over the body column. */
+.datatable-custom .table.table--sticky-actions thead th:last-child,
+.table.card-table.table--sticky-actions thead th:last-child {
+    position: sticky;
+    inset-inline-end: 0;
+    z-index: 3;
+    background-color: var(--tbl-head-bg);
+}
+
+.datatable-custom .table.table--sticky-actions tbody td:last-child,
+.table.card-table.table--sticky-actions tbody td:last-child {
+    position: sticky;
+    inset-inline-end: 0;
+    z-index: 2;
+    background-color: #fff;
+}
+
+.datatable-custom .table.table--sticky-actions tbody tr:hover td:last-child,
+.table.card-table.table--sticky-actions tbody tr:hover td:last-child {
+    background-image: linear-gradient(var(--tbl-hover), var(--tbl-hover));
+}
+
+/* A plain rule on the leading edge of the pinned column, so a row scrolling
+   under it reads as passing behind a divider rather than being cut off.
+
+   Deliberately not a shadow: the wrapper's own edge shadows (section 1) are
+   painted with `background-attachment: local/scroll`, so they appear only once
+   the content is actually scrolled — a shadow here has no such trigger and
+   would sit under the column at every width, including the ones where the
+   table fits and nothing is hidden. A 1px rule reads as a column divider
+   either way. */
+.datatable-custom .table.table--sticky-actions thead th:last-child::before,
+.datatable-custom .table.table--sticky-actions tbody td:last-child::before,
+.table.card-table.table--sticky-actions thead th:last-child::before,
+.table.card-table.table--sticky-actions tbody td:last-child::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 1px;
+    background-color: var(--tbl-row-rule);
+}
+
+/* Right-align a money / count column: put it on both the `th` and the `td`. */
+.datatable-custom .table .col--numeric,
+.table.card-table .col--numeric {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
+
+/* A cell holding a short list of tokens — locale codes, tags. `.badge` is the
+   wrong element here: style.css pins `.table .badge { min-width: 80px }`, which
+   is right for a lone status pill and turns three chips into a 240px column. */
+.datatable-custom .table .cell-chips,
+.table.card-table .cell-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    vertical-align: middle;
+}
+
+.datatable-custom .table .cell-chip,
+.table.card-table .cell-chip {
+    display: inline-block;
+    padding: 0.2em 0.5em;
+    border: 1px solid var(--tbl-head-rule);
+    border-radius: 0.25rem;
+    background-color: var(--tbl-head-bg);
+    color: var(--tbl-head-text);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+/* Stop a long value from setting the column width. Goes on the flex child of a
+   `.media` cell (usually `.media-body`), paired with a `max-w-*` cap on the
+   `.media` itself.
+
+   `min-width: 0` is the load-bearing half: a flex item's automatic minimum
+   size is its content, so without it the child refuses to shrink below the
+   text and the cap does nothing. `table-nowrap` already pins `white-space`,
+   so the children only need the overflow pair. */
+.datatable-custom .table .cell--truncate,
+.table.card-table .cell--truncate {
+    min-width: 0;
+}
+
+.datatable-custom .table .cell--truncate > *,
+.table.card-table .cell--truncate > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* --------------------------------------------------------------------------
+   9. Responsive + output modes
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767.98px) {
+    :root {
+        --tbl-cell-x: 0.75rem;
+        --tbl-cell-edge: 1rem;
+        --tbl-cell-y: 0.6875rem;
+    }
+
+    .datatable-custom > .table,
+    .table.card-table,
+    .table.table--pro {
+        font-size: 0.8125rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .datatable-custom .table tbody tr,
+    .datatable-custom .table tbody td,
+    .datatable-custom .table .action-btn,
+    .datatable-custom .table .action-pill,
+    .table.card-table tbody tr,
+    .table.card-table .action-btn,
+    .table.card-table .action-pill,
+    .action-btn.action-btn--view,
+    .action-btn.action-btn--edit,
+    .action-btn.action-btn--open,
+    .action-btn.action-btn--copy,
+    .action-btn.action-btn--send,
+    .action-btn.action-btn--print,
+    .action-btn.action-btn--menu,
+    .action-btn.action-btn--alert,
+    .action-btn.action-btn--delete,
+    .page-area .pagination .page-item .page-link {
+        transition: none;
+    }
+
+    .datatable-custom .table .action-btn:hover,
+    .datatable-custom .table .action-pill:hover,
+    .table.card-table .action-btn:hover,
+    .table.card-table .action-pill:hover,
+    .action-btn.action-btn--view:hover,
+    .action-btn.action-btn--edit:hover,
+    .action-btn.action-btn--open:hover,
+    .action-btn.action-btn--copy:hover,
+    .action-btn.action-btn--send:hover,
+    .action-btn.action-btn--print:hover,
+    .action-btn.action-btn--menu:hover,
+    .action-btn.action-btn--alert:hover,
+    .action-btn.action-btn--delete:hover {
+        transform: none;
+    }
+
+    /* The dimmed, locked switch is the busy cue on its own. */
+    .status-toggle--busy .status-toggle__text::after {
+        animation: none;
+    }
+}
+
+@media print {
+
+    .table-responsive.datatable-custom {
+        overflow: visible;
+        background: none;
+    }
+
+    .datatable-custom .table thead th,
+    .table.card-table thead th {
+        position: static;
+        background-color: #f1f4f6 !important;
+        color: #000;
+        box-shadow: none;
+        border-bottom: 1px solid #adb5bd;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .datatable-custom .table tbody td,
+    .table.card-table tbody td {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .datatable-custom .table tbody tr:hover td:first-child,
+    .table.card-table tbody tr:hover td:first-child {
+        box-shadow: none;
+    }
+}
+
+/* Portrait media in an identity cell — a reel is 9:16, and the square 50px crop
+   throws away the framing that tells one video from another. Opt in per table. */
+.table-rest-info--portrait img {
+    width: 46px;
+    height: 72px;
+}

@@ -1,0 +1,579 @@
+/* --------------------------------------------------------------------------
+   Admin profile settings (admin/settings)
+   Scoped under .admin-profile-page so nothing here leaks into other screens.
+   -------------------------------------------------------------------------- */
+
+.admin-profile-page {
+    --ap-radius: 12px;
+    --ap-muted: #7a879b;
+    --ap-surface: #fff;
+}
+
+.admin-profile-page .ap-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--ap-radius);
+    background: var(--ap-surface);
+    box-shadow: var(--bs-box-shadow-sm);
+    overflow: hidden;
+}
+
+.admin-profile-page .ap-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 20px;
+    border-block-end: 1px solid var(--bs-border-color);
+}
+
+.admin-profile-page .ap-card__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-title);
+}
+
+.admin-profile-page .ap-card__title i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 30px;
+    block-size: 30px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: rgba(var(--primary-clr-rgb), 0.1);
+    color: var(--primary-clr);
+    font-size: 15px;
+}
+
+.admin-profile-page .ap-card__subtitle {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--ap-muted);
+}
+
+.admin-profile-page .ap-card__body {
+    flex: 1 1 auto;
+    padding: 20px;
+}
+
+.admin-profile-page .ap-card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-block-start: 1px solid var(--bs-border-color);
+    background: var(--section-bg);
+}
+
+.admin-profile-page .ap-card__foot .ap-foot-note {
+    margin: 0;
+    font-size: 12px;
+    color: var(--ap-muted);
+}
+
+/* ---------- identity card ---------- */
+.admin-profile-page .ap-hero__cover {
+    position: relative;
+    block-size: 104px;
+    background:
+        radial-gradient(120% 160% at 92% 8%, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0) 55%),
+        linear-gradient(120deg, var(--primary-clr) 0%, #16a3ab 55%, #2f6fd0 100%);
+}
+
+.admin-profile-page .ap-hero__cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+    background-size: 18px 18px;
+    opacity: 0.6;
+}
+
+.admin-profile-page .ap-hero__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 18px;
+    margin-block-start: -54px;
+    text-align: center;
+}
+
+.admin-profile-page .ap-avatar {
+    position: relative;
+    inline-size: 108px;
+    block-size: 108px;
+    margin: 0 0 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.admin-profile-page .ap-avatar__img {
+    inline-size: 100%;
+    block-size: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #fff;
+    border: 4px solid #fff;
+    box-shadow: 0 6px 18px rgba(var(--shadow-color-rgb), 0.16);
+}
+
+.admin-profile-page .ap-avatar__input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.admin-profile-page .ap-avatar__trigger {
+    position: absolute;
+    inset-block-end: 2px;
+    inset-inline-end: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 32px;
+    block-size: 32px;
+    margin: 0;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: var(--primary-clr);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-profile-page .ap-avatar__trigger:hover {
+    background: var(--dark-clr);
+    transform: translateY(-1px);
+}
+
+.admin-profile-page .ap-avatar__input:focus-visible + .ap-avatar__trigger {
+    outline: 2px solid var(--primary-clr);
+    outline-offset: 2px;
+}
+
+.admin-profile-page .ap-hero__name {
+    margin: 0 0 8px;
+    font-size: 1.1875rem;
+    font-weight: 600;
+    color: var(--text-title);
+    word-break: break-word;
+}
+
+.admin-profile-page .ap-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 99px;
+    background: rgba(var(--primary-clr-rgb), 0.1);
+    color: var(--primary-clr);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    line-height: 1.6;
+}
+
+.admin-profile-page .ap-hero__hint {
+    margin: 12px 0 0;
+    font-size: 11.5px;
+    color: var(--ap-muted);
+}
+
+/* ---------- fact list ---------- */
+.admin-profile-page .ap-facts {
+    margin: auto 0 0;
+    padding: 6px 20px 16px;
+    list-style: none;
+}
+
+.admin-profile-page .ap-facts li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 0;
+    border-block-start: 1px dashed var(--bs-border-color);
+    font-size: 13px;
+    min-inline-size: 0;
+}
+
+.admin-profile-page .ap-facts li > i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 28px;
+    block-size: 28px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--section-bg);
+    color: var(--primary-clr);
+    font-size: 14px;
+}
+
+.admin-profile-page .ap-facts__key {
+    color: var(--ap-muted);
+    white-space: nowrap;
+}
+
+.admin-profile-page .ap-facts__value {
+    margin-inline-start: auto;
+    font-weight: 500;
+    color: var(--text-title);
+    text-align: end;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------- section tabs ----------
+   70px clears the fixed admin navbar (3.75rem tall), so the tabs park just
+   under it instead of sliding behind it. */
+.admin-profile-page .ap-tabs {
+    position: sticky;
+    inset-block-start: 70px;
+    z-index: 3;
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    margin-block-end: 18px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 99px;
+    background: var(--ap-surface);
+    box-shadow: var(--bs-box-shadow-sm);
+    max-inline-size: 100%;
+    overflow-x: auto;
+}
+
+.admin-profile-page .ap-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 99px;
+    background: transparent;
+    color: var(--ap-muted);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-profile-page .ap-tab:hover {
+    color: var(--text-title);
+    background: var(--section-bg);
+}
+
+.admin-profile-page .ap-tab.is-active {
+    background: var(--primary-clr);
+    color: #fff;
+}
+
+/* ---------- fields ----------
+   Every field carries its own bottom gap; the row cancels the one the last
+   line of fields would otherwise add above the card footer. */
+.admin-profile-page .ap-field {
+    margin-block-end: 20px;
+}
+
+.admin-profile-page .ap-card__body > .row {
+    margin-block-end: -20px;
+}
+
+.admin-profile-page .ap-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-block-end: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-title);
+}
+
+.admin-profile-page .ap-label i.tio-help-outlined {
+    color: var(--ap-muted);
+    font-size: 14px;
+    cursor: help;
+}
+
+.admin-profile-page .ap-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-profile-page .ap-input-group > i {
+    position: absolute;
+    inset-inline-start: 13px;
+    color: var(--ap-muted);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.admin-profile-page .ap-input-group .form-control {
+    block-size: 44px;
+    padding-inline-start: 40px;
+    border-radius: 8px;
+    border-color: var(--bs-border-color);
+    font-size: 14px;
+    color: var(--text-title);
+}
+
+.admin-profile-page .ap-input-group .form-control:focus {
+    border-color: var(--primary-clr);
+    box-shadow: 0 0 0 3px rgba(var(--primary-clr-rgb), 0.12);
+}
+
+.admin-profile-page .ap-input-group .form-control::placeholder {
+    color: #b3bcc9;
+}
+
+.admin-profile-page .ap-input-group--password .form-control {
+    padding-inline-end: 44px;
+}
+
+.admin-profile-page .ap-eye {
+    position: absolute;
+    inset-inline-end: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 32px;
+    block-size: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ap-muted);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.admin-profile-page .ap-eye:hover {
+    color: var(--primary-clr);
+    background: var(--section-bg);
+}
+
+.admin-profile-page .ap-help {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--ap-muted);
+}
+
+/* ---------- password strength ---------- */
+.admin-profile-page .ap-strength {
+    margin-block-start: 12px;
+}
+
+.admin-profile-page .ap-strength__bar {
+    display: flex;
+    gap: 5px;
+    margin-block-end: 6px;
+}
+
+.admin-profile-page .ap-strength__bar span {
+    flex: 1;
+    block-size: 5px;
+    border-radius: 99px;
+    background: var(--bs-border-color);
+    transition: background-color 0.25s ease;
+}
+
+.admin-profile-page .ap-strength__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ap-muted);
+}
+
+.admin-profile-page .ap-strength[data-level="1"] .ap-strength__bar span:nth-child(-n + 1),
+.admin-profile-page .ap-strength[data-level="2"] .ap-strength__bar span:nth-child(-n + 2) {
+    background: var(--bs-danger);
+}
+
+.admin-profile-page .ap-strength[data-level="3"] .ap-strength__bar span:nth-child(-n + 3),
+.admin-profile-page .ap-strength[data-level="4"] .ap-strength__bar span:nth-child(-n + 4) {
+    background: var(--bs-warning);
+}
+
+.admin-profile-page .ap-strength[data-level="5"] .ap-strength__bar span {
+    background: var(--bs-success);
+}
+
+.admin-profile-page .ap-strength[data-level="1"] .ap-strength__label,
+.admin-profile-page .ap-strength[data-level="2"] .ap-strength__label {
+    color: var(--danger-dark);
+}
+
+.admin-profile-page .ap-strength[data-level="3"] .ap-strength__label,
+.admin-profile-page .ap-strength[data-level="4"] .ap-strength__label {
+    color: var(--warning-dark);
+}
+
+.admin-profile-page .ap-strength[data-level="5"] .ap-strength__label {
+    color: var(--success-dark);
+}
+
+/* ---------- requirement checklist ---------- */
+.admin-profile-page .ap-rules {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.admin-profile-page .ap-rules li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    color: var(--ap-muted);
+    transition: color 0.2s ease;
+}
+
+.admin-profile-page .ap-rules li i {
+    font-size: 16px;
+    color: var(--border-dark);
+    transition: color 0.2s ease;
+}
+
+.admin-profile-page .ap-rules li.is-met {
+    color: var(--success-dark);
+}
+
+.admin-profile-page .ap-rules li.is-met i {
+    color: var(--bs-success);
+}
+
+.admin-profile-page .ap-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-block-start: 18px;
+    padding: 12px 14px;
+    border: 1px solid rgba(var(--primary-clr-rgb), 0.18);
+    border-radius: 10px;
+    background: rgba(var(--primary-clr-rgb), 0.05);
+    font-size: 12.5px;
+    color: var(--text-title);
+}
+
+.admin-profile-page .ap-note i {
+    margin-block-start: 1px;
+    color: var(--primary-clr);
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.admin-profile-page .ap-match {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-block-start: 7px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.admin-profile-page .ap-match.is-visible {
+    display: inline-flex;
+}
+
+.admin-profile-page .ap-match--ok {
+    color: var(--success-dark);
+}
+
+.admin-profile-page .ap-match--error {
+    color: var(--danger-dark);
+}
+
+/* ---------- buttons ---------- */
+.admin-profile-page .ap-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Bootstrap repaints a disabled .btn-primary with its own blue, which reads as
+   a different button entirely. Hold the theme primary and signal the disabled
+   state with opacity alone, so both Save buttons stay the same colour. */
+.admin-profile-page .ap-btn.btn-primary:disabled,
+.admin-profile-page .ap-btn.btn-primary.disabled {
+    background-color: var(--primary-clr);
+    border-color: var(--primary-clr);
+    color: #fff;
+}
+
+.admin-profile-page .ap-btn:disabled,
+.admin-profile-page .ap-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.admin-profile-page .ap-btn-ghost {
+    border: 1px solid var(--bs-border-color);
+    background: #fff;
+    color: var(--ap-muted);
+}
+
+.admin-profile-page .ap-btn-ghost:hover {
+    color: var(--text-title);
+    border-color: var(--border-dark);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 575.98px) {
+    .admin-profile-page .ap-hero__cover {
+        block-size: 88px;
+    }
+
+    .admin-profile-page .ap-hero__body {
+        margin-block-start: -46px;
+    }
+
+    .admin-profile-page .ap-avatar {
+        inline-size: 92px;
+        block-size: 92px;
+    }
+
+    .admin-profile-page .ap-card__body,
+    .admin-profile-page .ap-card__head,
+    .admin-profile-page .ap-card__foot,
+    .admin-profile-page .ap-facts {
+        padding-inline: 16px;
+    }
+
+    .admin-profile-page .ap-card__foot {
+        justify-content: stretch;
+    }
+
+    .admin-profile-page .ap-card__foot .ap-foot-actions {
+        inline-size: 100%;
+    }
+
+    .admin-profile-page .ap-card__foot .ap-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}

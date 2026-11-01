@@ -1,0 +1,546 @@
+/* ==========================================================================
+   Surge Price
+   Scoped to Admin > Surge Price (list, create, edit) and its modals.
+
+   Loaded per page via @push('css_or_js'), which the admin layout stacks after
+   style.css — so these rules win without touching the 14k-line global sheet.
+   Colours come from the existing tokens (--theameColor, --title-clr); nothing
+   new is introduced.
+   ========================================================================== */
+
+/* --- utilities the surge screens need that the global sheet lacks -------- */
+.btn--reset {
+    color: var(--title-clr) !important;
+    background: #E8EAED !important;
+    border-color: #E8EAED !important;
+}
+
+.empty--data {
+    text-align: center;
+    padding: 20px;
+}
+
+.empty--data img {
+    max-width: 145px;
+    margin-bottom: 20px;
+}
+
+.empty--data h5 {
+    text-transform: capitalize;
+}
+
+.line--limit-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pl-unset {
+    padding-inline-start: 0.875rem !important;
+}
+
+.font-semibold {
+    font-weight: 600 !important;
+}
+
+.min-w-110px { min-width: 110px; }
+.min-w-176px { min-width: 176px; }
+.min-w-400px { min-width: 400px; }
+.max-w-400px { max-width: 400px; }
+
+.search--button-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0 -7px !important;
+    flex-grow: 1;
+}
+
+.search--button-wrapper > .btn,
+.search--button-wrapper > form,
+.search--button-wrapper > button,
+.search--button-wrapper .card-title,
+.search--button-wrapper .hs-unfold,
+.search--button-wrapper > div {
+    margin: 7px !important;
+}
+
+.search--button-wrapper > .card-title {
+    margin-inline-end: auto !important;
+}
+
+@media (min-width: 576px) {
+    .search--button-wrapper .search-form {
+        min-width: 260px;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .search--button-wrapper .hs-unfold {
+        flex-grow: 1;
+    }
+}
+
+/* --- section containers -------------------------------------------------
+   Three distinct treatments, matching the design:
+     .surge-section  tinted panel  — Basic Information fields, Zone & Surge
+     .surge-card     white card    — Duration Setup
+   ------------------------------------------------------------------------ */
+.surge-section {
+    background: #F9FAFC;
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.surge-card {
+    background: #fff;
+    border: 1px solid #E9E9EA;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.surge-block + .surge-block {
+    margin-top: 20px;
+}
+
+.surge-section__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--title-clr);
+    margin-bottom: 4px;
+}
+
+.surge-section__subtitle {
+    font-size: 12px;
+    color: #656566;
+    margin-bottom: 20px;
+}
+
+/* The section heading sits on the card, above its tinted field panel. */
+.surge-block__heading {
+    margin-bottom: 16px;
+}
+
+.surge-block__heading .surge-section__subtitle {
+    margin-bottom: 0;
+}
+
+/* --- fields ------------------------------------------------------------- */
+.surge-char-count {
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    color: #656566;
+    margin-top: 6px;
+}
+
+[dir="rtl"] .surge-char-count {
+    text-align: left;
+}
+
+/* FormValidation appends its message to the end of the .form-group, which on a
+   counted field puts it under the counter rather than under the box it belongs to.
+   Ordering leaves the DOM alone and reads the way every other field does: label,
+   input, error, then the counter last. */
+.surge-counted-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.surge-counted-field > .form-validation-error {
+    order: 2;
+    margin-top: 4px;
+}
+
+.surge-counted-field > .surge-char-count {
+    order: 3;
+}
+
+/* Match the note textarea to the single-line input beside it. */
+.surge-note-input {
+    min-height: 45px;
+    height: 45px;
+    resize: vertical;
+    padding-top: 11px;
+}
+
+.surge-label-row {
+    min-height: 24px;
+}
+
+/* --- schedule type radios ----------------------------------------------
+   One bordered row, the three options spread evenly across its width. */
+.surge-schedule-types {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #E9E9EA;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+}
+
+.surge-schedule-types .form--check {
+    flex: 1 1 33.333%;
+    margin: 0;
+    min-width: 180px;
+}
+
+@media screen and (max-width: 575px) {
+    .surge-schedule-types {
+        gap: 12px;
+    }
+
+    .surge-schedule-types .form--check {
+        flex: 1 1 100%;
+    }
+}
+
+/* --- duration panel ----------------------------------------------------
+   Tinted panel holding the descriptor on the left and a white box of
+   schedule inputs on the right. */
+.surge-duration-panel {
+    background: #F9FAFC;
+    border-radius: 10px;
+    padding: 24px;
+}
+
+.surge-duration-panel__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--title-clr);
+    margin-bottom: 6px;
+}
+
+.surge-duration-panel__hint {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #656566;
+    margin: 0;
+}
+
+.surge-duration-fields {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* Inputs opened by a picker or a modal are click-only, never typed into. */
+.surge-picker-input {
+    cursor: pointer;
+    background-color: #fff !important;
+}
+
+.surge-picker-input:disabled,
+.surge-picker-input[readonly][disabled] {
+    background-color: #F0F2F7 !important;
+    cursor: not-allowed;
+}
+
+.date-range__custom {
+    position: relative;
+}
+
+/* --- modals ------------------------------------------------------------- */
+.shedule-modal .modal-content {
+    border: 0;
+    border-radius: 16px;
+}
+
+.shedule-modal .modal-header {
+    border-bottom: 0;
+    align-items: flex-start;
+    padding: 24px 24px 8px;
+}
+
+.shedule-modal .modal-body {
+    padding: 8px 24px;
+}
+
+.shedule-modal .modal-footer {
+    padding: 8px 24px 24px;
+}
+
+.shedule-modal .close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #F0F2F7;
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.modal-body-inner {
+    max-height: calc(100vh - 320px);
+    overflow-y: auto;
+}
+
+/* daterangepicker renders into the body, so it must clear the modal. */
+.daterangepicker {
+    z-index: 9999;
+}
+
+/* The popover carries a project-wide `min-width: 564px` (custom.css and
+   style.css both declare it on .daterangepicker.opensright) sized for pickers
+   that show a preset-ranges sidebar. These pickers have no ranges list, so that
+   floor left ~160px of dead space beside the second month and pushed the panel
+   far past the input it drops from. `.surge-drp` is added at construction in
+   _scripts.blade.php, so only surge pickers are affected — every other admin
+   screen keeps its sidebar width. */
+.daterangepicker.surge-drp,
+.daterangepicker.surge-drp.opensright,
+.daterangepicker.surge-drp.opensleft,
+.daterangepicker.surge-drp.openscenter {
+    min-width: 0;
+    width: auto;
+}
+
+/* Both months share the panel evenly once it hugs its contents. */
+.daterangepicker.surge-drp .drp-calendar {
+    max-width: none;
+}
+
+/* Time-range pickers show only the hour/minute rows. Both .drp-calendar halves
+   must stay in the DOM and visible — the left one holds the start-time selects
+   and the right one the end-time selects. Only their month tables are hidden. */
+.calendar-table-custom .calendar-table {
+    display: none;
+}
+
+/* --- custom schedule: month calendar ------------------------------------ */
+.surge-calendar {
+    border: 1px solid #E9E9EA;
+    border-radius: 10px;
+    padding: 16px 12px;
+}
+
+.surge-calendar .display {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--title-clr);
+}
+
+.week,
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px 2px;
+    justify-items: center;
+}
+
+.week {
+    margin-bottom: 4px;
+}
+
+.week div,
+.days div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    width: 30px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--title-clr);
+}
+
+.week div {
+    opacity: 0.45;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.days div[data-date] {
+    cursor: pointer;
+}
+
+.days div.active,
+.days div[data-date]:hover {
+    background-color: var(--theameColor);
+    color: #fff;
+}
+
+/* Past dates cannot be scheduled. */
+.days div.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    cursor: default;
+}
+
+/* --- custom schedule: picked dates list --------------------------------- */
+.selected-listall {
+    border: 1px solid #E9E9EA;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+/* Holds roughly five rows before scrolling, matching the calendar's height so
+   the two panels line up. */
+.selected-list-inner {
+    max-height: 268px;
+    overflow-y: auto;
+}
+
+.date-table {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+/* Layout lives here rather than on Bootstrap's .d-flex, so toggling .d-none
+   can actually hide the row — both utilities are !important and .d-flex wins
+   on source order. */
+.selected-list-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Shown while nothing is picked. Its min-height roughly matches a filled list
+   so the panel does not jump as the first date is added. */
+.selected-list-empty {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 240px;
+    padding: 16px;
+}
+
+.selected-list-empty.is-visible {
+    display: flex;
+}
+
+.selected-list-empty img {
+    width: 74px;
+    max-width: 100%;
+    margin-bottom: 16px;
+    opacity: 0.9;
+}
+
+.selected-list-empty h6 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--title-clr);
+    margin-bottom: 4px;
+}
+
+.selected-list-empty p {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #656566;
+    max-width: 220px;
+    margin: 0;
+}
+
+.selected-list-item {
+    background: #F9FAFC;
+    border-radius: 6px;
+    padding: 6px 8px;
+}
+
+.selected-list-item .surge-row-time {
+    height: 32px;
+    padding-block: 0;
+    padding-inline-end: 28px;
+}
+
+.after-date {
+    min-width: 92px;
+    flex-shrink: 0;
+}
+
+/* Circled cross, as designed — the icon font only supplies the glyph. */
+.selected-list-item .removeDay {
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* --- weekly modal: day checkboxes --------------------------------------- */
+.surge-days-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+@media screen and (max-width: 575px) {
+    .surge-days-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.surge-days-grid .form--check {
+    margin: 0;
+}
+
+/* A ticked weekday reads darker than the rest. */
+.surge-days-grid .form-check-input:checked ~ .form-check-label {
+    color: var(--title-clr);
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Price increase rate — the value and its unit as one control.
+
+   The unit used to be an .input-group-append select, which rendered as a second
+   fully rounded box butted against the field: Bootstrap squares off the input's
+   trailing corners but leaves the appended control's own border and radius
+   intact, so the pair never read as a single input. The select now sits inside
+   the input's trailing edge, sharing its border, height and corners.
+   -------------------------------------------------------------------------- */
+.surge-rate {
+    position: relative;
+}
+
+/* Room for the unit, so a long value never slides underneath it. */
+.surge-rate__value {
+    padding-inline-end: 72px;
+}
+
+.surge-rate__unit {
+    position: absolute;
+    /* Inset by the input's 1px border, so the divider stops short of the
+       rounded corners instead of crossing them. */
+    inset-block: 1px;
+    inset-inline-end: 1px;
+    width: 64px;
+    padding-inline: 0.75rem 1.625rem;
+    border: 0;
+    border-inline-start: 1px solid #e7eaf3;
+    border-radius: 0;
+    color: var(--title-clr);
+    font-size: 0.875rem;
+    line-height: 1;
+    cursor: pointer;
+    /* The chevron the neighbouring selects draw. Copied from .custom-select in
+       bootstrap.min.css -- same glyph, same #71869d, same 16px at 0.5rem from the
+       edge -- because the native one this select used to render read as a
+       different, heavier arrow next to the zone and module pickers.
+       appearance:none is what removes that native arrow. */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: transparent
+        url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='%2371869d' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.72,15.78a.75.75,0,0,1-.53.22h-.38a.77.77,0,0,1-.53-.22L6.15,10.64a.5.5,0,0,1,0-.71l.71-.71a.49.49,0,0,1,.7,0L12,13.67l4.44-4.45a.5.5,0,0,1,.71,0l.7.71a.5.5,0,0,1,0,.71Z'/%3E%3C/svg%3E")
+        no-repeat right 0.5rem center/1rem 1rem;
+}
+
+/* The mirror of `[dir="rtl"] .custom-select` in style.css, so the unit's chevron
+   flips with the zone and module ones instead of staying on the right. */
+[dir="rtl"] .surge-rate__unit {
+    background-position-x: 7px;
+    padding-inline: 0.75rem 1.625rem;
+}
+
+.surge-rate__unit:focus,
+.surge-rate__unit:focus-visible {
+    outline: 0;
+    box-shadow: none;
+}

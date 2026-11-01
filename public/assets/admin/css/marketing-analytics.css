@@ -1,0 +1,274 @@
+/* ==========================================================================
+   Marketing Tools — admin/business-settings/marketing/analytic-setup
+
+   Builds on the shared third-party-setup.css tokens (.tps), so this file only
+   carries what that sheet has no equivalent for: the live-tool summary bar,
+   the section headings and the tracking-ID card. Everything is scoped under
+   .mkt. Logical properties throughout to keep the RTL layout correct.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Summary bar — how many tools are live, and which ones
+   -------------------------------------------------------------------------- */
+
+.mkt .mkt-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9375rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--tps-border);
+    border-radius: var(--tps-radius-lg);
+    background: var(--tps-surface);
+    box-shadow: var(--tps-shadow);
+}
+
+.mkt .mkt-summary__count {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: 0.3125rem;
+    font-size: 0.8125rem;
+    color: var(--tps-muted);
+}
+
+.mkt .mkt-summary__count strong {
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--tps-title);
+}
+
+.mkt .mkt-summary__total {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--tps-muted);
+}
+
+.mkt .mkt-summary__list {
+    flex: 1 1 260px;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.mkt .mkt-summary__empty {
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+}
+
+/* A vertical rule between the count and the chips, but only once they sit on
+   the same line — stacked, it reads as a stray dash. */
+@media (min-width: 768px) {
+    .mkt .mkt-summary__count {
+        padding-inline-end: 1rem;
+        border-inline-end: 1px solid var(--tps-border);
+    }
+}
+
+.mkt .mkt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem 0.25rem 0.375rem;
+    border: 1px solid var(--tps-border);
+    border-radius: 40px;
+    background: var(--tps-surface-muted);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--tps-title);
+    white-space: nowrap;
+}
+
+.mkt .mkt-chip img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+}
+
+/* --------------------------------------------------------------------------
+   Section headings
+   -------------------------------------------------------------------------- */
+
+.mkt .mkt-section + .mkt-section {
+    margin-top: 1.75rem;
+}
+
+.mkt .mkt-section__head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+}
+
+.mkt .mkt-section__title {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tps-muted);
+}
+
+.mkt .mkt-section__desc {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--tps-muted);
+    opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
+   Tool card
+   -------------------------------------------------------------------------- */
+
+.mkt .mkt-card {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Accent rail marking a live tool. .tps-card clips it to the radius. */
+.mkt .mkt-card.is-on::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--bs-success, #04bb7b);
+    z-index: 1;
+}
+
+.mkt .mkt-card__form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.mkt .mkt-card__form .tps-card__body {
+    flex: 1 1 auto;
+}
+
+.mkt .mkt-card__head {
+    align-items: center;
+}
+
+.mkt .mkt-brand {
+    background: var(--tps-surface);
+}
+
+.mkt .mkt-brand img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    transition: filter 0.15s ease, opacity 0.15s ease;
+}
+
+/* Brand colour only on the tools that are actually running, so a glance down
+   the page separates live from idle without reading a single pill. */
+.mkt .mkt-card:not(.is-on) .mkt-brand img {
+    filter: grayscale(1);
+    opacity: 0.55;
+}
+
+.mkt .mkt-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Tracking ID field
+
+   script_id is a text column and existing rows may hold a pasted snippet, so
+   the control stays a textarea; these rules make a one-row textarea read and
+   behave like the single-line input the field actually is.
+   -------------------------------------------------------------------------- */
+
+.mkt .mkt-input.form-control {
+    resize: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding-block: 0.6875rem;
+    line-height: 1.5;
+    font-family: "Roboto Mono", ui-monospace, monospace;
+    font-size: 0.78125rem;
+    scrollbar-width: none;
+}
+
+.mkt .mkt-input.form-control::-webkit-scrollbar {
+    display: none;
+}
+
+.mkt .mkt-input.form-control::placeholder {
+    font-family: inherit;
+    letter-spacing: 0.02em;
+}
+
+/* --------------------------------------------------------------------------
+   Card footer
+   -------------------------------------------------------------------------- */
+
+.mkt .mkt-guide {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-inline-end: auto;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tps-accent);
+    cursor: pointer;
+}
+
+.mkt .mkt-guide:hover,
+.mkt .mkt-guide:focus {
+    color: var(--tps-accent);
+    text-decoration: underline;
+}
+
+.mkt .mkt-guide i {
+    font-size: 0.9375rem;
+    line-height: 1;
+}
+
+.mkt .tps-card__foot .btn {
+    min-width: 96px;
+}
+
+/* --------------------------------------------------------------------------
+   Locked switch — the server refuses to turn on a tool with no ID saved, so
+   the control says so instead of letting the admin trip the error toast.
+   -------------------------------------------------------------------------- */
+
+.mkt .mkt-switch--locked {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 575.98px) {
+    .mkt .mkt-card__head {
+        align-items: flex-start;
+    }
+
+    .mkt .mkt-summary__count {
+        width: 100%;
+    }
+
+    .mkt .tps-card__foot {
+        justify-content: space-between;
+    }
+
+    .mkt .tps-card__foot .btn {
+        flex: 0 0 auto;
+    }
+}

@@ -1,0 +1,207 @@
+/* =============================================================================
+   breadcrumb.css — the trail above every admin / vendor page
+   =============================================================================
+
+   Rendered once by the layouts from `partials/_breadcrumb`, so there is no
+   per-page markup to keep in step. Everything is scoped under `.bcx`.
+
+   Placement: the bar is a sibling of the page's own `.content` inside <main>,
+   which is why the last rule reclaims that container's top padding — the bar
+   already supplies the gap. That selector is a general sibling combinator
+   because a page may open with `@php` blocks before its `.content` wrapper.
+
+   Loaded after style.css / admin-v2.css so the `--v2-*` tokens are available;
+   every var() carries a fallback so the sheet also stands up under v1 chrome,
+   where those tokens are never defined.
+
+   Logical properties throughout — the trail reverses cleanly in RTL, and the
+   only physical values are the two chevron borders, which have to be mirrored
+   by hand because a rotated box has no logical equivalent.
+   ========================================================================== */
+
+.bcx {
+    --bcx-text: var(--v2-text-muted, #7a8582);
+    --bcx-text-strong: var(--v2-text, #1a2420);
+    --bcx-accent: var(--v2-primary, var(--primary-clr, #107980));
+    --bcx-sep: var(--v2-border-strong, #cdd4d1);
+    --bcx-hover: var(--v2-hover, #f0f3f1);
+
+    padding-block: 1.15rem 0;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+/* The trail scrolls rather than truncating: a hidden crumb is a crumb the
+   admin cannot use, and these labels are the only thing telling a detail page
+   apart from the list it hangs off. */
+.bcx__scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overscroll-behavior-inline: contain;
+}
+
+.bcx__scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.bcx__list {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.125rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    white-space: nowrap;
+}
+
+.bcx__item {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+}
+
+/* Chevron separator. Drawn from two borders on a rotated square so it scales
+   with the type and needs no asset. */
+.bcx__item + .bcx__item::before {
+    content: "";
+    flex: 0 0 auto;
+    inline-size: 0.34em;
+    block-size: 0.34em;
+    margin-inline: 0.5rem 0.375rem;
+    border-top: 1.5px solid var(--bcx-sep);
+    border-right: 1.5px solid var(--bcx-sep);
+    transform: rotate(45deg);
+}
+
+[dir="rtl"] .bcx__item + .bcx__item::before {
+    border-right: 0;
+    border-left: 1.5px solid var(--bcx-sep);
+    transform: rotate(-45deg);
+}
+
+.bcx__link,
+.bcx__step,
+.bcx__text,
+.bcx__current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+    border-radius: 0.3rem;
+    padding-block: 0.15rem;
+    padding-inline: 0.25rem;
+    color: var(--bcx-text);
+}
+
+/* Three of the four crumb kinds used to be the same grey word, and only a
+   hover told them apart — so there was no way to know what would happen before
+   clicking. The underline carries that now, and it is visible at rest:
+
+     solid underline    a link to a page
+     dashed underline   opens that section in the sidebar; it is not a page
+     no underline       a heading, with nowhere to go
+     bold, no underline the page you are on
+
+   Underline rather than colour, because colour alone would not survive a
+   greyscale print or a colour-blind reader, and the trail already spends its
+   one accent on hover. */
+.bcx__link,
+.bcx__step {
+    text-decoration: none;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+/* On the label itself, not on the crumb box: the root crumb holds the home
+   icon beside its text, and a decoration set on the flex container is drawn
+   under the icon too. */
+.bcx__link > span,
+.bcx__step {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    text-decoration-color: var(--bcx-sep);
+    transition: text-decoration-color 0.15s ease;
+}
+
+.bcx__step {
+    text-decoration-style: dashed;
+}
+
+.bcx__link:hover,
+.bcx__link:focus-visible,
+.bcx__step:hover,
+.bcx__step:focus-visible {
+    color: var(--bcx-accent);
+    background-color: var(--bcx-hover);
+}
+
+.bcx__link:hover > span,
+.bcx__link:focus-visible > span,
+.bcx__step:hover,
+.bcx__step:focus-visible {
+    text-decoration-color: currentColor;
+}
+
+.bcx__link:focus-visible,
+.bcx__step:focus-visible {
+    outline: 2px solid var(--bcx-accent);
+    outline-offset: 1px;
+}
+
+/* A section crumb is a sidebar panel, not a page — it reopens that panel
+   instead of navigating. The dashed underline is what says so; a trailing
+   glyph would reserve width on every section crumb and space the trail
+   unevenly against the plain ones. */
+.bcx__step {
+    appearance: none;
+    background: none;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
+/* A grouping with nowhere to go. The absence of an underline is what marks it,
+   not a lighter colour: `--bcx-text` is already near the contrast floor and
+   fading it further would put a label below it to save a distinction the
+   underline already carries. */
+.bcx__text {
+    cursor: default;
+}
+
+.bcx__current {
+    color: var(--bcx-text-strong);
+    font-weight: 600;
+    max-inline-size: none;
+    text-decoration: none;
+}
+
+.bcx__home {
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.85;
+}
+
+/* Under 576px the container gutter halves (bootstrap.min.css), so the bar
+   tightens with it rather than leaving the trail floating. */
+@media (max-width: 575.98px) {
+    .bcx {
+        padding-block-start: 0.9rem;
+        font-size: 0.78125rem;
+    }
+}
+
+@media print {
+    .bcx {
+        display: none;
+    }
+}
+
+/* The bar supplies the gap above the page header, so hand back the padding
+   `.main .content` reserves for itself. Same specificity as style.css's
+   `.main .content`, won on load order. */
+.bcx ~ .content {
+    padding-top: 0.6rem;
+}

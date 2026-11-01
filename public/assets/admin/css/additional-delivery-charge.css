@@ -1,0 +1,114 @@
+/* Additional Delivery Charge — the three-row setup panel.
+   A label column on the left and the fields on the right, matching the design's layout. */
+
+.adc-panel {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 4px 20px;
+}
+
+.adc-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid #eceff3;
+}
+
+.adc-row--last,
+.adc-row:last-child {
+    border-bottom: 0;
+}
+
+.adc-row__label {
+    flex: 0 0 320px;
+    max-width: 320px;
+    padding-top: 22px;
+}
+
+.adc-row__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--title-clr, #1b2b41);
+    margin-bottom: 4px;
+}
+
+.adc-row__optional {
+    font-weight: 400;
+    color: #8a94a6;
+}
+
+.adc-row__hint {
+    font-size: 12px;
+    color: #8a94a6;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+/* The fields sit on white so each offer reads as its own block against the grey panel. */
+.adc-row__fields {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.adc-row__fields--vehicles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 32px;
+    align-items: center;
+}
+
+.adc-vehicle {
+    flex: 0 0 calc(25% - 24px);
+    min-width: 140px;
+}
+
+/* The Min/Hour picker is joined to the number field, so it must not carry its own left border. */
+.adc-input-group .form-control:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.adc-input-group .input-group-append .adc-unit {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0;
+    background: #f8f9fa;
+    min-width: 92px;
+}
+
+@media (max-width: 1199px) {
+    .adc-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .adc-row__label {
+        flex-basis: auto;
+        max-width: none;
+        padding-top: 0;
+    }
+
+    .adc-row__fields {
+        width: 100%;
+    }
+
+    .adc-vehicle {
+        flex-basis: calc(50% - 16px);
+    }
+}
+
+@media (max-width: 575px) {
+    .adc-row__fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .adc-vehicle {
+        flex-basis: 100%;
+    }
+}

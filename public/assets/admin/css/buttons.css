@@ -1,0 +1,184 @@
+:root {
+    --btn-radius: var(--field-radius, 10px);
+    --btn-radius-sm: var(--field-radius-sm, 8px);
+    --btn-weight: 600;
+    --btn-motion: 0.15s ease;
+    --btn-lift: -1px;
+    --btn-dim: 0.94;
+    --btn-elevate: drop-shadow(0 3px 6px rgba(22, 42, 60, 0.26));
+    --btn-elevate-soft: drop-shadow(0 2px 5px rgba(140, 152, 164, 0.4));
+    --btn-ring: var(--primary-clr, #107980);
+    --btn-ring-width: 2px;
+    --btn-ring-offset: 2px;
+}
+
+.btn,
+.btn[class*="btn--"] {
+    font-weight: var(--btn-weight);
+    border-radius: var(--btn-radius);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        background-color var(--btn-motion),
+        border-color var(--btn-motion),
+        color var(--btn-motion),
+        filter var(--btn-motion),
+        box-shadow var(--btn-motion),
+        transform var(--btn-motion);
+}
+
+.btn-sm,
+.btn-xs,
+.btn-group-sm > .btn,
+.btn-sm[class*="btn--"],
+.btn-xs[class*="btn--"] {
+    border-radius: var(--btn-radius-sm);
+}
+
+.btn-lg,
+.btn-group-lg > .btn,
+.btn-lg[class*="btn--"] {
+    border-radius: calc(var(--btn-radius) + 2px);
+}
+
+.btn.action-btn {
+    border-radius: 9px;
+}
+
+.btn.btn-pill,
+.btn.rounded-pill {
+    border-radius: 6.1875rem;
+}
+
+.btn.btn-circle,
+.btn.rounded-circle {
+    border-radius: 50%;
+}
+
+.btn:focus,
+.btn.focus {
+    box-shadow: none;
+}
+
+.btn:focus-visible,
+.btn[class*="btn--"]:focus-visible {
+    outline: var(--btn-ring-width) solid var(--btn-ring);
+    outline-offset: var(--btn-ring-offset);
+}
+
+.btn--cancel:focus-visible {
+    outline: var(--btn-ring-width) solid var(--btn-ring) !important;
+    outline-offset: var(--btn-ring-offset);
+}
+
+.btn--danger,
+.btn--cancel,
+.btn-danger,
+.btn-outline-danger,
+.btn-soft-danger,
+.action-btn--delete {
+    --btn-ring: var(--danger-clr, #ff6d6d);
+}
+
+.btn--warning,
+.btn--warning-light,
+.btn-warning,
+.btn-outline-warning,
+.btn-soft-warning {
+    --btn-ring: var(--warning-clr, #ff7500);
+}
+
+.btn--varify,
+.btn-success,
+.btn-outline-success,
+.btn-outline-varify,
+.btn-soft-success {
+    --btn-ring: var(--success-clr, #00aa6d);
+}
+
+.btn:is(
+    [class*="btn--"],
+    .btn-primary,
+    .btn-secondary,
+    .btn-success,
+    .btn-danger,
+    .btn-warning,
+    .btn-info,
+    .btn-dark,
+    .btn-soft-primary,
+    .btn-soft-secondary,
+    .btn-soft-danger,
+    .btn-soft-success,
+    .btn-soft-warning,
+    .btn-soft-info
+):not(.action-btn, .btn-link, .btn-text, :disabled, .disabled, .btn-disable):hover {
+    filter: brightness(var(--btn-dim)) var(--btn-elevate);
+    transform: translateY(var(--btn-lift));
+}
+
+.btn:is(
+    .btn-outline-primary,
+    .btn-outline-secondary,
+    .btn-outline-danger,
+    .btn-outline-warning,
+    .btn-outline-success,
+    .btn-outline-info,
+    .btn-outline-base,
+    .btn-outline-varify,
+    .btn-white,
+    .btn-ghost-dark
+):not(.action-btn, :disabled, .disabled, .btn-disable):hover {
+    filter: var(--btn-elevate-soft);
+    transform: translateY(var(--btn-lift));
+    box-shadow: none;
+}
+
+.btn-white:hover {
+    background-color: #f8f9fb;
+    border-color: #d4dbe6;
+}
+
+.btn-ghost-dark:hover {
+    background-color: rgba(var(--text-title-rgb, 51, 66, 87), 0.06);
+}
+
+.btn:not(:disabled, .disabled, .btn-disable, .action-btn, .btn-link, .btn-text):active,
+.btn:not(:disabled, .disabled, .btn-disable, .action-btn, .btn-link, .btn-text):hover:active {
+    transform: translateY(0);
+    filter: brightness(var(--btn-dim));
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.btn:disabled,
+.btn.disabled,
+.btn[disabled],
+.btn.btn-disable {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --btn-lift: 0px;
+    }
+
+    .btn {
+        transition: none;
+    }
+}
+
+@media (forced-colors: active) {
+    :root {
+        --btn-dim: 1;
+        --btn-elevate: drop-shadow(0 0 0 transparent);
+        --btn-elevate-soft: drop-shadow(0 0 0 transparent);
+    }
+
+    .btn:focus-visible,
+    .btn[class*="btn--"]:focus-visible {
+        outline: var(--btn-ring-width) solid CanvasText;
+    }
+}

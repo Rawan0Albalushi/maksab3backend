@@ -1,0 +1,381 @@
+/* ==========================================================================
+   Connect Module offcanvas
+   --------------------------------------------------------------------------
+   Built to the supplied mock rather than assembled from theme utilities: the
+   panel has its own spacing scale (20px gutter, 20px card padding, 20px between
+   cards) and its own greys, and borrowing `bg--secondary` / `bg--4` for those
+   put it a few pixels and a few shades off on every row.
+
+   Everything here is scoped under #offcanvas__connect_module so it cannot leak
+   into the other offcanvas panels on the zone page.
+   ========================================================================== */
+
+#offcanvas__connect_module {
+    --offcanvas-width: 600px;
+    --cm-card: #f5f6f8;
+    --cm-line: #e6e9ee;
+    --cm-field-line: #e1e5ea;
+    --cm-title: #334257;
+    --cm-muted: #7a8699;
+    --cm-cream: #fff8ec;
+    --cm-amber: #f5a623;
+    --cm-link: #0177cd;
+    background-color: #fff;
+}
+
+/* ── header ───────────────────────────────────────────────────────────── */
+#offcanvas__connect_module .cm-header {
+    height: 60px;
+    padding: 0 24px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+#offcanvas__connect_module .cm-header__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--cm-title);
+}
+
+#offcanvas__connect_module .cm-close {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--cm-line);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--cm-title);
+    font-size: 13px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ── body ─────────────────────────────────────────────────────────────── */
+/* The sticky notice is clamped to this element's content box, so bottom padding here
+   would leave a strip under the pinned card that the cards above show through. The
+   notice's own 20px sits below it instead. */
+#offcanvas__connect_module .cm-body {
+    padding: 20px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    /* Without this a flex item refuses to shrink below its content, so the body never
+       becomes the scroll container and the notice has nothing to stick to. */
+    min-height: 0;
+}
+
+#offcanvas__connect_module .cm-body > .admin-alert--sticky {
+    margin-bottom: 20px;
+}
+
+/* With the ready-state notice sitting in normal flow there is nothing pinned, so the
+   body wants its bottom padding back. */
+#offcanvas__connect_module .cm-body--padded {
+    padding-bottom: 20px;
+}
+
+#offcanvas__connect_module .cm-card {
+    background: var(--cm-card);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* The Max COD card's divider runs the full card width, so its body sits outside the
+   card padding and pulls itself back level. With the switch OFF that body is hidden and
+   the card needs its own bottom padding back, or the subtitle sits on the card's edge. */
+#offcanvas__connect_module .cm-card--split.is-open {
+    padding-bottom: 0;
+}
+
+#offcanvas__connect_module .cm-card__title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--cm-title);
+}
+
+#offcanvas__connect_module .cm-card__subtitle {
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--cm-muted);
+}
+
+#offcanvas__connect_module .cm-label {
+    display: block;
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--cm-title);
+}
+
+/* The notices are the shared .admin-alert component. Only the link colour and the
+   danger variant are added here — the rest is admin-shared.css. */
+#offcanvas__connect_module .admin-alert a {
+    color: var(--cm-link);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+#offcanvas__connect_module .admin-alert strong { font-weight: 600; }
+
+#offcanvas__connect_module .admin-alert--danger { background: #fdeced; }
+
+#offcanvas__connect_module .admin-alert--danger .admin-alert__icon { background: #d9534f; }
+
+/* ── payment methods ──────────────────────────────────────────────────── */
+#offcanvas__connect_module .cm-panel {
+    background: #fff;
+    border: 1px solid var(--cm-line);
+    border-radius: 8px;
+}
+
+#offcanvas__connect_module .cm-payments {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    margin-top: 16px;
+}
+
+#offcanvas__connect_module .cm-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    cursor: pointer;
+}
+
+#offcanvas__connect_module .cm-check input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border: 1.5px solid #c3cbd6;
+    border-radius: 4px;
+    background: #fff;
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+}
+
+#offcanvas__connect_module .cm-check input:checked {
+    background: var(--primary-clr);
+    border-color: var(--primary-clr);
+}
+
+#offcanvas__connect_module .cm-check input:checked::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+#offcanvas__connect_module .cm-check span {
+    font-size: 15px;
+    color: var(--cm-title);
+    white-space: nowrap;
+}
+
+/* ── the module picker ────────────────────────────────────────────────── */
+#offcanvas__connect_module .select2-container { width: 100% !important; }
+
+#offcanvas__connect_module .select2-container--default .select2-selection--multiple {
+    min-height: 46px;
+    padding: 3px 34px 3px 8px;
+    border: 1px solid var(--cm-field-line) !important;
+    border-radius: var(--field-radius);
+    background: #fff;
+}
+
+/* select2's base rule renders the chip list as overflow:hidden, single-line text — fine for a
+   single selected value, but it clips the chips instead of wrapping them onto new rows as more
+   are added. Same fix as .multiple-select2 elsewhere in this theme (style.css): a real flex-wrap
+   container, so the box grows cleanly by rows instead of clipping/overlapping its own content. */
+#offcanvas__connect_module .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    overflow: visible;
+    white-space: normal;
+}
+
+/* theme.minc619.css forces every select2 search field to width:100% !important, which cannot
+   share a row with a chip and was what pushed the field (and the box) onto its own second row
+   the moment one chip existed. Scoped back down here so it sits inline with the chips instead. */
+#offcanvas__connect_module .select2-container--default .select2-selection--multiple .select2-search--inline,
+#offcanvas__connect_module .select2-container--default .select2-selection--multiple .select2-search__field {
+    width: auto !important;
+    height: 26px;
+    margin: 0;
+    padding: 0;
+}
+
+/* The chip itself is the theme's `.js-select2-custom` skin — grey pill, round grey
+   remove — which is already what the mock draws. Only the box around it is ours. */
+#offcanvas__connect_module .cm-picker { position: relative; }
+
+#offcanvas__connect_module .cm-picker__caret {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 14px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #6b7684;
+}
+
+/* ── Max COD ──────────────────────────────────────────────────────────── */
+#offcanvas__connect_module .cm-cod-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+#offcanvas__connect_module .cm-cod-body {
+    margin: 16px -20px 0;
+    padding: 20px;
+    border-top: 1px solid var(--cm-line);
+}
+
+#offcanvas__connect_module .cm-cod-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: #fff;
+    border: 1px solid #edf0f3;
+    border-radius: 8px;
+    padding: 18px 20px;
+}
+
+#offcanvas__connect_module .cm-cod-row + .cm-cod-row { margin-top: 12px; }
+
+/* The name column takes the slack; the field column is fixed, so without this the
+   name is squeezed to nothing and its hint wraps one word per line. */
+#offcanvas__connect_module .cm-cod-row__label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#offcanvas__connect_module .cm-cod-row__name {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cm-title);
+}
+
+#offcanvas__connect_module .cm-cod-row__hint {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--cm-muted);
+}
+
+#offcanvas__connect_module .cm-cod-row__field {
+    width: 240px;
+    flex-shrink: 0;
+}
+
+#offcanvas__connect_module .cm-cod-row__field label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: var(--cm-title);
+    white-space: nowrap;
+}
+
+#offcanvas__connect_module .cm-cod-row__field .cm-req { color: #ff6d6d; }
+
+#offcanvas__connect_module .cm-cod-row__field input {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--cm-field-line);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 15px;
+    color: var(--cm-title);
+}
+
+#offcanvas__connect_module .cm-cod-row__field input::placeholder { color: #adb5bd; }
+
+/* The toggle is the theme's, held to the size the mock draws. */
+#offcanvas__connect_module .cm-toggle { flex-shrink: 0; margin: 2px 0 0; }
+
+/* ── footer ───────────────────────────────────────────────────────────── */
+#offcanvas__connect_module .cm-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--cm-line);
+    background: #fff;
+    flex-shrink: 0;
+}
+
+#offcanvas__connect_module .cm-footer .btn {
+    min-width: 120px;
+    height: 44px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* The theme clamps every offcanvas to 400px under 1200px wide. The mock is a desktop
+   layout, so below that the COD row stacks instead of squeezing its two columns. */
+@media screen and (max-width: 1199px) {
+    #offcanvas__connect_module .cm-cod-row {
+        display: block;
+    }
+
+    #offcanvas__connect_module .cm-cod-row__field {
+        width: 100%;
+        margin-top: 14px;
+    }
+
+    #offcanvas__connect_module .cm-payments {
+        flex-wrap: wrap;
+        gap: 14px 18px;
+        justify-content: flex-start;
+    }
+}
+
+/* ==========================================================================
+   Disconnect warning dialog
+   The drawer is position: fixed with z-index 1050, which opens a stacking
+   context: a dialog nested inside it is painted at 1050 whatever z-index it
+   asks for, while Bootstrap puts the modal's backdrop on <body> — 1054 under
+   the v2 chrome. The backdrop then covered the dialog and swallowed its
+   clicks, and since BS4 binds dismiss to .modal rather than to the backdrop
+   there was no way out of it but a reload.
+
+   The script moves the dialog out to <body> so it is a sibling of the
+   backdrop rather than a descendant of the drawer. This pins it above both,
+   under either chrome — the legacy theme's backdrop sits at 102, the v2
+   sheet's at 1054, and the drawer itself at 1050.
+   ========================================================================== */
+#connect-module-disconnect-warning-modal {
+    z-index: 1060;
+}
