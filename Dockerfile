@@ -17,11 +17,13 @@ FROM node:22-bookworm-slim AS assets
 
 WORKDIR /app
 
+ENV NODE_ENV=development
+
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --include=dev
 
 COPY . .
-RUN npm run build
+RUN npx vite build && rm -f build && ln -s public/build build
 
 FROM php:8.3-fpm-bookworm
 
