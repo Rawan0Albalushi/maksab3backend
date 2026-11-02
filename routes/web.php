@@ -21,6 +21,7 @@ use App\Http\Controllers\{
     SenangPayController,
     SslCommerzPaymentController,
     StripePaymentController,
+    ThawaniPaymentController,
     VendorController,
 };
 use Illuminate\Support\Facades\Route;
@@ -184,6 +185,13 @@ Route::prefix('payment')->group(function () {
             Route::any('response', [PaytabsController::class, 'response'])->name('response');
         });
     });
+    Route::prefix('thawani')->name('thawani.')->group(function () {
+        Route::controller(ThawaniPaymentController::class)->group(function () {
+            Route::get('pay', 'index')->name('pay');
+            Route::any('callback', 'callback')->name('callback')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+            Route::any('cancel', 'cancel')->name('cancel')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+        });
+    });
 });
 }
 Route::get('/test', function () {
@@ -219,14 +227,52 @@ Route::prefix('deliveryman')->name('deliveryman.')->group(function () {
     });
 });
 Route::get('/image-proxy', function () {
-$url = request('url');
-if (!$url) {
-abort(400, 'Missing url parameter');
-}
-$response = Http::withHeaders([
-'User-Agent' => 'Laravel-Image-Proxy'
-])->get($url);
-return response($response->body(), $response->status())
-->header('Content-Type', $response->header('Content-Type'))
-->header('Access-Control-Allow-Origin', '*');
+    $url = request('url');
+    if (! is_string($url) || $url === '') {
+        abort(400, 'Missing url parameter');
+    }
+
+    // Local storage URLs are read from disk. Fetching them over HTTP deadlocks
+    // `php artisan serve`, which handles one request at a time, and the rest of
+    // the home APIs sit in the queue until that request times out.
+    $path = rawurldecode((string) (parse_url($url, PHP_URL_PATH) ?: ''));
+    $relative = null;
+    if (str_starts_with($path, '/storage/app/public/')) {
+        $relative = substr($path, strlen('/storage/app/public/'));
+    } elseif (str_starts_with($path, '/storage/')) {
+        $relative = substr($path, strlen('/storage/'));
+    }
+
+    if ($relative !== null) {
+        $relative = ltrim(str_replace(['\\', "\0"], ['/', ''], $relative), '/');
+        $root = realpath(storage_path('app/public'));
+        $real = ($root && $relative !== '' && ! str_contains($relative, '..'))
+            ? realpath($root.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $relative))
+            : false;
+        $prefix = $root ? rtrim(str_replace('\\', '/', $root), '/').'/' : '';
+        $normalized = $real ? str_replace('\\', '/', $real) : '';
+
+        if ($root && $real && is_file($real) && str_starts_with(strtolower($normalized), strtolower($prefix))) {
+            return response()->file($real, [
+                'Access-Control-Allow-Origin' => '*',
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+        }
+
+        abort(404);
+    }
+
+    $host = parse_url($url, PHP_URL_HOST);
+    $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+    if ($host && $appHost && strcasecmp((string) $host, (string) $appHost) === 0) {
+        abort(404);
+    }
+
+    $response = Http::connectTimeout(3)->timeout(8)->withHeaders([
+        'User-Agent' => 'Laravel-Image-Proxy',
+    ])->get($url);
+
+    return response($response->body(), $response->status())
+        ->header('Content-Type', $response->header('Content-Type') ?: 'application/octet-stream')
+        ->header('Access-Control-Allow-Origin', '*');
 });

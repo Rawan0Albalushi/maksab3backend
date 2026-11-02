@@ -3936,4 +3936,6 @@
   'Add new deliveryman' => 'إضافة تسليم جديد رجل',
   'Want to delete this method information?' => 'تريد حذف معلومات هذه الطريقة',
   'Inch' => 'Inch',
+  'Kilogram' => 'Kilogram',
+  'Kilometer' => 'Kilometer',
 );
