@@ -8717,4 +8717,10 @@
   'asdfa' => 'Asdfa',
   'This add-on stays off until you upload a compatible version.' => 'This add-on stays off until you upload a compatible version.',
   'Demo Module' => 'Demo Module',
+  'Are you sure you want to turn on combined payment?' => 'Are you sure you want to turn on combined payment?',
+  'Order cancelled successfully' => 'Order cancelled successfully',
+  'Min purchase must be greater than zero' => 'Min purchase must be greater than zero',
+  'Limit for same user must be greater than zero' => 'Limit for same user must be greater than zero',
+  'Discount must be greater than zero' => 'Discount must be greater than zero',
+  'A vehicle category sets the delivery range, weight and package sizes a delivery man can take, and routes orders to the right riders.' => 'A vehicle category sets the delivery range, weight and package sizes a delivery man can take, and routes orders to the right riders.',
 );
